@@ -497,10 +497,12 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
 // --- Main App Component ---
 
 export default function CreateTicket() {
+  const token = localStorage.getItem('token');
   const [tab, setTab] = useState('manual');
   const [expandedId, setExpandedId] = useState('1');
   const [selectedOrg, setSelectedOrg] = useState('Al-Nahda Business Group');
   const [selectedClient, setSelectedClient] = useState('Yasmin Saeed (IT Coordinator)');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
     requestId: 'REQ-2026-4954',
@@ -525,14 +527,53 @@ export default function CreateTicket() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCreateTicket = () => {
+  const buildLocalRequestId = () => {
+    const now = new Date();
+    return `REQ-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  };
+
+  const handleCreateTicket = async () => {
     if (!formData.application || !formData.issueType || !formData.issueLevel || !formData.issueDescription) {
       toast.error('Please complete all required fields');
       return;
     }
-    
-    toast.success('Ticket created successfully!');
-    console.log('Ticket created:', formData);
+
+    if (!token) {
+      toast.error('Please login first');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch('http://localhost:2300/api/tickets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || 'Ticket creation failed');
+      }
+
+      toast.success('Ticket created successfully! Room provisioned.');
+      setFormData((prev) => ({
+        ...prev,
+        requestId: buildLocalRequestId(),
+        application: '',
+        issueType: '',
+        issueLevel: '',
+        issueDescription: ''
+      }));
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -664,8 +705,8 @@ export default function CreateTicket() {
                   <button className="create-ticket-reset-button" onClick={handleCancel}>
                     Reset Workspace
                   </button>
-                  <button className="create-ticket-submit-button" onClick={handleCreateTicket}>
-                    Provision Ticket
+                  <button className="create-ticket-submit-button" onClick={handleCreateTicket} disabled={isSubmitting}>
+                    {isSubmitting ? 'Provisioning...' : 'Provision Ticket'}
                     <Send size={16} />
                   </button>
                 </div>
