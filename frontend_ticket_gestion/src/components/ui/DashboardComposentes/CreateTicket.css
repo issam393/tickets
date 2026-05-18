@@ -62,7 +62,6 @@
   display: flex;
   flex-direction: column;
   align-items: start;
-  font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ----- MAIN CONTAINER ----- */
@@ -101,7 +100,7 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmer 6s linear infinite;
-  font-family: 'Syne', sans-serif;
+
 }
 
 .create-ticket-subtitle {
@@ -138,6 +137,8 @@
 
 /* ----- RIGHT SIDEBAR ----- */
 .create-ticket-right-sidebar {
+  position: relative;
+  top : 59px;
   width: 320px;
   flex-shrink: 0;
 }
@@ -1071,4 +1072,118 @@
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+
+/* Ensure the select card stacks above the profile card */
+.right-sidebar-card {
+  position: relative;   /* was not set before */
+  z-index: 2;           /* higher than the profile card */
+}
+
+/* Profile card – keep original position, add lower z-index */
+.right-sidebar-profile-card {
+  position: relative;
+  z-index: 1;           
+  overflow: hidden;     /* keep original clip for internal blur */
+}
+
+/* ----- Assign Role Wrapper (relative positioning for popover) ----- */
+.assign-role-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ----- Assign Role Button (same as before, but now inside wrapper) ----- */
+.create-ticket-assign-role-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(99, 179, 237, 0.35);
+  color: var(--accent-cyan);
+}
+
+.create-ticket-assign-role-button:hover {
+  background: rgba(99, 179, 237, 0.1);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 8px rgba(99, 179, 237, 0.2);
+  transform: translateY(-1px);
+  color: white;
+}
+
+/* ----- Role Selector Popover (dark glass) ----- */
+.role-selector-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: rgba(13, 18, 37, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  box-shadow: var(--shadow-card);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.role-option {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.role-option:hover {
+  background: rgba(99, 179, 237, 0.15);
+  border-color: rgba(99, 179, 237, 0.4);
+  color: white;
+}
+
+/* ----- Assigned Role Badge (unchanged) ----- */
+.assigned-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 16px;
+  border-radius: 8px;
+  background: rgba(99, 179, 237, 0.08);
+  border: 1px solid rgba(99, 179, 237, 0.25);
+  backdrop-filter: blur(8px);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.assigned-role-label {
+  color: var(--text-secondary);
+}
+
+.assigned-role-value {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Keep existing .create-ticket-form-actions as before, but flex-wrap helps */
+.create-ticket-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
 }

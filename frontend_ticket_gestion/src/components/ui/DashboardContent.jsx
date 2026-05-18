@@ -6,6 +6,7 @@ import TicketsContents from './DashboardComposentes/Tickets/TicketsContents';
 import Contacts from './DashboardComposentes/Contacts';
 import CreateTicket from './DashboardComposentes/CreateTicket';
 import PKIDashboard from './Dashboard/PKIDashboard';
+import SDHomeDashboard from './Dashboard/SDHomeDashboard';
 
 
 function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMessages }) {
@@ -26,7 +27,6 @@ function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMes
       return <Meetings />;
     case 'Dashboard':
     default:
-      return <PKIDashboard onViewAllTickets={onViewAllTickets} onMessages={onMessages} />;
   }
 }
 

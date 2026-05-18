@@ -11,18 +11,11 @@ import {
   Building2,
   User,
   Phone,
-  AlertCircle,
-  CheckCircle2,
-  Search,
-  ExternalLink,
-  History
 } from 'lucide-react';
 import './CreateTicket.css';
-import { FaPlus } from "react-icons/fa";
 import toast, { Toaster } from 'react-hot-toast';
 
 // --- Constants ---
-
 const emailTickets = [
   {
     id: '1',
@@ -54,7 +47,6 @@ const emailTickets = [
     subject: 'Bug Report: Document upload stuck',
     sender: 'hassan.omar@holdings.ae',
     date: 'Mar 30, 2026 at 05:20 PM',
-
   },
 ];
 
@@ -92,7 +84,6 @@ const ISSUE_LEVEL_OPTIONS = [
 ];
 
 // --- Tab Button Component ---
-
 function TabButton({ active, onClick, children, badge, icon: Icon }) {
   return (
     <button
@@ -112,7 +103,6 @@ function TabButton({ active, onClick, children, badge, icon: Icon }) {
 }
 
 // --- Input Field Component ---
-
 function InputField({ label, required, disabled, placeholder, value, onChange, type = "text" }) {
   return (
     <div className="input-field">
@@ -133,7 +123,6 @@ function InputField({ label, required, disabled, placeholder, value, onChange, t
 }
 
 // --- Custom Select Field Component ---
-
 function CustomSelectField({ label, required, placeholder, options, value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -195,7 +184,6 @@ function CustomSelectField({ label, required, placeholder, options, value, onCha
 }
 
 // --- Text Area Component ---
-
 function TextAreaField({ label, required, placeholder, rows = 4, value, onChange }) {
   return (
     <div className="textarea-field">
@@ -215,7 +203,6 @@ function TextAreaField({ label, required, placeholder, rows = 4, value, onChange
 }
 
 // --- Email Ticket Card Component ---
-
 function EmailTicketCard({ ticket, expanded, onToggle }) {
   return (
     <div className={`email-card ${expanded ? 'expanded' : ''}`}>
@@ -249,8 +236,6 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
               </span>
             )}
           </div>
-          
-        
         </div>
 
         <div className={`email-chevron ${expanded ? 'expanded' : ''}`}>
@@ -305,7 +290,6 @@ Al-Nahda Business Group`}
 }
 
 // --- Sidebar Card Component (Right Sidebar) ---
-
 function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedClient, onClientChange }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false);
@@ -495,11 +479,11 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
 }
 
 // --- Main App Component ---
-
 export default function CreateTicket() {
   const token = localStorage.getItem('token');
   const [tab, setTab] = useState('manual');
-  const [expandedId, setExpandedId] = useState('1');
+  const [expandedId, setExpandedId] = useState(null);
+  const [readIds, setReadIds] = useState([]);
   const [selectedOrg, setSelectedOrg] = useState('Al-Nahda Business Group');
   const [selectedClient, setSelectedClient] = useState('Yasmin Saeed (IT Coordinator)');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -513,6 +497,23 @@ export default function CreateTicket() {
     issueDescription: ''
   });
 
+  const [assignedRole, setAssignedRole] = useState(null); // 'IT' or 'PKI'
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+
+  // Ref for closing the role selector when clicking outside
+  const roleSelectorRef = useRef(null);
+
+  // Close role selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showRoleSelector && roleSelectorRef.current && !roleSelectorRef.current.contains(event.target)) {
+        setShowRoleSelector(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showRoleSelector]);
+
   const handleClientChange = (client) => {
     const clientName = client.split(' ')[0];
     setFormData(prev => ({
@@ -525,6 +526,11 @@ export default function CreateTicket() {
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear assigned role when relevant fields change
+    if (field === 'issueLevel' || field === 'application') {
+      setAssignedRole(null);
+      setShowRoleSelector(false);
+    }
   };
 
   const buildLocalRequestId = () => {
@@ -584,12 +590,63 @@ export default function CreateTicket() {
       issueLevel: '',
       issueDescription: ''
     });
+    setAssignedRole(null);
+    setShowRoleSelector(false);
     toast('Form has been reset', { icon: '🔄' });
   };
 
+  // --- Assign Role Logic (opens selector) ---
+  const handleAssignRoleClick = () => {
+    const { issueLevel } = formData;
+
+    if (!issueLevel) {
+      toast.error('Please select an SLA level first.');
+      return;
+    }
+
+    if (issueLevel === 'Level 1 Assistance') {
+      toast('Level 1 tickets do not require IT/PKI assignment.', { icon: 'ℹ️' });
+      setAssignedRole(null);
+      setShowRoleSelector(false);
+      return;
+    }
+
+    // Toggle the role selector popover
+    setShowRoleSelector(prev => !prev);
+  };
+
+  // Function called when user picks a team from the popover
+  const handleSelectRole = (role) => {
+    setAssignedRole(role);
+    setShowRoleSelector(false);
+    toast.success(`Ticket assigned to ${role} team`);
+  };
+
+  // Toggle email card & mark as read if needed
+  const handleEmailToggle = (ticketId) => {
+    setExpandedId((prevExpandedId) => {
+      const isOpening = prevExpandedId !== ticketId;
+
+      if (isOpening) {
+        setReadIds((prevReadIds) => {
+          if (prevReadIds.includes(ticketId)) {
+            return prevReadIds;
+          }
+          return [...prevReadIds, ticketId];
+        });
+      }
+
+      return isOpening ? ticketId : null;
+    });
+  };
+
+  const unreadCount = Math.max(
+    0,
+    emailTickets.length - new Set(readIds).size
+  );
+
   return (
     <div className="create-ticket-app dark-mode">
-      {/* Toast Notifications Container */}
       <Toaster 
         position="top-right"
         toastOptions={{
@@ -602,15 +659,12 @@ export default function CreateTicket() {
         }}
       />
 
-      {/* Animated Background Glow */}
       <div className="create-ticket-glow-bg">
         <div className="create-ticket-glow-circle create-ticket-glow-circle-1" />
         <div className="create-ticket-glow-circle create-ticket-glow-circle-2" />
       </div>
 
-      {/* Main Container */}
       <div className="create-ticket-main-container">
-        {/* Header */}
         <header className="create-ticket-header">
           <div className="create-ticket-header-title-section">
             <h1 className="create-ticket-main-title">
@@ -622,11 +676,8 @@ export default function CreateTicket() {
           </div>
         </header>
 
-        {/* Content Wrapper */}
         <div className={`create-ticket-content-wrapper ${tab === 'email' ? 'full-width' : ''}`}>
-          {/* Main Content Area */}
           <div className="create-ticket-main-content">
-            {/* Tabs */}
             <div className="create-ticket-tabs-container">
               <TabButton 
                 active={tab === 'manual'} 
@@ -638,14 +689,13 @@ export default function CreateTicket() {
               <TabButton 
                 active={tab === 'email'} 
                 onClick={() => setTab('email')} 
-                badge={5}
+                badge={unreadCount}
                 icon={Inbox}
               >
                 Email Processing
               </TabButton>
             </div>
 
-            {/* Manual Ticket Form */}
             {tab === 'manual' ? (
               <div className="create-ticket-manual-form">
                 <div className="create-ticket-form-grid">
@@ -705,14 +755,50 @@ export default function CreateTicket() {
                   <button className="create-ticket-reset-button" onClick={handleCancel}>
                     Reset Workspace
                   </button>
+<<<<<<< HEAD
                   <button className="create-ticket-submit-button" onClick={handleCreateTicket} disabled={isSubmitting}>
                     {isSubmitting ? 'Provisioning...' : 'Provision Ticket'}
+=======
+                  
+                  {/* Assign Role Button & Popover */}
+                  <div className="assign-role-wrapper" ref={roleSelectorRef}>
+                    <button className="create-ticket-assign-role-button" onClick={handleAssignRoleClick}>
+                      Assign Role
+                    </button>
+                    {showRoleSelector && (
+                      <div className="role-selector-popover">
+                        <button 
+                          className="role-option role-it" 
+                          onClick={() => handleSelectRole('IT')}
+                        >
+                          <span>IT</span>
+                        </button>
+                        <button 
+                          className="role-option role-pki" 
+                          onClick={() => handleSelectRole('PKI')}
+                        >
+                          <span>PKI</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <button className="create-ticket-submit-button" onClick={handleCreateTicket}>
+                    Provision Ticket
+>>>>>>> 318fe51 (last front chabge)
                     <Send size={16} />
                   </button>
+                  
+                  {/* Assigned Role Badge */}
+                  {assignedRole && (
+                    <div className="assigned-role-badge">
+                      <span className="assigned-role-label">Assigned Team:</span>
+                      <span className="assigned-role-value">{assignedRole}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
-              /* Email Processing View */
               <div className="create-ticket-email-container">
                 <div className="create-ticket-email-list">
                   {emailTickets.map((ticket) => (
@@ -720,7 +806,7 @@ export default function CreateTicket() {
                       <EmailTicketCard
                         ticket={ticket}
                         expanded={expandedId === ticket.id}
-                        onToggle={() => setExpandedId(expandedId === ticket.id ? null : ticket.id)}
+                        onToggle={() => handleEmailToggle(ticket.id)}
                       />
                     </div>
                   ))}
@@ -729,7 +815,6 @@ export default function CreateTicket() {
             )}
           </div>
 
-          {/* Right Sidebar - Only visible in Manual tab */}
           {tab === 'manual' && (
             <div className="create-ticket-right-sidebar">
               <SidebarCard 
