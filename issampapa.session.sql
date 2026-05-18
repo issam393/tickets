@@ -1,1 +1,1 @@
-select * from messages;
+select * from meetings;

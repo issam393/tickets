@@ -53,6 +53,38 @@ async function initializeMessagingSchema() {
              ON messages (room_id, createdAt)`
         );
     }
+
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS meetings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            start_time_utc VARCHAR(35) NOT NULL,
+            end_time_utc VARCHAR(35) NOT NULL,
+            organizer_id INT NOT NULL,
+            invitee_id INT NULL,
+            ticket_id INT NULL,
+            location VARCHAR(255) NULL,
+            description TEXT NULL,
+            status ENUM('Pending', 'Accepted', 'Rejected') DEFAULT 'Pending',
+            rejection_reason TEXT NULL,
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (organizer_id) REFERENCES employees(id) ON DELETE CASCADE,
+            FOREIGN KEY (invitee_id) REFERENCES employees(id) ON DELETE SET NULL,
+            FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE SET NULL
+        )`
+    );
+
+    const [meetingIndexes] = await db.execute(
+        `SHOW INDEX FROM meetings WHERE Key_name = 'idx_meetings_start_time'`
+    );
+
+    if (!meetingIndexes.length) {
+        await db.execute(
+            `CREATE INDEX idx_meetings_start_time
+             ON meetings (start_time_utc)`
+        );
+    }
 }
 
 module.exports = initializeMessagingSchema;

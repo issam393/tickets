@@ -85,3 +85,25 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 CREATE INDEX idx_messages_room_created_at ON messages (room_id, createdAt);
+
+--@block
+CREATE TABLE IF NOT EXISTS meetings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    start_time_utc VARCHAR(35) NOT NULL,
+    end_time_utc VARCHAR(35) NOT NULL,
+    organizer_id INT NOT NULL,
+    invitee_id INT NULL,
+    ticket_id INT NULL,
+    location VARCHAR(255) NULL,
+    description TEXT NULL,
+    status ENUM('Pending', 'Accepted', 'Rejected') DEFAULT 'Pending',
+    rejection_reason TEXT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (organizer_id) REFERENCES employees(id) ON DELETE CASCADE,
+    FOREIGN KEY (invitee_id) REFERENCES employees(id) ON DELETE SET NULL,
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_meetings_start_time ON meetings (start_time_utc);
