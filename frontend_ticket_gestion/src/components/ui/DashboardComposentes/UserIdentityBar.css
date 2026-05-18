@@ -1,0 +1,248 @@
+/* UserIdentityBar.css – Modern glass‑morphic user menu */
+
+/* Use the same CSS custom properties as the dashboard, or fallback values */
+:root {
+  --ub-bg: rgba(10, 20, 35, 0.75);
+  --ub-border: rgba(255, 255, 255, 0.08);
+  --ub-border-strong: rgba(255, 255, 255, 0.12);
+  --ub-text: #edf4ff;
+  --ub-text-soft: #b8c6dc;
+  --ub-text-muted: #8fa3bf;
+  --ub-primary: #4f8cff;
+  --ub-success: #30d58a;
+  --ub-warning: #f6b84c;
+  --ub-danger: #ff6b86;
+  --ub-surface: rgba(14, 25, 44, 0.9);
+  --ub-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  --ub-radius-md: 16px;
+  --ub-radius-lg: 22px;
+  --ub-transition: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Main container */
+.user-identity-bar {
+  position: relative;
+  display: inline-block;
+}
+
+/* Main button (always visible) */
+.user-identity-button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--ub-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--ub-border);
+  border-radius: 60px;
+  padding: 8px 12px 8px 8px;
+  cursor: pointer;
+  transition: all var(--ub-transition);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.user-identity-button:hover {
+  background: rgba(17, 32, 57, 0.96);
+  border-color: var(--ub-border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.user-identity-button:active {
+  transform: translateY(0);
+}
+
+/* Avatar circle */
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--ub-primary), #6ea8ff);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: white;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* User text block */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  min-width: 130px;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ub-text);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.user-email {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--ub-text-muted);
+  line-height: 1.3;
+}
+
+/* Role badge (pill) */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(79, 140, 255, 0.15);
+  border: 1px solid rgba(79, 140, 255, 0.25);
+  border-radius: 40px;
+  padding: 5px 12px;
+}
+
+.role-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--ub-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.3);
+}
+
+.role-text {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--ub-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ---------- Dropdown Menu ---------- */
+.dropdown-menu {
+  position: absolute;
+  top:4px;
+  right: -300px;
+  width: 280px;
+  background: linear-gradient(180deg, rgba(18, 31, 52, 0.98), rgba(11, 22, 39, 0.96));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--ub-border);
+  border-radius: var(--ub-radius-lg);
+  box-shadow: var(--ub-shadow);
+  overflow: hidden;
+  animation: fadeInDown 0.2s ease-out;
+}
+
+/* Dropdown header (user summary) */
+.dropdown-header {
+  padding: 16px 20px;
+}
+
+.dropdown-user-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dropdown-avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--ub-primary), #6ea8ff);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: white;
+  text-transform: uppercase;
+}
+
+.dropdown-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--ub-text);
+  margin-bottom: 4px;
+}
+
+.dropdown-email {
+  font-size: 0.75rem;
+  color: var(--ub-text-muted);
+}
+
+/* Divider */
+.dropdown-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ub-border), transparent);
+  margin: 4px 0;
+}
+
+/* Menu items */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ub-text-soft);
+  cursor: pointer;
+  transition: all var(--ub-transition);
+  text-align: left;
+}
+
+.dropdown-item svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ub-text);
+}
+
+.dropdown-item.logout {
+  color: var(--ub-danger);
+}
+
+.dropdown-item.logout:hover {
+  background: rgba(255, 107, 134, 0.12);
+  color: #ff8ea3;
+}
+
+/* Animation */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .user-info {
+    display: none;
+  }
+  .user-identity-button {
+    padding: 6px;
+  }
+  .role-badge {
+    padding: 4px 10px;
+  }
+  .role-text {
+    font-size: 0.7rem;
+  }
+  .dropdown-menu {
+    width: 260px;
+    right: -10px;
+  }
+}
