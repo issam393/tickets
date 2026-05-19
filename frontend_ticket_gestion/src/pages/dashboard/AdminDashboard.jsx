@@ -17,14 +17,6 @@ import toast from "react-hot-toast";
 import UserIdentityBar from "../../components/ui/DashboardComposentes/UserIdentityBar";
 import "./AdminDashboard.css";
 
-
-
-const ROLES = {
-  ADMIN: { key: "ADMIN", label: "Admin", tone: "destructive" },
-  TECHNICIAN: { key: "TECHNICIAN", label: "Technician", tone: "info" },
-  AGENT: { key: "AGENT", label: "Agent", tone: "primary" },
-};
-
 const SERVICES_DATA = {
   1: { key: 1, label: "IT", tone: "primary" },
   2: { key: 2, label: "SD", tone: "info" },
@@ -96,7 +88,6 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
   };
 
   return (
-
     <div className="ad-user-table-container">
       <table className="ad-user-table">
         <thead>
@@ -108,14 +99,12 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
             <th>Email</th>
             <th>Phone</th>
             <th>Service</th>
-            <th>Role</th>
             <th>Status</th>
             <th className="ad-actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
           {users.map((u) => {
-            const role = ROLES[u.role_name] || { label: u.role_name || "Unknown", tone: "info" };
             const service = SERVICES_DATA[u.service_id] || { label: u.service_id || "Unknown", tone: "info" };
             return (
               <tr key={u.id}>
@@ -135,11 +124,6 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
                 <td>
                   <span className={`ad-role-badge ${BADGE_CLASSES[service.tone]}`}>
                     {service.label}
-                  </span>
-                </td>
-                <td>
-                  <span className={`ad-role-badge ${BADGE_CLASSES[role.tone]}`}>
-                    {role.label}
                   </span>
                 </td>
                 <td>
@@ -183,7 +167,7 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
           })}
           {users.length === 0 && (
             <tr>
-              <td colSpan="10" className="ad-empty-message">
+              <td colSpan="9" className="ad-empty-message">
                 No users match the current filters.
               </td>
             </tr>
@@ -241,16 +225,13 @@ const EditUserModal = ({ user, open, onOpenChange, onSave }) => {
     setForm(user);
   }, [user]);
   
-  // Validation function
   const validateForm = (formData) => {
     const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'phone'];
     const allFieldsFilled = requiredFields.every(field => 
       formData[field] && formData[field].toString().trim() !== ''
     );
     
-    // Validate email format
     const emailValid = !formData.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-    
     const phoneValid = !formData.phone || /^[0-9+\-\s()]{8,20}$/.test(formData.phone);
     
     return allFieldsFilled && emailValid && phoneValid;
@@ -276,7 +257,7 @@ const EditUserModal = ({ user, open, onOpenChange, onSave }) => {
       isOpen={open}
       onClose={() => onOpenChange(false)}
       title="Edit User"
-      description="Update profile, role and account status for this employee."
+      description="Update profile, service and account status for this employee."
     >
       <form id="modal-form" onSubmit={handleSubmit}>
         <fieldset className="ad-edit-form-section">
@@ -331,19 +312,8 @@ const EditUserModal = ({ user, open, onOpenChange, onSave }) => {
         </fieldset>
 
         <fieldset className="ad-edit-form-section">
-          <legend>Role & Service</legend>
+          <legend>Service</legend>
           <div className="ad-form-row">
-            <div className="ad-form-field">
-              <label>Role</label>
-              <select
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-              >
-                <option value="ADMIN">Admin</option>
-                <option value="TECHNICIAN">Technician</option>
-                <option value="AGENT">Agent</option>
-              </select>
-            </div>
             <div className="ad-form-field">
               <label>Service</label>
               <select
@@ -405,7 +375,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
     phone: "",
     password: "",
     service_id: 1,
-    role: "AGENT",
     status: "Active"
   });
 
@@ -458,25 +427,11 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
     return error === "";
   };
 
-  // Check if the entire form is valid
-  const checkFormValidity = (formData) => {
-    const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'phone', 'password'];
-    const allFieldsFilled = requiredFields.every(field => 
-      formData[field] && formData[field].toString().trim() !== ''
-    );
-    
-    const hasNoErrors = Object.keys(errors).every(key => !errors[key]);
-    const allFieldsValid = requiredFields.every(field => validateField(field, formData[field]));
-    
-    return allFieldsFilled && hasNoErrors && allFieldsValid;
-  };
-
   const handleChange = (name, value) => {
     setForm(prev => ({ ...prev, [name]: value }));
     validateField(name, value);
   };
 
-  // Update isValid whenever form or errors change
   useEffect(() => {
     const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'phone', 'password'];
     let allValid = true;
@@ -487,7 +442,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
       }
     });
     
-    // Check for any errors
     const hasErrors = Object.values(errors).some(error => error !== '');
     const isValidForm = allValid && !hasErrors;
     
@@ -498,7 +452,7 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
     e.preventDefault();
 
     const isValid = Object.keys(form).every(key => {
-      if (key === "service_id" || key === "role" || key === "status") return true;
+      if (key === "service_id" || key === "status") return true;
       return validateField(key, form[key]);
     });
 
@@ -512,7 +466,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
         phone: "",
         password: "",
         service_id: 1,
-        role: "AGENT",
         status: "Active"
       });
       setErrors({});
@@ -641,10 +594,11 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
     </Modal>
   );
 };
+
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [serviceFilter, setServiceFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState(null);
@@ -652,16 +606,17 @@ const AdminDashboard = () => {
   const [createOpen, setCreateOpen] = useState(false);
 
   const token = localStorage.getItem('token');
-
-  const getRoleId = (role) => {
-    switch (role) {
-      case 'ADMIN': return 3;
-      case 'TECHNICIAN': return 1;
-      case 'AGENT': return 2;
-      default: return 2;
-    }
-  };
   const navigate = useNavigate();
+
+  // Build service filter options from SERVICES_DATA
+  const SERVICE_FILTER_OPTIONS = useMemo(() => {
+    const options = [{ value: "all", label: "All Services" }];
+    Object.values(SERVICES_DATA).forEach(service => {
+      options.push({ value: service.key.toString(), label: service.label });
+    });
+    return options;
+  }, []);
+
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -698,13 +653,6 @@ const AdminDashboard = () => {
     fetchUsers();
   }, []);
 
-  const ROLE_FILTER_OPTIONS = [
-    { value: "all", label: "All Roles" },
-    { value: "ADMIN", label: "Admin" },
-    { value: "TECHNICIAN", label: "Technician" },
-    { value: "AGENT", label: "Agent" },
-  ];
-
   const STATUS_FILTER_OPTIONS = [
     { value: "all", label: "All Status" },
     { value: "Active", label: "Active" },
@@ -712,7 +660,7 @@ const AdminDashboard = () => {
   ];
 
   const filtered = useMemo(() => users.filter(u => {
-    if (roleFilter !== "all" && u.role_name !== roleFilter) return false;
+    if (serviceFilter !== "all" && u.service_id !== parseInt(serviceFilter)) return false;
     if (statusFilter !== "all" && u.status !== statusFilter) return false;
     if (search) {
       const q = search.toLowerCase();
@@ -720,13 +668,12 @@ const AdminDashboard = () => {
       if (!hay.includes(q)) return false;
     }
     return true;
-  }), [users, roleFilter, statusFilter, search]);
+  }), [users, serviceFilter, statusFilter, search]);
 
   const stats = useMemo(() => ({
     total: users.length,
     active: users.filter(u => u.status === "Active").length,
     inactive: users.filter(u => u.status !== "Active").length,
-    supervisors: 0
   }), [users]);
 
   const serviceCounts = useMemo(() => {
@@ -769,7 +716,6 @@ const AdminDashboard = () => {
         email: updated.email,
         phone: updated.phone,
         service_id: updated.service_id,
-        role_id: getRoleId(updated.role),
         status: updated.status
       };
 
@@ -824,7 +770,6 @@ const AdminDashboard = () => {
         phone: newUserData.phone,
         password: newUserData.password,
         service_id: newUserData.service_id,
-        role_id: getRoleId(newUserData.role),
         status: newUserData.status
       };
 
@@ -872,7 +817,6 @@ const AdminDashboard = () => {
           <StatsCard label="Total Users" value={stats.total} icon={Users} tone="primary" />
           <StatsCard label="Active Users" value={stats.active} icon={CheckCircle2} tone="success" />
           <StatsCard label="Inactive Users" value={stats.inactive} icon={XCircle} tone="destructive" />
-          <StatsCard label="Supervisors" value={0} icon={Activity} tone="info" />
         </div>
 
         <ServiceDistribution counts={serviceCounts} />
@@ -905,9 +849,9 @@ const AdminDashboard = () => {
                 />
               </div>
               <FilterPills
-                options={ROLE_FILTER_OPTIONS}
-                value={roleFilter}
-                onChange={setRoleFilter}
+                options={SERVICE_FILTER_OPTIONS}
+                value={serviceFilter}
+                onChange={setServiceFilter}
               />
             </div>
 
