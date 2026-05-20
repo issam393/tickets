@@ -7,7 +7,7 @@ function normalizeRoom(room) {
 
     return {
         ...room,
-        allowed_roles: parseAllowedRoles(room.allowed_roles)
+        allowed_services: parseAllowedRoles(room.allowed_services)
     };
 }
 
@@ -21,26 +21,26 @@ async function getRoomByTicketId(ticketId) {
     return normalizeRoom(room);
 }
 
-function assertRoomAccess(room, role) {
+function assertRoomAccess(room, service) {
     if (!room) {
         throw new Error('Room not found');
     }
 
-    if (!canRoleAccessRoom(role, room.allowed_roles)) {
+    if (!canRoleAccessRoom(service, room.allowed_services)) {
         throw new Error('Access denied');
     }
 }
 
-async function listRoomsForRole(role) {
+async function listRoomsForRole(service) {
     const rooms = await roomRepository.getAccessibleRoomsByRole();
     return rooms
         .map(normalizeRoom)
-        .filter((room) => canRoleAccessRoom(role, room.allowed_roles));
+        .filter((room) => canRoleAccessRoom(service, room.allowed_services));
 }
 
-async function getRoomHistory(roomId, role) {
+async function getRoomHistory(roomId, service) {
     const room = await getRoomById(roomId);
-    assertRoomAccess(room, role);
+    assertRoomAccess(room, service);
 
     const history = await messageRepository.getRoomHistory(roomId);
     return history.map((message) => ({

@@ -27,7 +27,7 @@ function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMes
       return <Meetings />;
     case 'Dashboard':
     default:
-      return <PKIDashboard onViewAllTickets={onViewAllTickets} onMessages={onMessages} />;   
+      return <ManagerDaschboard onViewAllTickets={onViewAllTickets} onMessages={onMessages} />;   
   }
 }
 

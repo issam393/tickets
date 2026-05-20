@@ -11,7 +11,7 @@ async function createTicket(req, res) {
 
 async function listTickets(req, res) {
     try {
-        const result = await ticketService.listTickets(req.user.role);
+        const result = await ticketService.listTickets(req.user.service);
         res.status(200).json({ data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -20,7 +20,7 @@ async function listTickets(req, res) {
 
 async function getTicket(req, res) {
     try {
-        const result = await ticketService.getTicketById(req.params.ticketId, req.user.role);
+        const result = await ticketService.getTicketById(req.params.ticketId, req.user.service);
         res.status(200).json({ data: result });
     } catch (error) {
         const status = error.message === 'Access denied' ? 403 : 404;

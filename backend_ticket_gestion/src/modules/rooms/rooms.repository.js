@@ -1,12 +1,12 @@
 const db = require('../../config/db');
 
 async function createRoom(data) {
-    const { ticketId, name, roomType, severity, allowedRoles } = data;
+    const { ticketId, name, roomType, allowedServices } = data;
 
     const [result] = await db.execute(
-        `INSERT INTO rooms (ticket_id, name, room_type, severity, allowed_roles)
-         VALUES (?, ?, ?, ?, ?)`,
-        [ticketId, name, roomType, severity, JSON.stringify(allowedRoles)]
+        `INSERT INTO rooms (ticket_id, name, room_type, allowed_services)
+         VALUES (?, ?, ?, ?)`,
+        [ticketId, name, roomType, JSON.stringify(allowedServices)]
     );
 
     return result.insertId;
@@ -41,8 +41,7 @@ async function getAccessibleRoomsByRole() {
             r.ticket_id,
             r.name,
             r.room_type,
-            r.severity,
-            r.allowed_roles,
+            r.allowed_services,
             r.createdAt,
             t.request_code,
             t.application,

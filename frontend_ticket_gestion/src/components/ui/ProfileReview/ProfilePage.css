@@ -323,12 +323,13 @@
   display: grid;
   gap: 0.75rem;
 }
-.form-grid-layout-two-cols.full-width-grid {
-  display: block;
+
+.form-grid-layout-two-cols.full-width-grid .editable-info-card-wrapper {
   width: 100%;
 }
 
-.form-grid-layout-two-cols.full-width-grid .editable-info-card-wrapper {
+/* Remove this - not needed */
+.editable-info-card-wrapper.status-full-width {
   width: 100%;
 }
 

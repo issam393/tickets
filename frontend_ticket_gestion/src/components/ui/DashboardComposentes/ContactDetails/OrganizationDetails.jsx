@@ -1,5 +1,4 @@
-// OrganizationDetails.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Building2, 
@@ -14,42 +13,82 @@ import {
   Edit, 
   Trash2,
   X,
-  AlertCircle,
-  CheckSquare,
-  Square,
-  User,
-  Users,
-  Award
+  AlertCircle
 } from 'lucide-react';
 import './OrganizationDetails.css';
 
-function OrganizationDetails({  onBack }) {
+const API = import.meta.env.VITE_API_URL || "http://localhost:2300/api";
+
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+function OrganizationDetails({ organization, onBack }) {
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
+  const [selectedContactId, setSelectedContactId] = useState(null);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
     jobTitle: '',
-    organization: 'Al-Rashid Group',
-    systemRole: 'User',
-    status: 'Active',
-    roles: {
-      applicant: false,
-      representative: false,
-      lrao: false
-    }
+    status: 'Active'
   });
 
-  const hasApplicant = true; // Organization already has an Applicant
   const [selectedRoles, setSelectedRoles] = useState({
     applicant: false,
     representative: false,
     lrao: false
   });
 
+  // Fetch contacts for this organization
+  const fetchContacts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const headers = { Authorization: `Bearer ${getToken()}` };
+      const res = await fetch(`${API}/organizations/${organization.id}/contacts`, { headers });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || 'Failed to fetch contacts');
+      }
+      const json = await res.json();
+      setContacts(json.data || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (organization?.id) {
+      fetchContacts();
+    }
+  }, [organization?.id]);
+
+  // Determine if another contact in this organization is already the Applicant
+  const hasApplicantForForm = contacts.some(c => 
+    c.type && 
+    c.type.includes('Applicant') && 
+    (modalMode === 'create' || c.id !== selectedContactId)
+  );
+
+  const hasApplicant = contacts.some(c => c.type && c.type.includes('Applicant'));
+
+  // Count role stats
+  const applicantCount = contacts.filter(c => c.type && c.type.includes('Applicant')).length;
+  const representativeCount = contacts.filter(c => c.type && c.type.includes('Representative')).length;
+  const lraoCount = contacts.filter(c => c.type && c.type.includes('LRAO')).length;
+
   const handleRoleChange = (role) => {
-    if (role === 'applicant' && hasApplicant) return;
+    if (role === 'applicant' && hasApplicantForForm) return;
     setSelectedRoles(prev => ({
       ...prev,
       [role]: !prev[role]
@@ -57,38 +96,187 @@ function OrganizationDetails({  onBack }) {
   };
 
   const isFormValid = () => {
-    return formData.firstName && formData.lastName && formData.email && formData.phone &&
+    return formData.firstName.trim() && 
+           formData.lastName.trim() && 
+           formData.email.trim() && 
+           formData.phone.trim() &&
            (selectedRoles.applicant || selectedRoles.representative || selectedRoles.lrao);
   };
 
-  const handleSubmit = () => {
-    if (isFormValid()) {
-      console.log('Creating contact:', { ...formData, roles: selectedRoles });
+  const openCreateModal = () => {
+    setModalMode('create');
+    setSelectedContactId(null);
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      jobTitle: '',
+      status: 'Active'
+    });
+    setSelectedRoles({
+      applicant: false,
+      representative: false,
+      lrao: false
+    });
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (contact) => {
+    setModalMode('edit');
+    setSelectedContactId(contact.id);
+    const nameParts = (contact.name || '').trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
+    setFormData({
+      firstName,
+      lastName,
+      email: contact.email || '',
+      phone: contact.phone || '',
+      jobTitle: contact.jobTitle || '',
+      status: contact.status || 'Active'
+    });
+    
+    setSelectedRoles({
+      applicant: !!(contact.type && contact.type.includes('Applicant')),
+      representative: !!(contact.type && contact.type.includes('Representative')),
+      lrao: !!(contact.type && contact.type.includes('LRAO'))
+    });
+    
+    setIsModalOpen(true);
+  };
+
+  const openViewModal = (contact) => {
+    setModalMode('view');
+    setSelectedContactId(contact.id);
+    const nameParts = (contact.name || '').trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
+    setFormData({
+      firstName,
+      lastName,
+      email: contact.email || '',
+      phone: contact.phone || '',
+      jobTitle: contact.jobTitle || '',
+      status: contact.status || 'Active'
+    });
+    
+    setSelectedRoles({
+      applicant: !!(contact.type && contact.type.includes('Applicant')),
+      representative: !!(contact.type && contact.type.includes('Representative')),
+      lrao: !!(contact.type && contact.type.includes('LRAO'))
+    });
+    
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    if (!isFormValid()) return;
+
+    const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+    const rolesList = [];
+    if (selectedRoles.applicant) rolesList.push('Applicant');
+    if (selectedRoles.representative) rolesList.push('Representative');
+    if (selectedRoles.lrao) rolesList.push('LRAO');
+    const contactType = rolesList.join(', ');
+
+    const payload = {
+      name: fullName,
+      type: contactType,
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      jobTitle: formData.jobTitle.trim(),
+      status: formData.status
+    };
+
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getToken()}`
+      };
+      
+      let res;
+      if (modalMode === 'create') {
+        res = await fetch(`${API}/organizations/${organization.id}/contacts`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch(`${API}/contacts/${selectedContactId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      }
+
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || 'Failed to save contact');
+      }
+
       setIsModalOpen(false);
-      // Reset form
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        jobTitle: '',
-        organization: 'Al-Rashid Group',
-        systemRole: 'User',
-        status: 'Active'
-      });
-      setSelectedRoles({
-        applicant: false,
-        representative: false,
-        lrao: false
-      });
+      fetchContacts();
+    } catch (err) {
+      alert(err.message);
     }
+  };
+
+  const handleDeleteContact = async (contact) => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete ${contact.name}?`);
+    if (!confirmDelete) return;
+
+    try {
+      const headers = { Authorization: `Bearer ${getToken()}` };
+      const res = await fetch(`${API}/contacts/${contact.id}`, {
+        method: 'DELETE',
+        headers
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || 'Failed to delete contact');
+      }
+      fetchContacts();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return '';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return parts[0] ? parts[0][0].toUpperCase() : '';
+  };
+
+  const renderRolePills = (typeStr) => {
+    if (!typeStr) return null;
+    const roles = typeStr.split(',').map(r => r.trim());
+    return (
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        {roles.map((role) => {
+          let className = 'pill pill-blue';
+          if (role === 'Applicant') className = 'pill pill-purple';
+          if (role === 'LRAO') className = 'pill pill-green';
+          return (
+            <span key={role} className={className}>
+              {role}
+            </span>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
     <div className="org-details-container">
       {/* Back Button */}
       <div className="back-nav">
-      <button className="back-button" onClick={onBack}>
+        <button className="back-button" onClick={onBack}>
           <ArrowLeft size={18} />
           <span>Back to Contacts</span>
         </button>
@@ -100,11 +288,15 @@ function OrganizationDetails({  onBack }) {
           <Building2 size={48} />
         </div>
         <div className="org-info">
-          <h1 className="org-name">Al-Rashid Group</h1>
-          <div className="org-id">ORG-001</div>
+          <h1 className="org-name">{organization.name}</h1>
+          <div className="org-id">ORG-{String(organization.id).padStart(3, '0')}</div>
           <div className="org-badges">
-            <span className="badge badge-blue">2 contacts</span>
-            <span className="badge badge-green">Complete Setup</span>
+            <span className="badge badge-blue">
+              {contacts.length} contact{contacts.length !== 1 ? 's' : ''}
+            </span>
+            <span className={`badge ${hasApplicant ? 'badge-green' : 'badge-blue'}`}>
+              {hasApplicant ? 'Complete Setup' : 'Setup Pending'}
+            </span>
           </div>
         </div>
       </div>
@@ -122,42 +314,46 @@ function OrganizationDetails({  onBack }) {
             <Briefcase size={20} className="icon-purple" />
             <div className="info-content">
               <div className="info-label">Industry</div>
-              <div className="info-value">Financial Services</div>
+              <div className="info-value">{organization.industry}</div>
             </div>
           </div>
           <div className="info-box">
             <Mail size={20} className="icon-blue" />
             <div className="info-content">
               <div className="info-label">Contact Email</div>
-              <div className="info-value">info@alrashidgroup.ae</div>
+              <div className="info-value">{organization.email}</div>
             </div>
           </div>
           <div className="info-box">
             <Phone size={20} className="icon-blue" />
             <div className="info-content">
               <div className="info-label">Contact Phone</div>
-              <div className="info-value">+971 4 567 8901</div>
+              <div className="info-value">{organization.phone}</div>
             </div>
           </div>
           <div className="info-box">
             <MapPin size={20} className="icon-blue" />
             <div className="info-content">
               <div className="info-label">Address</div>
-              <div className="info-value">Emirates Towers, Level 42, Sheikh Zayed Road, Dubai, UAE</div>
+              <div className="info-value">{organization.address || '—'}</div>
             </div>
           </div>
           <div className="info-box">
             <Calendar size={20} className="icon-green" />
             <div className="info-content">
               <div className="info-label">Created At</div>
-              <div className="info-value">May 10, 2023 at 10:00 AM</div>
+              <div className="info-value">
+                {organization.createdAt ? new Date(organization.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : '—'}
+              </div>
             </div>
           </div>
           <div className="info-box">
             <Calendar size={20} className="icon-green" />
             <div className="info-content">
               <div className="info-label">Last Updated</div>
-              <div className="info-value">March 15, 2026 at 11:30 AM</div>
+              <div className="info-value">
+                {organization.updatedAt ? new Date(organization.updatedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : '—'}
+              </div>
             </div>
           </div>
         </div>
@@ -173,7 +369,7 @@ function OrganizationDetails({  onBack }) {
               <p className="card-subtitle">Manage contacts for this organization</p>
             </div>
           </div>
-          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+          <button className="btn-primary" onClick={openCreateModal}>
             <Plus size={16} />
             <span>Create Contact</span>
           </button>
@@ -183,15 +379,15 @@ function OrganizationDetails({  onBack }) {
         <div className="stats-row">
           <div className="stat-card">
             <div className="stat-label">Executive</div>
-            <div className="stat-number stat-purple">1</div>
+            <div className="stat-number stat-purple">{applicantCount}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Representative</div>
-            <div className="stat-number stat-blue">1</div>
+            <div className="stat-number stat-blue">{representativeCount}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">LRAO</div>
-            <div className="stat-number stat-yellow">0</div>
+            <div className="stat-number stat-yellow">{lraoCount}</div>
           </div>
         </div>
 
@@ -211,90 +407,93 @@ function OrganizationDetails({  onBack }) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="contact-id">CNT-001</td>
-                <td>
-                  <div className="contact-name">
-                    <div className="avatar avatar-blue">AA</div>
-                    <span>Ahmed Al-Rashid</span>
-                  </div>
-                </td>
-                <td>
-                  <span className="pill pill-purple">Applicant</span>
-                </td>
-                <td>
-                  <div className="contact-email">
-                    <Mail size={14} />
-                    <span>ahmed.rashid@company.ae</span>
-                  </div>
-                </td>
-                <td>
-                  <div className="contact-phone">
-                    <Phone size={14} />
-                    <span>+971 50 123 4567</span>
-                  </div>
-                </td>
-                <td>Chief Executive Officer</td>
-                <td>
-                  <span className="pill pill-green">Active</span>
-                </td>
-                <td>
-                  <div className="action-icons">
-                    <button className="icon-btn"><Eye size={16} /></button>
-                    <button className="icon-btn"><Edit size={16} /></button>
-                    <button className="icon-btn"><Trash2 size={16} /></button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td className="contact-id">CNT-002</td>
-                <td>
-                  <div className="contact-name">
-                    <div className="avatar avatar-blue">KA</div>
-                    <span>Khalid Al-Mansoori</span>
-                  </div>
-                </td>
-                <td>
-                  <span className="pill pill-blue">Representative</span>
-                </td>
-                <td>
-                  <div className="contact-email">
-                    <Mail size={14} />
-                    <span>khalid.mansoori@company.ae</span>
-                  </div>
-                </td>
-                <td>
-                  <div className="contact-phone">
-                    <Phone size={14} />
-                    <span>+971 50 234 5678</span>
-                  </div>
-                </td>
-                <td>Business Representative</td>
-                <td>
-                  <span className="pill pill-green">Active</span>
-                </td>
-                <td>
-                  <div className="action-icons">
-                    <button className="icon-btn"><Eye size={16} /></button>
-                    <button className="icon-btn"><Edit size={16} /></button>
-                    <button className="icon-btn"><Trash2 size={16} /></button>
-                  </div>
-                </td>
-              </tr>
+              {loading ? (
+                <tr>
+                  <td colSpan="8" style={{ textAlign: 'center', color: '#8b96b0' }}>
+                    Loading contacts...
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="8" style={{ textAlign: 'center', color: '#f87171' }}>
+                    Error: {error}
+                  </td>
+                </tr>
+              ) : contacts.length === 0 ? (
+                <tr>
+                  <td colSpan="8" style={{ textAlign: 'center', color: '#8b96b0' }}>
+                    No contacts found for this organization.
+                  </td>
+                </tr>
+              ) : (
+                contacts.map((c) => (
+                  <tr key={c.id}>
+                    <td className="contact-id">CNT-{String(c.id).padStart(3, '0')}</td>
+                    <td>
+                      <div className="contact-name">
+                        <div className="avatar avatar-blue">{getInitials(c.name)}</div>
+                        <span>{c.name}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {renderRolePills(c.type)}
+                    </td>
+                    <td>
+                      <div className="contact-email">
+                        <Mail size={14} />
+                        <span>{c.email}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="contact-phone">
+                        <Phone size={14} />
+                        <span>{c.phone || '—'}</span>
+                      </div>
+                    </td>
+                    <td>{c.jobTitle || '—'}</td>
+                    <td>
+                      <span className={`pill ${c.status === 'Active' ? 'pill-green' : c.status === 'Pending' ? 'pill-blue' : 'pill-purple'}`}>
+                        {c.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="action-icons">
+                        <button className="icon-btn" onClick={() => openViewModal(c)} title="View Details">
+                          <Eye size={16} />
+                        </button>
+                        <button className="icon-btn" onClick={() => openEditModal(c)} title="Edit Contact">
+                          <Edit size={16} />
+                        </button>
+                        <button className="icon-btn" onClick={() => handleDeleteContact(c)} title="Delete Contact">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Create Contact Modal */}
+      {/* Create / Edit / View Contact Modal */}
       {isModalOpen && (
         <>
           <div className="modal-overlay" onClick={() => setIsModalOpen(false)} />
           <div className="modal">
             <div className="modal-header">
               <div>
-                <h3>Create New Contact</h3>
-                <p className="modal-description">Add a new contact to the organization. Each organization must have exactly one Applicant.</p>
+                <h3>
+                  {modalMode === 'create' ? 'Create New Contact' : modalMode === 'edit' ? 'Edit Contact' : 'Contact Details'}
+                </h3>
+                <p className="modal-description">
+                  {modalMode === 'create' 
+                    ? 'Add a new contact to the organization. Each organization must have exactly one Applicant.' 
+                    : modalMode === 'edit' 
+                      ? 'Edit contact information. Each organization must have exactly one Applicant.' 
+                      : 'Detailed information about the contact.'}
+                </p>
               </div>
               <button className="modal-close" onClick={() => setIsModalOpen(false)}>
                 <X size={20} />
@@ -313,6 +512,7 @@ function OrganizationDetails({  onBack }) {
                       placeholder="Enter first name"
                       value={formData.firstName}
                       onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      disabled={modalMode === 'view'}
                     />
                   </div>
                   <div className="form-group">
@@ -322,6 +522,7 @@ function OrganizationDetails({  onBack }) {
                       placeholder="Enter last name"
                       value={formData.lastName}
                       onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      disabled={modalMode === 'view'}
                     />
                   </div>
                 </div>
@@ -333,6 +534,7 @@ function OrganizationDetails({  onBack }) {
                       placeholder="Enter email address"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      disabled={modalMode === 'view'}
                     />
                   </div>
                   <div className="form-group">
@@ -342,39 +544,19 @@ function OrganizationDetails({  onBack }) {
                       placeholder="Enter phone number"
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      disabled={modalMode === 'view'}
                     />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Job Title</label>
-                    <input
-                      type="text"
-                      placeholder="Enter job title"
-                      value={formData.jobTitle}
-                      onChange={(e) => setFormData({...formData, jobTitle: e.target.value})}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Organization <span className="required">*</span></label>
-                    <select
-                      value={formData.organization}
-                      onChange={(e) => setFormData({...formData, organization: e.target.value})}
-                    >
-                      <option>Al-Rashid Group</option>
-                    </select>
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>System Role Label</label>
-                  <select
-                    value={formData.systemRole}
-                    onChange={(e) => setFormData({...formData, systemRole: e.target.value})}
-                  >
-                    <option>User</option>
-                    <option>Admin</option>
-                    <option>Manager</option>
-                  </select>
+                  <label>Job Title</label>
+                  <input
+                    type="text"
+                    placeholder="Enter job title"
+                    value={formData.jobTitle}
+                    onChange={(e) => setFormData({...formData, jobTitle: e.target.value})}
+                    disabled={modalMode === 'view'}
+                  />
                 </div>
               </div>
 
@@ -387,21 +569,23 @@ function OrganizationDetails({  onBack }) {
                 <p className="helper-text">Select one or more roles for this contact. Each organization must have exactly one Applicant.</p>
 
                 {/* Warning Box */}
-                <div className="warning-box">
-                  <AlertCircle size={18} />
-                  <span>This organization already has an Applicant. Only one Applicant is allowed per organization.</span>
-                </div>
+                {hasApplicantForForm && (
+                  <div className="warning-box">
+                    <AlertCircle size={18} />
+                    <span>This organization already has an Applicant. Only one Applicant is allowed per organization.</span>
+                  </div>
+                )}
 
                 {/* Role Cards */}
                 <div className="role-cards">
-                  <div className={`role-card ${selectedRoles.applicant ? 'selected' : ''} ${hasApplicant ? 'disabled' : ''}`}>
+                  <div className={`role-card ${selectedRoles.applicant ? 'selected' : ''} ${hasApplicantForForm ? 'disabled' : ''}`}>
                     <div className="role-checkbox">
                       <input
                         type="checkbox"
                         id="applicant"
                         checked={selectedRoles.applicant}
                         onChange={() => handleRoleChange('applicant')}
-                        disabled={hasApplicant}
+                        disabled={hasApplicantForForm || modalMode === 'view'}
                       />
                       <label htmlFor="applicant">
                         <div className="role-info">
@@ -422,6 +606,7 @@ function OrganizationDetails({  onBack }) {
                         id="representative"
                         checked={selectedRoles.representative}
                         onChange={() => handleRoleChange('representative')}
+                        disabled={modalMode === 'view'}
                       />
                       <label htmlFor="representative">
                         <div className="role-info">
@@ -442,6 +627,7 @@ function OrganizationDetails({  onBack }) {
                         id="lrao"
                         checked={selectedRoles.lrao}
                         onChange={() => handleRoleChange('lrao')}
+                        disabled={modalMode === 'view'}
                       />
                       <label htmlFor="lrao">
                         <div className="role-info">
@@ -463,19 +649,29 @@ function OrganizationDetails({  onBack }) {
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
+                  disabled={modalMode === 'view'}
                 >
-                  <option>Active</option>
-                  <option>Inactive</option>
-                  <option>Pending</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Pending">Pending</option>
                 </select>
               </div>
             </div>
 
             <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
-              <button className="btn-primary" onClick={handleSubmit} disabled={!isFormValid()}>
-                Create Contact
+              <button className="btn-secondary" onClick={() => setIsModalOpen(false)}>
+                {modalMode === 'view' ? 'Close' : 'Cancel'}
               </button>
+              {modalMode === 'view' ? (
+                <button className="btn-primary" onClick={() => setModalMode('edit')}>
+                  <Edit size={16} />
+                  <span>Edit Contact</span>
+                </button>
+              ) : (
+                <button className="btn-primary" onClick={handleSubmit} disabled={!isFormValid()}>
+                  {modalMode === 'create' ? 'Create Contact' : 'Save Changes'}
+                </button>
+              )}
             </div>
           </div>
         </>

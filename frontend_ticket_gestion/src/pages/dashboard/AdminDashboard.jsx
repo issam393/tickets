@@ -97,7 +97,6 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
             <th>LastName</th>
             <th>UserName</th>
             <th>Email</th>
-            <th>Phone</th>
             <th>Service</th>
             <th>Status</th>
             <th className="ad-actions-header">Actions</th>
@@ -120,7 +119,6 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
                 <td>{u.lastName}</td>
                 <td>{u.userName}</td>
                 <td>{u.email}</td>
-                <td>{u.phone}</td>
                 <td>
                   <span className={`ad-role-badge ${BADGE_CLASSES[service.tone]}`}>
                     {service.label}
@@ -167,7 +165,7 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
           })}
           {users.length === 0 && (
             <tr>
-              <td colSpan="9" className="ad-empty-message">
+              <td colSpan="8" className="ad-empty-message">
                 No users match the current filters.
               </td>
             </tr>
@@ -226,15 +224,14 @@ const EditUserModal = ({ user, open, onOpenChange, onSave }) => {
   }, [user]);
   
   const validateForm = (formData) => {
-    const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'phone'];
+    const requiredFields = ['firstName', 'lastName', 'userName', 'email'];
     const allFieldsFilled = requiredFields.every(field => 
       formData[field] && formData[field].toString().trim() !== ''
     );
     
     const emailValid = !formData.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-    const phoneValid = !formData.phone || /^[0-9+\-\s()]{8,20}$/.test(formData.phone);
     
-    return allFieldsFilled && emailValid && phoneValid;
+    return allFieldsFilled && emailValid;
   };
   
   useEffect(() => {
@@ -297,15 +294,6 @@ const EditUserModal = ({ user, open, onOpenChange, onSave }) => {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-            <div className="ad-form-field">
-              <label>Phone *</label>
-              <input
-                type="text"
-                required
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
               />
             </div>
           </div>
@@ -372,7 +360,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
     lastName: "",
     userName: "",
     email: "",
-    phone: "",
     password: "",
     service_id: 1,
     status: "Active"
@@ -403,12 +390,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
           error = "Invalid email format (example: user@domain.com)";
         break;
 
-      case "phone":
-        if (!value.trim()) error = "Phone is required";
-        else if (!/^[0-9+\-\s()]{8,20}$/.test(value))
-          error = "Invalid phone number format";
-        break;
-
       case "password":
         if (!value) error = "Password is required";
         else {
@@ -433,7 +414,7 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
   };
 
   useEffect(() => {
-    const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'phone', 'password'];
+    const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'password'];
     let allValid = true;
     
     requiredFields.forEach(field => {
@@ -463,7 +444,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
         lastName: "",
         userName: "",
         email: "",
-        phone: "",
         password: "",
         service_id: 1,
         status: "Active"
@@ -528,17 +508,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
                 onChange={(e) => handleChange("email", e.target.value)}
               />
               {errors.email && <p style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>{errors.email}</p>}
-            </div>
-
-            <div className="ad-form-field">
-              <label>Phone *</label>
-              <input
-                type="text"
-                required
-                value={form.phone}
-                onChange={(e) => handleChange("phone", e.target.value)}
-              />
-              {errors.phone && <p style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>{errors.phone}</p>}
             </div>
 
             <div className="ad-form-field">
@@ -608,7 +577,6 @@ const AdminDashboard = () => {
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  // Build service filter options from SERVICES_DATA
   const SERVICE_FILTER_OPTIONS = useMemo(() => {
     const options = [{ value: "all", label: "All Services" }];
     Object.values(SERVICES_DATA).forEach(service => {
@@ -714,7 +682,6 @@ const AdminDashboard = () => {
         lastName: updated.lastName,
         userName: updated.userName,
         email: updated.email,
-        phone: updated.phone,
         service_id: updated.service_id,
         status: updated.status
       };
@@ -767,7 +734,6 @@ const AdminDashboard = () => {
         lastName: newUserData.lastName,
         email: newUserData.email,
         userName: newUserData.userName,
-        phone: newUserData.phone,
         password: newUserData.password,
         service_id: newUserData.service_id,
         status: newUserData.status

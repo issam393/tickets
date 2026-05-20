@@ -26,7 +26,7 @@ function socketAuthMiddleware(socket, next) {
 
         socket.user = {
             id: decoded.id,
-            role: decoded.role,
+            service: decoded.service,
             username: decoded.username
         };
 

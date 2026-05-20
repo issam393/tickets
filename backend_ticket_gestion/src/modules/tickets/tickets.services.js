@@ -15,7 +15,7 @@ function normalizeTicketRow(ticket) {
 
     return {
         ...ticket,
-        allowed_roles: parseAllowedRoles(ticket.allowed_roles)
+        allowed_services: parseAllowedRoles(ticket.allowed_services)
     };
 }
 
@@ -33,15 +33,14 @@ async function createTicket(userId, payload) {
         createdBy: userId
     });
 
-    const allowedRoles = getAllowedRolesForTicket(payload.issueLevel, payload.issueType);
+    const allowedServices = getAllowedRolesForTicket(payload.issueLevel, payload.issueType);
     const roomName = `${payload.issueType} · ${payload.issueLevel} · ${requestCode}`;
 
     const roomId = await roomRepository.createRoom({
         ticketId,
         name: roomName,
         roomType: payload.issueType,
-        severity: payload.issueLevel,
-        allowedRoles
+        allowedServices
     });
 
     const ticket = await ticketRepository.getTicketById(ticketId);
@@ -52,21 +51,21 @@ async function createTicket(userId, payload) {
     };
 }
 
-async function listTickets(role) {
+async function listTickets(service) {
     const tickets = await ticketRepository.getTicketsByRole();
     return tickets
         .map(normalizeTicketRow)
-        .filter((ticket) => canRoleAccessRoom(role, ticket.allowed_roles));
+        .filter((ticket) => canRoleAccessRoom(service, ticket.allowed_services));
 }
 
-async function getTicketById(ticketId, role) {
+async function getTicketById(ticketId, service) {
     const ticket = normalizeTicketRow(await ticketRepository.getTicketById(ticketId));
 
     if (!ticket) {
         throw new Error('Ticket not found');
     }
 
-    if (ticket.allowed_roles && !canRoleAccessRoom(role, ticket.allowed_roles)) {
+    if (ticket.allowed_services && !canRoleAccessRoom(service, ticket.allowed_services)) {
         throw new Error('Access denied');
     }
 

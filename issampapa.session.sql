@@ -1,1 +1,3 @@
-select * from meetings;
+--@block
+
+select * from employees;

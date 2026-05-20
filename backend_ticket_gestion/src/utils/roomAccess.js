@@ -1,4 +1,4 @@
-const ALL_CHAT_ROLES = ['ADMIN', 'AGENT', 'TECHNICIAN'];
+const ALL_CHAT_ROLES = ['ADMIN', 'SD', 'IT', 'PKI', 'MANAGER'];
 
 function getAllowedRolesForTicket(issueLevel = '', issueType = '') {
     const normalizedLevel = String(issueLevel).toLowerCase();

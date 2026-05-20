@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Clock, CheckCircle2, Calendar as CalendarIcon, AlertCircle, X, Check, User, Users, MapPin, Ticket, Plus, Pencil, Trash2 } from "lucide-react";
+import { Clock, CheckCircle2, Calendar as CalendarIcon, AlertCircle, X, Check, User, Users, MapPin, Ticket, Plus, Pencil, Trash2, Building } from "lucide-react";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import "./Meetings.css";
 
@@ -49,7 +49,6 @@ const formatDateKeyLocal = (isoValue) => {
 const formatDateTimeRange = (meeting) => {
   const start = new Date(meeting.startTime);
   const end = new Date(meeting.endTime);
-
   return `${start.toLocaleString()} - ${end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 };
 
@@ -89,11 +88,12 @@ const StatCard = ({ label, value, Icon, tone }) => (
   </div>
 );
 
-function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, initialValues, isSubmitting }) {
+function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, meetingRooms, initialValues, isSubmitting }) {
   const [formData, setFormData] = useState({
     inviteeId: "",
     title: "",
     ticketId: "",
+    meetingRoomId: "",
     startTime: "",
     endTime: "",
     location: "",
@@ -108,6 +108,7 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, in
         inviteeId: initialValues.inviteeId ? String(initialValues.inviteeId) : "",
         title: initialValues.title || "",
         ticketId: initialValues.ticketId ? String(initialValues.ticketId) : "",
+        meetingRoomId: initialValues.meetingRoomId ? String(initialValues.meetingRoomId) : "",
         startTime: toLocalInputValue(initialValues.startTime),
         endTime: toLocalInputValue(initialValues.endTime),
         location: initialValues.location || "",
@@ -120,6 +121,7 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, in
       inviteeId: "",
       title: "",
       ticketId: "",
+      meetingRoomId: "",
       startTime: "",
       endTime: "",
       location: "",
@@ -187,6 +189,8 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, in
             </select>
           </div>
 
+
+
           <div className="form-row">
             <div className="form-group half-width">
               <label>Start Time <span className="required">*</span></label>
@@ -241,7 +245,7 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, in
   );
 }
 
-function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing }) {
+function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing, meetingRooms }) {
   const [mode, setMode] = useState("view");
   const [reason, setReason] = useState("");
 
@@ -253,6 +257,8 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
   }, [open]);
 
   if (!meeting) return null;
+
+  const roomName = meetingRooms.find(r => r.id === meeting.meetingRoomId)?.name || meeting.location || "-";
 
   return (
     <div className={`dialog-overlay ${open ? "open" : ""}`} onClick={() => onOpenChange(false)}>
@@ -278,12 +284,12 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
               <div><span className="info-label">Invitee</span><br />{meeting.invitee || "-"}</div>
             </div>
             <div className="info-item">
-              <div className="info-icon"><Clock size={16} /></div>
-              <div><span className="info-label">Date & Time</span><br />{formatDateTimeRange(meeting)}</div>
+              <div className="info-icon"><Building size={16} /></div>
+              <div><span className="info-label">Room</span><br />{roomName}</div>
             </div>
             <div className="info-item">
-              <div className="info-icon"><MapPin size={16} /></div>
-              <div><span className="info-label">Location</span><br />{meeting.location || "-"}</div>
+              <div className="info-icon"><Clock size={16} /></div>
+              <div><span className="info-label">Date & Time</span><br />{formatDateTimeRange(meeting)}</div>
             </div>
             {meeting.ticketCode && (
               <div className="info-item">
@@ -352,6 +358,7 @@ const Meetings = () => {
   const [meetings, setMeetings] = useState([]);
   const [invitees, setInvitees] = useState([]);
   const [ticketOptions, setTicketOptions] = useState([]);
+  const [meetingRooms, setMeetingRooms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -418,13 +425,21 @@ const Meetings = () => {
   const loadMeta = async () => {
     if (!token) return;
     try {
-      const response = await fetch(`${API_BASE}/api/meetings/meta`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Failed to load meeting metadata");
-      setInvitees(payload.data?.invitees || []);
-      setTicketOptions(payload.data?.tickets || []);
+      const [metaRes, roomsRes] = await Promise.all([
+        fetch(`${API_BASE}/api/meetings/meta`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE}/api/meeting-rooms`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      
+      const metaPayload = await metaRes.json();
+      if (metaRes.ok) {
+        setInvitees(metaPayload.data?.invitees || []);
+        setTicketOptions(metaPayload.data?.tickets || []);
+      }
+      
+      const roomsPayload = await roomsRes.json();
+      if (roomsRes.ok) {
+        setMeetingRooms(roomsPayload.data || []);
+      }
     } catch (metaError) {
       setError(metaError.message);
     }
@@ -451,6 +466,16 @@ const Meetings = () => {
     setShowDateModal(true);
   };
 
+  const toIsoWithSeconds = (localDateTimeValue) => {
+    if (!localDateTimeValue) return localDateTimeValue;
+    // datetime-local gives "YYYY-MM-DDTHH:MM" — append ":00" so Node.js
+    // parses it correctly as a valid ISO 8601 string in all environments.
+    const withSeconds = localDateTimeValue.length === 16
+      ? `${localDateTimeValue}:00`
+      : localDateTimeValue;
+    return withSeconds;
+  };
+
   const handleCreateOrUpdateMeeting = async (formData) => {
     try {
       setIsProcessing(true);
@@ -458,8 +483,9 @@ const Meetings = () => {
         inviteeId: formData.inviteeId ? Number(formData.inviteeId) : null,
         title: formData.title,
         ticketId: formData.ticketId ? Number(formData.ticketId) : null,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
+        meetingRoomId: formData.meetingRoomId ? Number(formData.meetingRoomId) : null,
+        startTime: toIsoWithSeconds(formData.startTime),
+        endTime: toIsoWithSeconds(formData.endTime),
         location: formData.location,
         description: formData.description,
       };
@@ -696,6 +722,7 @@ const Meetings = () => {
           openEditModal(meeting);
         }}
         isProcessing={isProcessing}
+        meetingRooms={meetingRooms}
       />
 
       <ScheduleMeetingModal
@@ -707,6 +734,7 @@ const Meetings = () => {
         onSubmit={handleCreateOrUpdateMeeting}
         invitees={invitees}
         tickets={ticketOptions}
+        meetingRooms={meetingRooms}
         initialValues={editingMeeting}
         isSubmitting={isProcessing}
       />

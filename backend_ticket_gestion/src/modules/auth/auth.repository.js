@@ -1,12 +1,10 @@
-// this folder is for database queries 
-
 const db = require('../../config/db');
 
 async function getUserByUsername(username) {
     const [rows] = await db.execute(
-        `SELECT e.*, r.name as role 
+        `SELECT e.*, s.name as service_name 
          FROM employees e 
-         JOIN roles r ON e.role_id = r.id 
+         JOIN services s ON e.service_id = s.id 
          WHERE e.userName = ?`,
         [username]
     );
@@ -15,4 +13,4 @@ async function getUserByUsername(username) {
 
 module.exports = {
     getUserByUsername
- }
+}

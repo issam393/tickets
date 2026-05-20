@@ -1,9 +1,9 @@
 const createEmployeeValidation = (data) => {
-    const { firstName, lastName, email, userName, phone, password, service_id, role_id } = data;
+    const { firstName, lastName, email, userName, password, service_id } = data;
     
     const errors = [];
     
-    if (!firstName || !lastName || !email || !userName || !phone || !password || !service_id || !role_id) {
+    if (!firstName || !lastName || !email || !userName || !password || !service_id) {
         errors.push('All fields are required');
     }
     
@@ -43,7 +43,7 @@ const createEmployeeValidation = (data) => {
 };
 
 const updateEmployeeValidation = (data) => {
-    const allowedFields = ['firstName', 'lastName', 'email', 'phone', 'userName', 'service_id', 'role_id', 'status', 'password'];
+    const allowedFields = ['firstName', 'lastName', 'email', 'userName', 'service_id', 'status', 'password'];
     const hasValidField = allowedFields.some(field => data[field] !== undefined);
     
     const errors = [];

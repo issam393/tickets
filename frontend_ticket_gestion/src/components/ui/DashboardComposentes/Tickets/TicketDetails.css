@@ -1211,3 +1211,127 @@ body {
   font-weight: 600;
   color: var(--text-white);
 }
+
+/* ========== NEW STATUS SELECTOR ========== */
+
+.status-selector-wrapper {
+  position: relative;
+}
+
+/* Pill‑shaped button */
+.status-selector-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-medium);
+  color: var(--text-muted);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.status-selector-btn:hover {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+}
+
+/* Icons inside the button */
+.status-btn-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.status-chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.status-selector-wrapper:has(.status-dropdown) .status-chevron {
+  transform: rotate(180deg);
+}
+
+/* ========== STATUS ACCENT OVERRIDES ========== */
+
+/* Resolved – green */
+.status-selector-btn.status-resolved {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+}
+
+/* Critical – red */
+.status-selector-btn.status-critical {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+}
+
+/* Warning – amber */
+.status-selector-btn.status-warning {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+}
+
+/* ========== DROPDOWN ========== */
+
+.status-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: rgba(16, 17, 30, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 0.5rem;
+  z-index: 50;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Dropdown option button */
+.status-dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.status-dropdown-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-white);
+}
+
+.status-dropdown-option.active {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--primary);
+}
+
+.option-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Existing fadeIn animation (already present in your CSS) – reuse or keep as is */

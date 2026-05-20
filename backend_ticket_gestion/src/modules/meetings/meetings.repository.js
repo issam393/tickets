@@ -1,5 +1,4 @@
 const db = require('../../config/db');
-
 async function createMeeting(data) {
     const {
         title,
@@ -8,6 +7,7 @@ async function createMeeting(data) {
         organizerId,
         inviteeId,
         ticketId,
+        meetingRoomId,
         location,
         description,
         status,
@@ -22,11 +22,12 @@ async function createMeeting(data) {
             organizer_id,
             invitee_id,
             ticket_id,
+            meeting_room_id,
             location,
             description,
             status,
             rejection_reason
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             title,
             startTimeUtc,
@@ -34,6 +35,7 @@ async function createMeeting(data) {
             organizerId,
             inviteeId || null,
             ticketId || null,
+            meetingRoomId || null,
             location || null,
             description || null,
             status || 'Pending',
@@ -62,8 +64,8 @@ async function findMeetingById(meetingId) {
     return rows[0];
 }
 
-async function listMeetingsForUser(userId, role) {
-    if (role === 'ADMIN') {
+async function listMeetingsForUser(userId, service) {
+    if (service === 'ADMIN') {
         const [rows] = await db.execute(
             `SELECT
                 m.*,
@@ -110,7 +112,10 @@ async function updateMeeting(meetingId, updates) {
     if (updates.description !== undefined) { fields.push('description = ?'); values.push(updates.description || null); }
     if (updates.status !== undefined) { fields.push('status = ?'); values.push(updates.status); }
     if (updates.rejectionReason !== undefined) { fields.push('rejection_reason = ?'); values.push(updates.rejectionReason || null); }
-
+    if (updates.meetingRoomId !== undefined) { 
+        fields.push('meeting_room_id = ?'); 
+        values.push(updates.meetingRoomId || null); 
+    }
     if (!fields.length) {
         throw new Error('No valid fields to update');
     }
@@ -130,9 +135,9 @@ async function deleteMeeting(meetingId) {
 
 async function listMeetingUsers() {
     const [rows] = await db.execute(
-        `SELECT e.id, e.userName, e.firstName, e.lastName, r.name AS role_name
+        `SELECT e.id, e.userName, e.firstName, e.lastName, s.name AS service_name
          FROM employees e
-         LEFT JOIN roles r ON r.id = e.role_id
+         LEFT JOIN services s ON s.id = e.service_id
          WHERE e.status = 'Active'
          ORDER BY e.userName ASC`
     );
@@ -145,7 +150,7 @@ async function listMeetingTickets() {
         `SELECT
             t.id,
             t.request_code,
-            r.allowed_roles
+            r.allowed_services
          FROM tickets t
          LEFT JOIN rooms r ON r.ticket_id = t.id
          ORDER BY t.createdAt DESC`

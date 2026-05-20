@@ -4,7 +4,6 @@ import {
   User as UserIcon,
   AtSign,
   Mail,
-  Phone,
   IdCard,
   Building2,
   Hash,
@@ -396,27 +395,26 @@ const ProfilePage = () => {
 
           <div className="profile-body-content-area">
             <FormSection icon={UserIcon} title="Personal Information">
-              <div className="form-grid-layout-two-cols">
-                <EditableText icon={UserIcon} label="First Name" value={user.firstName} onSave={(v) => updateField("firstName", v)} />
-                <EditableText icon={UserIcon} label="Last Name" value={user.lastName} onSave={(v) => updateField("lastName", v)} />
-                <EditableText icon={AtSign} label="Username" value={user.userName} onSave={(v) => updateField("userName", v)} />
-                <EditableText icon={Mail} label="Email" value={user.email} onSave={(v) => updateField("email", v)} type="email" />
-                <EditableText icon={Phone} label="Phone" value={user.phone} onSave={(v) => updateField("phone", v)} />
-                <EditableStatus status={user.status} onSave={updateField} />
-              </div>
+            <div className="form-grid-layout-two-cols">
+  <EditableText icon={UserIcon} label="First Name" value={user.firstName} onSave={(v) => updateField("firstName", v)} />
+  <EditableText icon={UserIcon} label="Last Name" value={user.lastName} onSave={(v) => updateField("lastName", v)} />
+  <EditableText icon={AtSign} label="Username" value={user.userName} onSave={(v) => updateField("userName", v)} />
+  <EditableText icon={Mail} label="Email" value={user.email} onSave={(v) => updateField("email", v)} type="email" />
+</div>
+<div style={{ marginTop: '0.75rem' }}>
+  <EditableStatus status={user.status} onSave={updateField} />
+</div>
             </FormSection>
 
             <FormSection icon={Hash} title="System Information">
-              <div className="form-grid-layout-two-cols full-width-grid">
-                <EditableSelect 
-                  icon={Building2} 
-                  label="Service" 
-                  value={user.service_id} 
-                  options={serviceOptions}
-                  onSave={(v) => updateField("service_id", v)} 
-                />
-              </div>
-            </FormSection>
+  <EditableSelect 
+    icon={Building2} 
+    label="Service" 
+    value={user.service_id} 
+    options={serviceOptions}
+    onSave={(v) => updateField("service_id", v)} 
+  />
+</FormSection>
 
             <FormSection icon={ShieldCheck} title="Security">
               <div className="security-card-interactive-box" onClick={() => setPasswordModalOpen(true)}>

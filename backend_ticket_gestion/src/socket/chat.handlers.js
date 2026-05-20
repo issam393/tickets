@@ -17,9 +17,9 @@ function registerChatHandlers(io, socket) {
             }
 
             const room = await roomService.getRoomById(roomId);
-            roomService.assertRoomAccess(room, socket.user.role);
+            roomService.assertRoomAccess(room, socket.user.service);
 
-            const history = await roomService.getRoomHistory(roomId, socket.user.role);
+            const history = await roomService.getRoomHistory(roomId, socket.user.service);
 
             socket.join(toSocketRoom(roomId));
 
@@ -51,7 +51,7 @@ function registerChatHandlers(io, socket) {
             }
 
             const room = await roomService.getRoomById(roomId);
-            roomService.assertRoomAccess(room, socket.user.role);
+            roomService.assertRoomAccess(room, socket.user.service);
 
             const savedMessage = await messageRepository.saveMessage(roomId, socket.user.id, messageText);
 

@@ -3,17 +3,41 @@ const { canRoleAccessRoom, parseAllowedRoles } = require('../../utils/roomAccess
 
 const VALID_STATUSES = ['Pending', 'Accepted', 'Rejected'];
 
-function toUtcIso(input) {
-    const parsed = new Date(input);
-    if (Number.isNaN(parsed.getTime())) {
-        throw new Error('Invalid date/time format');
-    }
+// Converts a datetime-local string ("YYYY-MM-DDTHH:MM" or "YYYY-MM-DDTHH:MM:SS")
+// into a MySQL-compatible DATETIME string ("YYYY-MM-DD HH:MM:SS").
+// We deliberately do NOT call new Date() on bare local strings — that would
+// apply a UTC interpretation and shift the time by the server's timezone offset.
+function toMysqlDatetime(input) {
+    if (!input) throw new Error('Invalid date/time format');
+    const s = String(input).trim();
 
-    return parsed.toISOString();
+    // Accept "YYYY-MM-DDTHH:MM", "YYYY-MM-DDTHH:MM:SS", "YYYY-MM-DD HH:MM:SS"
+    // Also handle full ISO with Z ("...T...Z") by stripping the Z/ms suffix
+    const normalised = s.replace('T', ' ').replace('Z', '').split('.')[0];
+    const parts = normalised.split(' ');
+    if (parts.length !== 2) throw new Error('Invalid date/time format');
+
+    const datePart = parts[0];
+    // Ensure HH:MM:SS — pad missing seconds
+    const timeParts = parts[1].split(':');
+    if (timeParts.length < 2) throw new Error('Invalid date/time format');
+    const timePart = [
+        timeParts[0].padStart(2, '0'),
+        timeParts[1].padStart(2, '0'),
+        (timeParts[2] || '00').padStart(2, '0')
+    ].join(':');
+
+    const result = `${datePart} ${timePart}`;
+
+    // Validate the date is real
+    const check = new Date(result.replace(' ', 'T'));
+    if (Number.isNaN(check.getTime())) throw new Error('Invalid date/time format');
+
+    return result;
 }
 
 function normalizeMeetingRecord(record, currentUser) {
-    const canManage = currentUser.role === 'ADMIN' || Number(record.organizer_id) === Number(currentUser.id);
+    const canManage = currentUser.service === 'ADMIN' || Number(record.organizer_id) === Number(currentUser.id);
     const canRespond = Number(record.invitee_id) === Number(currentUser.id);
 
     return {
@@ -39,7 +63,7 @@ function normalizeMeetingRecord(record, currentUser) {
 }
 
 function assertReadAccess(record, user) {
-    const canRead = user.role === 'ADMIN'
+    const canRead = user.service === 'ADMIN'
         || Number(record.organizer_id) === Number(user.id)
         || Number(record.invitee_id) === Number(user.id);
 
@@ -71,10 +95,10 @@ function validateStatus(status) {
 async function createMeeting(payload, user) {
     validateMeetingPayload(payload);
 
-    const startTimeUtc = toUtcIso(payload.startTime);
-    const endTimeUtc = toUtcIso(payload.endTime);
+    const startTimeUtc = toMysqlDatetime(payload.startTime);
+    const endTimeUtc = toMysqlDatetime(payload.endTime);
 
-    if (new Date(endTimeUtc).getTime() <= new Date(startTimeUtc).getTime()) {
+    if (new Date(endTimeUtc.replace(' ', 'T')).getTime() <= new Date(startTimeUtc.replace(' ', 'T')).getTime()) {
         throw new Error('endTime must be after startTime');
     }
 
@@ -85,6 +109,7 @@ async function createMeeting(payload, user) {
         organizerId: user.id,
         inviteeId: payload.inviteeId ? Number(payload.inviteeId) : null,
         ticketId: payload.ticketId ? Number(payload.ticketId) : null,
+        meetingRoomId: payload.meetingRoomId ? Number(payload.meetingRoomId) : null,
         location: payload.location ? String(payload.location).trim() : null,
         description: payload.description ? String(payload.description).trim() : null,
         status: 'Pending',
@@ -96,7 +121,7 @@ async function createMeeting(payload, user) {
 }
 
 async function listMeetings(user) {
-    const rows = await meetingRepository.listMeetingsForUser(user.id, user.role);
+    const rows = await meetingRepository.listMeetingsForUser(user.id, user.service);
     return rows.map((row) => normalizeMeetingRecord(row, user));
 }
 
@@ -120,18 +145,19 @@ async function updateMeeting(meetingId, payload, user) {
 
     assertReadAccess(existing, user);
 
-    const canManage = user.role === 'ADMIN' || Number(existing.organizer_id) === Number(user.id);
+    const canManage = user.service === 'ADMIN' || Number(existing.organizer_id) === Number(user.id);
     const canRespond = Number(existing.invitee_id) === Number(user.id);
     const updateData = {};
 
     if (canManage) {
         if (payload.title !== undefined) updateData.title = String(payload.title).trim();
-        if (payload.startTime !== undefined) updateData.startTimeUtc = toUtcIso(payload.startTime);
-        if (payload.endTime !== undefined) updateData.endTimeUtc = toUtcIso(payload.endTime);
+        if (payload.startTime !== undefined) updateData.startTimeUtc = toMysqlDatetime(payload.startTime);
+        if (payload.endTime !== undefined) updateData.endTimeUtc = toMysqlDatetime(payload.endTime);
         if (payload.inviteeId !== undefined) updateData.inviteeId = payload.inviteeId ? Number(payload.inviteeId) : null;
         if (payload.ticketId !== undefined) updateData.ticketId = payload.ticketId ? Number(payload.ticketId) : null;
         if (payload.location !== undefined) updateData.location = payload.location ? String(payload.location).trim() : null;
         if (payload.description !== undefined) updateData.description = payload.description ? String(payload.description).trim() : null;
+        if (payload.meetingRoomId !== undefined) updateData.meetingRoomId = payload.meetingRoomId ? Number(payload.meetingRoomId) : null;
     } else if (canRespond) {
         const keys = Object.keys(payload);
         const allowedKeys = ['status', 'rejectionReason'];
@@ -157,7 +183,7 @@ async function updateMeeting(meetingId, payload, user) {
 
     const computedStartTime = updateData.startTimeUtc || existing.start_time_utc;
     const computedEndTime = updateData.endTimeUtc || existing.end_time_utc;
-    if (new Date(computedEndTime).getTime() <= new Date(computedStartTime).getTime()) {
+    if (new Date(String(computedEndTime).replace(' ', 'T')).getTime() <= new Date(String(computedStartTime).replace(' ', 'T')).getTime()) {
         throw new Error('endTime must be after startTime');
     }
 
@@ -173,7 +199,7 @@ async function deleteMeeting(meetingId, user) {
         throw new Error('Meeting not found');
     }
 
-    const canManage = user.role === 'ADMIN' || Number(existing.organizer_id) === Number(user.id);
+    const canManage = user.service === 'ADMIN' || Number(existing.organizer_id) === Number(user.id);
     if (!canManage) {
         throw new Error('Access denied');
     }
@@ -186,8 +212,8 @@ async function getMeetingMeta(user) {
     const tickets = await meetingRepository.listMeetingTickets();
 
     const accessibleTickets = tickets.filter((ticket) => {
-        const allowedRoles = parseAllowedRoles(ticket.allowed_roles);
-        return canRoleAccessRoom(user.role, allowedRoles);
+        const allowedRoles = parseAllowedRoles(ticket.allowed_services);
+        return canRoleAccessRoom(user.service, allowedRoles);
     });
 
     return {

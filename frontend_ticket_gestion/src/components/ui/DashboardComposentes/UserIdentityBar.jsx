@@ -41,7 +41,7 @@ export default function UserIdentityBar() {
             setCurrentUser({
               name: `${user.firstName} ${user.lastName}`,
               email: user.email,
-              role: user.role,
+              role: user.service_name,
               avatar: `${user.firstName[0]}${user.lastName[0]}`.toUpperCase(),
             });
           }

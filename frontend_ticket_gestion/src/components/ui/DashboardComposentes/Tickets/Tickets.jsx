@@ -7,7 +7,8 @@ const API_BASE = "http://localhost:2300";
 
 function getStatusTone(status) {
   if (status === "Resolved") return "success";
-  if (status === "Skipped") return "muted";
+  if (status === "Warning") return "muted";
+  if (status === "Critical") return "destructive";
   return "warning";
 }
 
@@ -56,13 +57,15 @@ const Tickets = ({ onSelectTicket }) => {
     const allCount = rows.length;
     const pendingCount = rows.filter((ticket) => ticket.status === "Pending").length;
     const resolvedCount = rows.filter((ticket) => ticket.status === "Resolved").length;
-    const skippedCount = rows.filter((ticket) => ticket.status === "Skipped").length;
+    const criticalCount = rows.filter((ticket) => ticket.status === "Critical").length;
+    const warningCount = rows.filter((ticket) => ticket.status === "Warning").length;
 
     return [
       { label: "All Tickets", filter: null, count: allCount },
       { label: "Pending", filter: "Pending", count: pendingCount },
       { label: "Resolved", filter: "Resolved", count: resolvedCount },
-      { label: "Skipped", filter: "Skipped", count: skippedCount },
+      { label: "Critical", filter: "Critical", count: criticalCount },
+      { label: "Warning", filter: "Warning", count: warningCount },
     ];
   }, [rows]);
 
