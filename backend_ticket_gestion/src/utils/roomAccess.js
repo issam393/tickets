@@ -39,6 +39,7 @@ function parseAllowedRoles(rawAllowedRoles) {
 
 function canRoleAccessRoom(role, allowedRoles) {
     if (!role) return false;
+    if (role === 'SD' || role === 'MANAGER' ) return true;
     if (!Array.isArray(allowedRoles) || allowedRoles.length === 0) return true;
     return allowedRoles.includes(role);
 }

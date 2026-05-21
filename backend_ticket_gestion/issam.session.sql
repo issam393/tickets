@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS tickets;
 DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS employees;
 DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS comments;
 
 -- ============================================
 -- 1. SERVICES
@@ -175,6 +176,18 @@ CREATE TABLE IF NOT EXISTS emails (
     
     FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE SET NULL
 );
+
+
+CREATE TABLE IF NOT EXISTS comments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            ticket_id INT NOT NULL,
+            user_id INT NOT NULL,
+            text TEXT NOT NULL,
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES employees(id) ON DELETE CASCADE
+        );
+
 
 CREATE INDEX idx_emails_ticket_id ON emails(ticket_id);
 CREATE INDEX idx_emails_sender_email ON emails(sender_email);

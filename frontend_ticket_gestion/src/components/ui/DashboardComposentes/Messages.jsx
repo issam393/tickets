@@ -16,6 +16,17 @@ function formatTimestamp(value) {
   });
 }
 
+function getUserRole() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.service;
+  } catch {
+    return null;
+  }
+}
+
 function ConversationCard({ room, selected, onSelect }) {
   return (
     <button
@@ -35,13 +46,13 @@ function ConversationCard({ room, selected, onSelect }) {
   );
 }
 
-function ChatThread({ room, messages, onSend, currentUserId, isJoining }) {
+function ChatThread({ room, messages, onSend, currentUserId, isJoining, isReadOnly }) {
   const [inputText, setInputText] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const text = inputText.trim();
-    if (!text) return;
+    if (!text || isReadOnly) return;
 
     try {
       await onSend(text);
@@ -89,30 +100,32 @@ function ChatThread({ room, messages, onSend, currentUserId, isJoining }) {
         )}
       </div>
 
-      <form className="message-input-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Type your message…"
-          className="message-input"
-          value={inputText}
-          onChange={(event) => setInputText(event.target.value)}
-        />
-        <button type="submit" className="send-btn" aria-label="Send">
-          <Send size={16} />
-        </button>
-        <button
-          type="button"
-          className="latest-btn"
-          aria-label="Scroll to latest message"
-          onClick={() => {
-            const list = document.querySelector(".messages-area");
-            if (list) list.scrollTop = list.scrollHeight;
-          }}
-        >
-          <ChevronDown size={16} />
-          Latest
-        </button>
-      </form>
+      {!isReadOnly && (
+        <form className="message-input-form" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Type your message…"
+            className="message-input"
+            value={inputText}
+            onChange={(event) => setInputText(event.target.value)}
+          />
+          <button type="submit" className="send-btn" aria-label="Send">
+            <Send size={16} />
+          </button>
+          <button
+            type="button"
+            className="latest-btn"
+            aria-label="Scroll to latest message"
+            onClick={() => {
+              const list = document.querySelector(".messages-area");
+              if (list) list.scrollTop = list.scrollHeight;
+            }}
+          >
+            <ChevronDown size={16} />
+            Latest
+          </button>
+        </form>
+      )}
     </div>
   );
 }
@@ -120,6 +133,8 @@ function ChatThread({ room, messages, onSend, currentUserId, isJoining }) {
 export default function Messages() {
   const token = localStorage.getItem("token");
   const currentUserId = Number(localStorage.getItem("userId"));
+  const role = getUserRole();
+  const isReadOnly = role === 'Manager';
 
   const [rooms, setRooms] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -203,7 +218,9 @@ export default function Messages() {
                 </div>
                 <h1 className="messages-title">Messages</h1>
               </div>
-              <p className="messages-description">Real-time ticket rooms</p>
+              <p className="messages-description">
+                {isReadOnly ? "View ticket conversations" : "Real-time ticket rooms"}
+              </p>
             </div>
           </header>
 
@@ -252,6 +269,7 @@ export default function Messages() {
                   onSend={sendMessage}
                   currentUserId={currentUserId}
                   isJoining={isJoining}
+                  isReadOnly={isReadOnly}
                 />
               ) : (
                 <div className="empty-selection">

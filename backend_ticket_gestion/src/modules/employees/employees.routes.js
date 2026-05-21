@@ -1,10 +1,11 @@
 const express = require('express');
 const EmployeeController = require("./employees.controllers");
 const auth = require('../../middleware/auth');
-const roleCheck = require('../../middleware/roleCheck');
+const { roleCheck } = require('../../middleware/roleCheck');
 
 const router = express.Router();
 
+// All employee routes – ADMIN only
 router.post("/InsertEmp", auth, roleCheck(['ADMIN']), EmployeeController.create);
 router.put("/EditEmp/:id", auth, roleCheck(['ADMIN']), EmployeeController.edit);
 router.get("/GetAllEmps", auth, roleCheck(['ADMIN']), EmployeeController.getAll);

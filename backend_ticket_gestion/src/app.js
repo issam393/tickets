@@ -8,6 +8,8 @@ const meetingRoutes      = require("./modules/meetings/meetings.routes");
 const meetingRoomRoutes  = require("./modules/meetingRooms/meetingRooms.routes");
 const contactRoutes      = require("./modules/contacts/contacts.routes");
 const organizationRoutes = require("./modules/organizations/organizations.routes");
+const commentRoutes      = require("./modules/comments/comments.routes");
+
 
 const app = express();
 app.use(cors());
@@ -23,6 +25,7 @@ app.use("/api/rooms",         roomRoutes);
 app.use("/api/meetings",      meetingRoutes);
 app.use("/api/meeting-rooms", meetingRoomRoutes);
 app.use("/api/contacts",      contactRoutes);
-app.use("/api/organizations",  organizationRoutes);
+app.use("/api/organizations", organizationRoutes);
+app.use("/api",               commentRoutes);
 
 module.exports = app;

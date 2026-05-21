@@ -7,23 +7,82 @@ import {
   ShieldCheck,
   Contact,
   Plus,
-  User
+  User,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import './SideBar.css';
 
-const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard },
-  { label: 'Contacts', icon: Contact },
-  { label: 'Create Ticket', icon: Plus },
-  { label: 'Tickets', icon: Ticket },
-  { label: 'Messages', icon: MessageSquare },
-  { label: 'Meetings', icon: Calendar },
-];
+function getUserFromToken() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return {
+      id: payload.id || payload.userId,
+      userName: payload.userName,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      service: payload.service,
+    };
+  } catch {
+    return null;
+  }
+}
 
 function Sidebar({ activeItem, setActiveItem }) {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('Token payload:', payload);
+      setUser({
+        id: payload.id || payload.userId,
+        userName: payload.userName || payload.username || payload.email,
+        firstName: payload.firstName || payload.firstname || payload.given_name,
+        lastName: payload.lastName || payload.lastname || payload.family_name,
+        service: payload.service || payload.role,
+      });
+    } catch (e) {
+      console.error('Failed to decode token:', e);
+    }
+  } else {
+    console.log('No token found in localStorage');
+  }
+}, []);
+
+  const role = user?.service;
+  const initials = user
+    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase()
+    : '??';
+  const displayName = user ? `${user.firstName} ${user.lastName}` : 'Loading...';
+
+  const navItems = [
+    { label: 'Dashboard', icon: LayoutDashboard },
+    { label: 'Contacts', icon: Contact },
+    { label: 'Create Ticket', icon: Plus },
+    { label: 'Tickets', icon: Ticket },
+    { label: 'Messages', icon: MessageSquare },
+    { label: 'Meetings', icon: Calendar },
+  ];
+
+  // Filter nav items based on role
+  const visibleNavItems = navItems.filter((item) => {
+    if (role === 'Manager') {
+      return ['Dashboard', 'Tickets', 'Messages', 'Meetings'].includes(item.label);
+    }
+    if (role === 'PKI' || role === 'IT') {
+      return ['Dashboard', 'Tickets', 'Messages', 'Meetings'].includes(item.label);
+    }
+    if (role === 'ADMIN') {
+      return false; // Admin sees nothing from this list
+    }
+    return true; // SD sees everything
+  });
 
   const handleProfileClick = () => {
     navigate('/ProfilePage');
@@ -35,7 +94,6 @@ function Sidebar({ activeItem, setActiveItem }) {
     localStorage.removeItem('username');
     navigate('/');
   };
-
 
   return (
     <aside className="sidebar">
@@ -53,23 +111,26 @@ function Sidebar({ activeItem, setActiveItem }) {
 
       <div className="sidebar-profile-container">
         <div className="sidebar-profile">
-          <div className="sidebar-avatar">SA</div>
+          <div className="sidebar-avatar">{initials}</div>
           <div className="sidebar-profile-info">
-            <p className="sidebar-profile-name">Sara Al-Zaabi</p>
-            <p className="sidebar-profile-email">sara.alzaabi@agce.ae</p>
+            <p className="sidebar-profile-name">{displayName}</p>
+            <p className="sidebar-profile-email">{user?.userName || ''}</p>
           </div>
         </div>
         <div className="sidebar-role-wrapper">
           <div className="sidebar-role-badge">
             <span className="sidebar-role-dot" />
-            PKI Role
+            {role === 'SD' ? 'Service Delivery' :
+             role === 'Manager' ? 'Manager' :
+             role === 'ADMIN' ? 'Admin' :
+             role === 'PKI' ? 'PKI Team' :
+             role === 'IT' ? 'IT Team' : role}
           </div>
-          
         </div>
       </div>
 
       <nav className="sidebar-nav">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.label;
 
@@ -87,18 +148,16 @@ function Sidebar({ activeItem, setActiveItem }) {
       </nav>
 
       <div className="sidebar-footer">
-        {/* Profile Button */}
         <button className="sidebar-profile-btn" onClick={handleProfileClick}>
           <User className="sidebar-profile-icon" />
           Profile
         </button>
-        
-        {/* Logout Button */}
+
         <button className="sidebar-logout-btn" onClick={handleLogout}>
           <LogOut className="sidebar-logout-icon" />
           Logout
         </button>
-        
+
         <p className="sidebar-copyright">© 2026 AGCE – Classified</p>
       </div>
     </aside>

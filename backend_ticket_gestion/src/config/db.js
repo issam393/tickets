@@ -1,13 +1,16 @@
 const mysql = require('mysql2'); 
+const dotenv = require('dotenv');
+
+dotenv.config();
 //why mysql2? because it's a modern and faster version of mysql package,
 // it also supports promises and async / await which makes it easier
 // to work with.
 
 const db = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'issammama',
-    database: 'ticket_gestion'
+    host: process.env.DB_HOST ,
+    user: process.env.DB_USER ,
+    password: process.env.DB_PWD ,
+    database: process.env.DB_NAME
 });
 
 db.getConnection(err => {

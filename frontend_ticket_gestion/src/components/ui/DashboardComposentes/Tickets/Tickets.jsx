@@ -12,8 +12,20 @@ function getStatusTone(status) {
   return "warning";
 }
 
+function getUserRole() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.service;
+  } catch {
+    return null;
+  }
+}
+
 const Tickets = ({ onSelectTicket }) => {
   const token = localStorage.getItem("token");
+  const role = getUserRole();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -53,12 +65,29 @@ const Tickets = ({ onSelectTicket }) => {
     loadTickets();
   }, [token]);
 
+  // Filter by role (PKI/IT only see their assigned tickets)
+  const roleFilteredRows = useMemo(() => {
+    if (role === 'SD' || role === 'Manager' || role === 'ADMIN') return rows;
+    if (role === 'PKI' || role === 'IT') {
+      return rows.filter((ticket) => {
+        if (!ticket.allowed_services) return false;
+        const allowed = Array.isArray(ticket.allowed_services)
+          ? ticket.allowed_services
+          : typeof ticket.allowed_services === 'string'
+          ? JSON.parse(ticket.allowed_services)
+          : [];
+        return allowed.includes(role);
+      });
+    }
+    return rows;
+  }, [rows, role]);
+
   const filterDefs = useMemo(() => {
-    const allCount = rows.length;
-    const pendingCount = rows.filter((ticket) => ticket.status === "Pending").length;
-    const resolvedCount = rows.filter((ticket) => ticket.status === "Resolved").length;
-    const criticalCount = rows.filter((ticket) => ticket.status === "Critical").length;
-    const warningCount = rows.filter((ticket) => ticket.status === "Warning").length;
+    const allCount = roleFilteredRows.length;
+    const pendingCount = roleFilteredRows.filter((ticket) => ticket.status === "Pending").length;
+    const resolvedCount = roleFilteredRows.filter((ticket) => ticket.status === "Resolved").length;
+    const criticalCount = roleFilteredRows.filter((ticket) => ticket.status === "Critical").length;
+    const warningCount = roleFilteredRows.filter((ticket) => ticket.status === "Warning").length;
 
     return [
       { label: "All Tickets", filter: null, count: allCount },
@@ -67,10 +96,10 @@ const Tickets = ({ onSelectTicket }) => {
       { label: "Critical", filter: "Critical", count: criticalCount },
       { label: "Warning", filter: "Warning", count: warningCount },
     ];
-  }, [rows]);
+  }, [roleFilteredRows]);
 
   const filteredRows = useMemo(() => {
-    return rows.filter((row) => {
+    return roleFilteredRows.filter((row) => {
       const filterDef = filterDefs.find((f) => f.label === activeFilter);
       if (filterDef && filterDef.filter !== null && row.status !== filterDef.filter) {
         return false;
@@ -88,7 +117,16 @@ const Tickets = ({ onSelectTicket }) => {
 
       return true;
     });
-  }, [rows, filterDefs, activeFilter, searchQuery]);
+  }, [roleFilteredRows, filterDefs, activeFilter, searchQuery]);
+
+  // Determine access level based on role and ticket status
+  const getAccessLabel = (ticket) => {
+    if (ticket.status === "Resolved") return { label: "Locked", tone: "warning" };
+    if (role === 'Manager') return { label: "Read Only", tone: "muted" };
+    if (role === 'SD') return { label: "Editable", tone: "success" };
+    if (role === 'PKI' || role === 'IT') return { label: "Editable", tone: "success" };
+    return { label: "Editable", tone: "success" };
+  };
 
   const StatusBadge = ({ label, tone }) => (
     <span className={`ticket-management-system__status-indicator ticket-management-system__status-indicator--theme-${tone}`}>{label}</span>
@@ -101,6 +139,9 @@ const Tickets = ({ onSelectTicket }) => {
     </span>
   );
 
+  const teamLabel = role === 'PKI' ? 'PKI' : role === 'IT' ? 'IT' : '';
+  const title = teamLabel ? `${teamLabel} Tickets Management` : 'Tickets Management';
+
   return (
     <div className="ticket-dashboard__container">
       <main className="ticket-dashboard__main-content">
@@ -108,9 +149,11 @@ const Tickets = ({ onSelectTicket }) => {
           <header className="ticket-dashboard__header-section">
             <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }} className="ticket-dashboard__page-title">
               <IoTicketSharp />
-              Tickets Management
+              {title}
             </h1>
-            <p className="ticket-dashboard__page-subtitle">View and manage support tickets</p>
+            <p className="ticket-dashboard__page-subtitle">
+              {teamLabel ? `Tickets assigned to ${teamLabel} team` : 'View and manage support tickets'}
+            </p>
           </header>
 
           <div className="ticket-search__container">
@@ -168,26 +211,29 @@ const Tickets = ({ onSelectTicket }) => {
                       </td>
                     </tr>
                   ) : filteredRows.length > 0 ? (
-                    filteredRows.map((row, index) => (
-                      <tr
-                        key={row.id}
-                        onClick={() => onSelectTicket(row.id)}
-                        className={`ticket-table__data-row ticket-table__data-row--clickable ${index % 2 === 1 ? "ticket-table__data-row--alternate" : ""}`}
-                      >
-                        <td className="ticket-table__cell ticket-table__cell--request-id">{row.request_code}</td>
-                        <td className="ticket-table__cell ticket-table__cell--application-name">{row.application}</td>
-                        <td className="ticket-table__cell ticket-table__cell--issue-description">{row.issue_type}</td>
-                        <td className="ticket-table__cell ticket-table__cell--priority-level">
-                          <span className="ticket-level__priority-badge">{row.issue_level}</span>
-                        </td>
-                        <td className="ticket-table__cell">
-                          <StatusBadge label={row.status} tone={getStatusTone(row.status)} />
-                        </td>
-                        <td className="ticket-table__cell">
-                          <AccessBadge label="Editable" tone="success" />
-                        </td>
-                      </tr>
-                    ))
+                    filteredRows.map((row, index) => {
+                      const access = getAccessLabel(row);
+                      return (
+                        <tr
+                          key={row.id}
+                          onClick={() => onSelectTicket(row.id)}
+                          className={`ticket-table__data-row ticket-table__data-row--clickable ${index % 2 === 1 ? "ticket-table__data-row--alternate" : ""}`}
+                        >
+                          <td className="ticket-table__cell ticket-table__cell--request-id">{row.request_code}</td>
+                          <td className="ticket-table__cell ticket-table__cell--application-name">{row.application}</td>
+                          <td className="ticket-table__cell ticket-table__cell--issue-description">{row.issue_type}</td>
+                          <td className="ticket-table__cell ticket-table__cell--priority-level">
+                            <span className="ticket-level__priority-badge">{row.issue_level}</span>
+                          </td>
+                          <td className="ticket-table__cell">
+                            <StatusBadge label={row.status} tone={getStatusTone(row.status)} />
+                          </td>
+                          <td className="ticket-table__cell">
+                            <AccessBadge label={access.label} tone={access.tone} />
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr className="ticket-table__data-row">
                       <td colSpan="6" className="ticket-table__empty-message-cell">

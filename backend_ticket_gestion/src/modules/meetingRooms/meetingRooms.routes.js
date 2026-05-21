@@ -1,10 +1,12 @@
 const express = require('express');
 const auth = require('../../middleware/auth');
+const { requireServiceDelivery, requireServiceDeliveryOrManager } = require('../../middleware/roleCheck');
 const roomRepo = require('./meetingRooms.repository');
 
 const router = express.Router();
 
-router.get('/', auth, async (req, res) => {
+// Read – SD and Manager
+router.get('/', auth, requireServiceDeliveryOrManager, async (req, res) => {
     try {
         const rooms = await roomRepo.getAllRooms();
         res.json({ data: rooms });
@@ -13,7 +15,8 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
-router.post('/', auth, async (req, res) => {
+// Write – Service Delivery only
+router.post('/', auth, requireServiceDelivery, async (req, res) => {
     try {
         const id = await roomRepo.createRoom(req.body);
         const room = await roomRepo.getRoomById(id);
@@ -23,7 +26,7 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', auth, requireServiceDelivery, async (req, res) => {
     try {
         await roomRepo.updateRoom(req.params.id, req.body);
         const room = await roomRepo.getRoomById(req.params.id);
@@ -33,7 +36,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 });
 
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', auth, requireServiceDelivery, async (req, res) => {
     try {
         await roomRepo.deleteRoom(req.params.id);
         res.json({ message: 'Room deleted' });
@@ -43,3 +46,4 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 module.exports = router;
+

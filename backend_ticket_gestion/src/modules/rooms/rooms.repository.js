@@ -14,7 +14,7 @@ async function createRoom(data) {
 
 async function getRoomById(roomId) {
     const [rows] = await db.execute(
-        `SELECT r.*, t.request_code, t.issue_type, t.issue_level
+        `SELECT r.*, t.request_code, t.issue_type, t.issue_level, t.status AS ticket_status
          FROM rooms r
          JOIN tickets t ON t.id = r.ticket_id
          WHERE r.id = ?`,
@@ -25,10 +25,10 @@ async function getRoomById(roomId) {
 
 async function getRoomByTicketId(ticketId) {
     const [rows] = await db.execute(
-        `SELECT r.*, t.request_code, t.issue_type, t.issue_level
-         FROM rooms r
-         JOIN tickets t ON t.id = r.ticket_id
-         WHERE r.ticket_id = ?`,
+        `SELECT r.*, t.request_code, t.issue_type, t.issue_level, t.status AS ticket_status
+        FROM rooms r
+        JOIN tickets t ON t.id = r.ticket_id
+        WHERE r.ticket_id = ?`,
         [ticketId]
     );
     return rows[0];
@@ -47,6 +47,7 @@ async function getAccessibleRoomsByRole() {
             t.application,
             t.issue_type,
             t.issue_level,
+            t.status AS ticket_status,
             lm.text AS last_message_text,
             lm.createdAt AS last_message_time
          FROM rooms r

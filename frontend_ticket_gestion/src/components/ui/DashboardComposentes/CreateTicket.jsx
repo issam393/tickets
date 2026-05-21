@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Mail,
-  Clock,
   Paperclip,
   ChevronDown,
-  ChevronUp,
   Inbox,
   PencilLine,
   Send,
@@ -12,9 +10,22 @@ import {
   User,
   Phone,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import './CreateTicket.css';
 import toast, { Toaster } from 'react-hot-toast';
+
+// Decode JWT
+function getUserFromToken() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return { service: payload.service };
+  } catch {
+    return null;
+  }
+}
 
 // --- Constants ---
 const emailTickets = [
@@ -136,7 +147,6 @@ function CustomSelectField({ label, required, placeholder, options, value, onCha
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -145,8 +155,6 @@ function CustomSelectField({ label, required, placeholder, options, value, onCha
     onChange(option);
     setIsOpen(false);
   };
-
-  const isPlaceholder = !value;
 
   return (
     <div className="select-field">
@@ -160,7 +168,7 @@ function CustomSelectField({ label, required, placeholder, options, value, onCha
           className={`custom-select-trigger ${isOpen ? 'open' : ''}`}
           onClick={() => setIsOpen(!isOpen)}
         >
-          <span className={isPlaceholder ? 'placeholder' : 'selected-value'}>
+          <span className={!value ? 'placeholder' : 'selected-value'}>
             {value || placeholder}
           </span>
           <ChevronDown className="custom-select-arrow" size={18} />
@@ -290,8 +298,8 @@ Al-Nahda Business Group`}
   );
 }
 
-// --- Sidebar Card Component (Right Sidebar) ---
-function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedClient, onClientChange }) {
+// --- Sidebar Card Component ---
+function SidebarCard({ selectedOrg, setSelectedOrg, selectedContact, setSelectedContact, onContactChange, token }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false);
   const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
@@ -299,25 +307,52 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
   const clientDropdownRef = useRef(null);
   const orgTriggerRef = useRef(null);
   const clientTriggerRef = useRef(null);
-  
-  const organizations = [
-    'Al-Nahda Business Group',
-    'Tech Ventures LLC',
-    'Digital Solutions AE',
-    'Global Consulting FZCO'
-  ];
-  
-  const getClientsForOrg = (org) => {
-    const clientsMap = {
-      'Al-Nahda Business Group': ['Yasmin Saeed (IT Coordinator)', 'Omar Farouk (System Admin)'],
-      'Tech Ventures LLC': ['Karim Ahmed (Technical Lead)', 'Layla Hassan (DevOps)'],
-      'Digital Solutions AE': ['Noor Khalil (Product Manager)', 'Rami Said (Developer)'],
-      'Global Consulting FZCO': ['Sara Mahmoud (Consultant)', 'Ali Reza (Analyst)']
-    };
-    return clientsMap[org] || ['Yasmin Saeed (IT Coordinator)'];
-  };
 
-  // Close dropdowns when clicking outside
+  const [organizations, setOrganizations] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [orgsLoading, setOrgsLoading] = useState(true);
+  const [contactsLoading, setContactsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchOrgs = async () => {
+      try {
+        const res = await fetch('http://localhost:2300/api/organizations', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (res.ok) {
+          setOrganizations(json.data || []);
+          if (json.data?.length > 0 && !selectedOrg) {
+            setSelectedOrg(json.data[0]);
+          }
+        }
+      } catch (_) {}
+      finally { setOrgsLoading(false); }
+    };
+    if (token) fetchOrgs();
+  }, [token]);
+
+  useEffect(() => {
+    if (!selectedOrg?.id) return;
+    const fetchContacts = async () => {
+      setContactsLoading(true);
+      try {
+        const res = await fetch(`http://localhost:2300/api/organizations/${selectedOrg.id}/contacts`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (res.ok) {
+          setContacts(json.data || []);
+          const first = json.data?.[0] || null;
+          setSelectedContact(first);
+          if (onContactChange) onContactChange(first);
+        }
+      } catch (_) {}
+      finally { setContactsLoading(false); }
+    };
+    fetchContacts();
+  }, [selectedOrg?.id]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (orgDropdownRef.current && !orgDropdownRef.current.contains(event.target) &&
@@ -329,54 +364,56 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
         setIsClientDropdownOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleOrgChange = (org) => {
     setSelectedOrg(org);
-    const newClients = getClientsForOrg(org);
-    setSelectedClient(newClients[0]);
-    if (onClientChange) onClientChange(newClients[0]);
     setIsOrgDropdownOpen(false);
   };
 
-  const handleClientChange = (client) => {
-    setSelectedClient(client);
-    if (onClientChange) onClientChange(client);
+  const handleClientChange = (contact) => {
+    setSelectedContact(contact);
+    if (onContactChange) onContactChange(contact);
     setIsClientDropdownOpen(false);
   };
 
-  const clients = getClientsForOrg(selectedOrg);
-  const selectedClientName = selectedClient.split(' ')[0];
+  const initials = selectedContact?.name
+    ? selectedContact.name.slice(0, 2).toUpperCase()
+    : '--';
+
+  const createdYear = selectedContact?.createdAt
+    ? new Date(selectedContact.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : '—';
 
   return (
     <div className="right-sidebar">
-      {/* Organization & Contact Selection */}
       <div className="right-sidebar-card">
         <div className="right-sidebar-select-group">
           <div className="right-sidebar-select-item">
             <label className="right-sidebar-label">Selected Organization</label>
             <div className="custom-select-container">
-              <div 
+              <div
                 ref={orgTriggerRef}
                 className={`custom-select-trigger ${isOrgDropdownOpen ? 'open' : ''}`}
-                onClick={() => setIsOrgDropdownOpen(!isOrgDropdownOpen)}
+                onClick={() => !orgsLoading && setIsOrgDropdownOpen(!isOrgDropdownOpen)}
               >
-                <span className="selected-value">{selectedOrg}</span>
+                <span className="selected-value">
+                  {orgsLoading ? 'Loading...' : (selectedOrg?.name || 'Select organization...')}
+                </span>
                 <ChevronDown className="custom-select-arrow" size={14} />
               </div>
-              
+
               {isOrgDropdownOpen && (
                 <div ref={orgDropdownRef} className="custom-select-dropdown">
-                  {organizations.map((org, index) => (
+                  {organizations.map((org) => (
                     <div
-                      key={index}
-                      className={`custom-select-option ${selectedOrg === org ? 'selected' : ''}`}
+                      key={org.id}
+                      className={`custom-select-option ${selectedOrg?.id === org.id ? 'selected' : ''}`}
                       onClick={() => handleOrgChange(org)}
                     >
-                      {org}
+                      {org.name}
                     </div>
                   ))}
                 </div>
@@ -387,26 +424,31 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
           <div className="right-sidebar-select-item">
             <label className="right-sidebar-label">Active Contact</label>
             <div className="custom-select-container">
-              <div 
+              <div
                 ref={clientTriggerRef}
                 className={`custom-select-trigger ${isClientDropdownOpen ? 'open' : ''}`}
-                onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
+                onClick={() => !contactsLoading && setIsClientDropdownOpen(!isClientDropdownOpen)}
               >
-                <span className="selected-value">{selectedClient}</span>
+                <span className="selected-value">
+                  {contactsLoading ? 'Loading...' : (selectedContact?.name || 'No contacts')}
+                </span>
                 <ChevronDown className="custom-select-arrow" size={14} />
               </div>
-              
+
               {isClientDropdownOpen && (
                 <div ref={clientDropdownRef} className="custom-select-dropdown">
-                  {clients.map((client, index) => (
-                    <div
-                      key={index}
-                      className={`custom-select-option ${selectedClient === client ? 'selected' : ''}`}
-                      onClick={() => handleClientChange(client)}
-                    >
-                      {client}
-                    </div>
-                  ))}
+                  {contacts.length === 0
+                    ? <div className="custom-select-option" style={{ opacity: 0.5 }}>No contacts found</div>
+                    : contacts.map((contact) => (
+                      <div
+                        key={contact.id}
+                        className={`custom-select-option ${selectedContact?.id === contact.id ? 'selected' : ''}`}
+                        onClick={() => handleClientChange(contact)}
+                      >
+                        {contact.name}{contact.jobTitle ? ` (${contact.jobTitle})` : ''}
+                      </div>
+                    ))
+                  }
                 </div>
               )}
             </div>
@@ -414,19 +456,18 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
         </div>
       </div>
 
-      {/* Profile Card */}
       <div className="right-sidebar-profile-card">
         <div className="right-sidebar-profile-bg-blur" />
-        
+
         <div className="right-sidebar-profile-header">
-          <div className="right-sidebar-profile-avatar">
-            {selectedClientName.charAt(0)}{selectedClientName.charAt(1)}
-          </div>
+          <div className="right-sidebar-profile-avatar">{initials}</div>
           <div>
-            <div className="right-sidebar-profile-name">{selectedClientName}</div>
+            <div className="right-sidebar-profile-name">{selectedContact?.name || '—'}</div>
             <div className="right-sidebar-profile-status">
               <span className="right-sidebar-status-dot" />
-              <span className="right-sidebar-status-text">Profile: Active</span>
+              <span className="right-sidebar-status-text">
+                Profile: {selectedContact?.status || 'Active'}
+              </span>
             </div>
           </div>
         </div>
@@ -436,14 +477,12 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
             <div className="right-sidebar-profile-info-item">
               <div className="right-sidebar-profile-info-label">Client ID</div>
               <div className="right-sidebar-profile-info-value">
-                {selectedClientName === 'Yasmin' ? 'CNT-001' : 
-                 selectedClientName === 'Karim' ? 'CNT-002' :
-                 selectedClientName === 'Noor' ? 'CNT-003' : 'CNT-004'}
+                {selectedContact ? `CNT-${String(selectedContact.id).padStart(3, '0')}` : '—'}
               </div>
             </div>
             <div className="right-sidebar-profile-info-item">
               <div className="right-sidebar-profile-info-label">Since</div>
-              <div className="right-sidebar-profile-info-value">Jan 2024</div>
+              <div className="right-sidebar-profile-info-value">{createdYear}</div>
             </div>
           </div>
 
@@ -452,25 +491,25 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
               <div className="right-sidebar-profile-contact-info">
                 <div className="right-sidebar-profile-contact-item">
                   <Mail size={12} />
-                  {selectedClientName.toLowerCase()}.saeed@business.ae
+                  {selectedContact?.email || '—'}
                 </div>
                 <div className="right-sidebar-profile-contact-item">
                   <Phone size={12} />
-                  +971 54 789 0123
+                  {selectedContact?.phone || '—'}
                 </div>
                 <div className="right-sidebar-profile-contact-item">
                   <Building2 size={12} />
-                  IT Coordinator
+                  {selectedContact?.jobTitle || '—'}
                 </div>
               </div>
             </div>
           )}
 
-          <button 
+          <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="right-sidebar-profile-toggle"
           >
-            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {isExpanded ? <ChevronDown size={14} /> : <ChevronDown size={14} />}
             {isExpanded ? 'Less Info' : 'More Details'}
           </button>
         </div>
@@ -482,11 +521,15 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedClient, setSelectedC
 // --- Main App Component ---
 export default function CreateTicket() {
   const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+  const user = getUserFromToken();
+  const role = user?.service;
+
   const [tab, setTab] = useState('manual');
   const [expandedId, setExpandedId] = useState(null);
   const [readIds, setReadIds] = useState([]);
-  const [selectedOrg, setSelectedOrg] = useState('Al-Nahda Business Group');
-  const [selectedClient, setSelectedClient] = useState('Yasmin Saeed (IT Coordinator)');
+  const [selectedOrg, setSelectedOrg] = useState(null);
+  const [selectedContact, setSelectedContact] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -498,15 +541,20 @@ export default function CreateTicket() {
     issueDescription: ''
   });
 
+  // Redirect if not Service Delivery
+  useEffect(() => {
+    if (role && role !== 'SD') {
+      toast.error('Access denied: Only Service Delivery can create tickets');
+      navigate('/dashboard');
+    }
+  }, [role, navigate]);
 
-
-  const handleClientChange = (client) => {
-    const clientName = client.split(' ')[0];
+  const handleContactChange = (contact) => {
+    setSelectedContact(contact);
     setFormData(prev => ({
       ...prev,
-      clientId: clientName === 'Yasmin' ? 'CNT-001' : 
-                clientName === 'Karim' ? 'CNT-002' :
-                clientName === 'Noor' ? 'CNT-003' : 'CNT-004'
+      clientId: contact ? contact.id : null,
+      organization_id: selectedOrg ? selectedOrg.id : null
     }));
   };
 
@@ -514,10 +562,21 @@ export default function CreateTicket() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const buildLocalRequestId = () => {
-    const now = new Date();
-    return `REQ-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const fetchNextRequestCode = async () => {
+    try {
+      const response = await fetch('http://localhost:2300/api/tickets/next-request-code', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const payload = await response.json();
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, requestId: payload.data }));
+      }
+    } catch (_) {}
   };
+
+  useEffect(() => {
+    if (token && role === 'SD') fetchNextRequestCode();
+  }, [token, role]);
 
   const handleCreateTicket = async () => {
     if (!formData.application || !formData.issueType || !formData.issueLevel || !formData.issueDescription) {
@@ -548,9 +607,9 @@ export default function CreateTicket() {
       }
 
       toast.success('Ticket created successfully! Room provisioned.');
+      fetchNextRequestCode();
       setFormData((prev) => ({
         ...prev,
-        requestId: buildLocalRequestId(),
         application: '',
         issueType: '',
         issueLevel: '',
@@ -574,30 +633,30 @@ export default function CreateTicket() {
     toast('Form has been reset', { icon: '🔄' });
   };
 
-
-
-  // Toggle email card & mark as read if needed
   const handleEmailToggle = (ticketId) => {
     setExpandedId((prevExpandedId) => {
       const isOpening = prevExpandedId !== ticketId;
-
       if (isOpening) {
         setReadIds((prevReadIds) => {
-          if (prevReadIds.includes(ticketId)) {
-            return prevReadIds;
-          }
+          if (prevReadIds.includes(ticketId)) return prevReadIds;
           return [...prevReadIds, ticketId];
         });
       }
-
       return isOpening ? ticketId : null;
     });
   };
 
-  const unreadCount = Math.max(
-    0,
-    emailTickets.length - new Set(readIds).size
-  );
+  const unreadCount = Math.max(0, emailTickets.length - new Set(readIds).size);
+
+  // Block rendering for non-SD roles
+  if (role && role !== 'SD') {
+    return (
+      <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--foreground)' }}>
+        <h2>Access Denied</h2>
+        <p>Only Service Delivery team members can create tickets.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="create-ticket-app dark-mode">
@@ -630,7 +689,7 @@ export default function CreateTicket() {
           </div>
         </header>
 
-        <div className={`create-ticket-content-wrapper ${tab === 'email' ? 'full-width' : ''}`}>
+        <div className="create-ticket-content-wrapper">
           <div className="create-ticket-main-content">
             <div className="create-ticket-tabs-container">
               <TabButton 
@@ -660,7 +719,7 @@ export default function CreateTicket() {
                   />
                   <InputField 
                     label="Client Association" 
-                    value={selectedClient.split(' ')[0]}
+                    value={selectedContact?.name || '—'}
                     disabled
                   />
                   
@@ -735,12 +794,13 @@ export default function CreateTicket() {
 
           {tab === 'manual' && (
             <div className="create-ticket-right-sidebar">
-              <SidebarCard 
-                selectedOrg={selectedOrg} 
+              <SidebarCard
+                selectedOrg={selectedOrg}
                 setSelectedOrg={setSelectedOrg}
-                selectedClient={selectedClient} 
-                setSelectedClient={setSelectedClient}
-                onClientChange={handleClientChange}
+                selectedContact={selectedContact}
+                setSelectedContact={setSelectedContact}
+                onContactChange={handleContactChange}
+                token={token}
               />
             </div>
           )}

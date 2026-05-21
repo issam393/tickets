@@ -54,6 +54,17 @@ async function initializeMessagingSchema() {
              ON messages (room_id, createdAt)`
         );
     }
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS comments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            ticket_id INT NOT NULL,
+            user_id INT NOT NULL,
+            text TEXT NOT NULL,
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES employees(id) ON DELETE CASCADE
+        )`
+    );
 
     await db.execute(
         `CREATE TABLE IF NOT EXISTS meetings (

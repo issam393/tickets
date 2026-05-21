@@ -1218,7 +1218,7 @@ body {
   position: relative;
 }
 
-/* Pill‑shaped button */
+/* Pillâ€‘shaped button */
 .status-selector-btn {
   display: inline-flex;
   align-items: center;
@@ -1261,7 +1261,7 @@ body {
 
 /* ========== STATUS ACCENT OVERRIDES ========== */
 
-/* Resolved – green */
+/* Resolved â€“ green */
 .status-selector-btn.status-resolved {
   border-color: rgba(16, 185, 129, 0.4);
   background: rgba(16, 185, 129, 0.15);
@@ -1269,7 +1269,7 @@ body {
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
 }
 
-/* Critical – red */
+/* Critical â€“ red */
 .status-selector-btn.status-critical {
   border-color: rgba(239, 68, 68, 0.4);
   background: rgba(239, 68, 68, 0.15);
@@ -1277,7 +1277,7 @@ body {
   box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
 }
 
-/* Warning – amber */
+/* Warning â€“ amber */
 .status-selector-btn.status-warning {
   border-color: rgba(245, 158, 11, 0.4);
   background: rgba(245, 158, 11, 0.15);
@@ -1426,4 +1426,141 @@ body {
 }
 
 
-/* Existing fadeIn animation (already present in your CSS) – reuse or keep as is */
+/* Existing fadeIn animation (already present in your CSS) â€“ reuse or keep as is */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   RESOLVED â€” READ-ONLY STATES
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+/* Lock badge in ticket-info-header (replaces the dropdowns) */
+.ticket-resolved-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.18);
+  user-select: none;
+}
+
+/* Banner inside ticket-info-card above the fields grid */
+.ticket-resolved-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.125rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.875rem;
+  background: rgba(16, 185, 129, 0.07);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  animation: fadeIn 0.3s ease;
+}
+
+.ticket-resolved-banner strong {
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* glass-card locked overlay tint when resolved */
+.glass-card.resolved-locked {
+  border-color: rgba(16, 185, 129, 0.18);
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.06), var(--shadow);
+}
+
+/* Status-active badge variant for resolved */
+.status-resolved-badge {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STATUS COLORS â€” aligned with Tickets.css violet theme
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+/* Override :root primary to match Tickets.css violet */
+:root {
+  --primary:      #a855f7;
+  --primary-glow: rgba(168, 85, 247, 0.4);
+  --glow-primary: 0 0 12px rgba(168, 85, 247, 0.5);
+}
+
+/* Status selector button â€” Pending (amber) */
+.status-selector-btn.status-pending {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+}
+
+/* Dropdown active option colours per status */
+.status-dropdown-option.active[data-status="Resolved"] {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+.status-dropdown-option.active[data-status="Critical"] {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+.status-dropdown-option.active[data-status="Warning"] {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+.status-dropdown-option.active[data-status="Pending"] {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+/* Post-comment button â€” violet to match theme */
+.post-btn {
+  background: linear-gradient(135deg, #a855f7, #c084fc) !important;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.35) !important;
+}
+.post-btn:hover {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.55) !important;
+}
+.post-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+/* Thread author â€” violet for support messages */
+.thread-author.support-user {
+  color: #c084fc;
+}
+
+/* Attach button â€” match new palette */
+.attach-btn:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+}
+
+/* Comment resolved notice (from previous task) */
+.comment-resolved-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(16, 185, 129, 0.07);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  font-size: 0.85rem;
+}
+.resolved-notice-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #10b981;
+}

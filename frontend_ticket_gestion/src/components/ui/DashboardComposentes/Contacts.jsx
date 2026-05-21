@@ -27,8 +27,21 @@ const INDUSTRIES = [
   "Retail",
   "Manufacturing",
 ];
+function getUserRole() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.service;
+  } catch {
+    return null;
+  }
+}
 
 function Contacts() {
+  const role = getUserRole();
+  const isReadOnly = role === 'Manager';
+  const hasAccess = role === 'SD' || role === 'Manager';
   const [searchTerm, setSearchTerm]             = useState("");
   const [activeTab, setActiveTab]               = useState("contacts");
   const [contacts, setContacts]                 = useState([]);
@@ -208,6 +221,7 @@ function Contacts() {
     }
 
     return (
+
       <div className="editable-field" key={field}>
         <div className="editable-field__label">{label}</div>
         <div className="editable-field__row">
@@ -230,7 +244,14 @@ function Contacts() {
 
   // ── check if org has contacts (for delete warning) ─────────────────────────
   const orgHasContacts = (org) => contacts.some((c) => c.organizationId === org.id);
-
+  if (!hasAccess) {
+    return (
+      <div style={{ padding: "4rem", textAlign: "center", color: "var(--foreground)" }}>
+        <h2>Access Denied</h2>
+        <p>Your role does not have permission to view this section.</p>
+      </div>
+    );
+  }
   return (
     <div className="contact_container">
       <div className="text_contact_container">
@@ -253,7 +274,7 @@ function Contacts() {
             <Search size={18} />
             <input type="text" placeholder="Search..." className="input_text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
-          {activeTab === "organizations" && (
+          {activeTab === "organizations" && !isReadOnly && (
             <button style={{ position: "relative", top: "-10px" }} className="btn-add-organization" onClick={() => setIsAddOrgOpen(true)}>
               <Plus size={18} style={{ marginRight: "8px" }} /> Add Organization
             </button>
@@ -291,12 +312,16 @@ function Contacts() {
                       <td className="max-w-190">{c.organization || "—"}</td>
                       <td className="max-w-190">{c.status}</td>
                       <td>
-                        <div className="action-buttons">
-                          <button className="action-btn view-btn"   onClick={() => openView(c, "contact")}><Eye size={16} /></button>
-                          <button className="action-btn edit-btn"   onClick={() => openEdit(c, "contact")}><Edit size={16} /></button>
-                          <button className="action-btn delete-btn" onClick={() => openDelete(c, "contact")}><Trash2 size={16} /></button>
-                        </div>
-                      </td>
+                      <div className="action-buttons">
+                        <button className="action-btn view-btn" onClick={() => openView(c, "contact")}><Eye size={16} /></button>
+                        {!isReadOnly && (
+                          <>
+                            <button className="action-btn edit-btn" onClick={() => openEdit(c, "contact")}><Edit size={16} /></button>
+                            <button className="action-btn delete-btn" onClick={() => openDelete(c, "contact")}><Trash2 size={16} /></button>
+                          </>
+                        )}
+                      </div>
+                    </td>
                     </tr>
                   )) : (
                     <tr><td colSpan="8" className="no-results">No contacts found</td></tr>
@@ -340,9 +365,13 @@ function Contacts() {
                       <td className="max-w-190">{o.status}</td>
                       <td>
                         <div className="action-buttons">
-                          <button className="action-btn view-btn"   onClick={() => setSelectedOrganization(o)}><Eye size={16} /></button>
-                          <button className="action-btn edit-btn"   onClick={() => openEdit(o, "organization")}><Edit size={16} /></button>
-                          <button className="action-btn delete-btn" onClick={() => openDelete(o, "organization")}><Trash2 size={16} /></button>
+                          <button className="action-btn view-btn" onClick={() => setSelectedOrganization(o)}><Eye size={16} /></button>
+                          {!isReadOnly && (
+                            <>
+                              <button className="action-btn edit-btn" onClick={() => openEdit(o, "organization")}><Edit size={16} /></button>
+                              <button className="action-btn delete-btn" onClick={() => openDelete(o, "organization")}><Trash2 size={16} /></button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -384,7 +413,7 @@ function Contacts() {
                   <button className="btn-primary" onClick={handleSubmitEdit}><Check size={16} style={{ marginRight: "8px" }} />Save Changes</button>
                 </>
               ) : (
-                <button className="btn-primary" onClick={() => openEdit(selectedItem, "contact")}><Edit size={16} style={{ marginRight: "8px" }} />Edit</button>
+                !isReadOnly && <button className="btn-primary" onClick={() => openEdit(selectedItem, "contact")}><Edit size={16} style={{ marginRight: "8px" }} />Edit</button>
               )}
             </div>
           </div>
@@ -417,7 +446,7 @@ function Contacts() {
                   <button className="btn-primary" onClick={handleSubmitEdit}><Check size={16} style={{ marginRight: "8px" }} />Save Changes</button>
                 </>
               ) : (
-                <button className="btn-primary" onClick={() => openEdit(selectedItem, "organization")}><Edit size={16} style={{ marginRight: "8px" }} />Edit</button>
+                !isReadOnly && <button className="btn-primary" onClick={() => openEdit(selectedItem, "organization")}><Edit size={16} style={{ marginRight: "8px" }} />Edit</button>
               )}
             </div>
           </div>

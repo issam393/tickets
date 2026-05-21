@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Clock, CheckCircle2, Calendar as CalendarIcon, AlertCircle, X, Check, User, Users, MapPin, Ticket, Plus, Pencil, Trash2, Building } from "lucide-react";
+import {
+  Clock, CheckCircle2, Calendar as CalendarIcon, AlertCircle,
+  X, Check, User, Users, MapPin, Ticket, Plus, Pencil, Trash2, Building
+} from "lucide-react";
 import { FaRegCalendarAlt } from "react-icons/fa";
+import toast, { Toaster } from "react-hot-toast";
 import "./Meetings.css";
 
 const API_BASE = "http://localhost:2300";
@@ -76,6 +80,17 @@ const statusClass = (status) => {
   return "status-pendingg";
 };
 
+function getUserRole() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.service;
+  } catch {
+    return null;
+  }
+}
+
 const StatCard = ({ label, value, Icon, tone }) => (
   <div className={`dashboard-card dashboard-card--${tone}`}>
     <div className="dashboard-card__info">
@@ -88,7 +103,7 @@ const StatCard = ({ label, value, Icon, tone }) => (
   </div>
 );
 
-function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, meetingRooms, initialValues, isSubmitting }) {
+function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, meetingRooms, initialValues, isSubmitting, isReadOnly }) {
   const [formData, setFormData] = useState({
     inviteeId: "",
     title: "",
@@ -102,7 +117,6 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, me
 
   useEffect(() => {
     if (!isOpen) return;
-
     if (initialValues) {
       setFormData({
         inviteeId: initialValues.inviteeId ? String(initialValues.inviteeId) : "",
@@ -116,17 +130,7 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, me
       });
       return;
     }
-
-    setFormData({
-      inviteeId: "",
-      title: "",
-      ticketId: "",
-      meetingRoomId: "",
-      startTime: "",
-      endTime: "",
-      location: "",
-      description: "",
-    });
+    setFormData({ inviteeId: "", title: "", ticketId: "", meetingRoomId: "", startTime: "", endTime: "", location: "", description: "" });
   }, [isOpen, initialValues]);
 
   const isFormValid = formData.inviteeId && formData.title.trim() && formData.startTime && formData.endTime;
@@ -153,13 +157,9 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, me
         <div className="schedule-modal-body">
           <div className="form-group">
             <label>Invite Team Member <span className="required">*</span></label>
-            <select
-              className="custom-select-trigger"
-              value={formData.inviteeId}
-              onChange={(event) => setFormData((prev) => ({ ...prev, inviteeId: event.target.value }))}
-            >
+            <select className="custom-select-trigger" value={formData.inviteeId} onChange={(e) => setFormData(prev => ({ ...prev, inviteeId: e.target.value }))} disabled={isReadOnly}>
               <option value="">Select team member...</option>
-              {invitees.map((member) => (
+              {invitees.map(member => (
                 <option key={member.id} value={member.id}>{member.label}</option>
               ))}
             </select>
@@ -167,93 +167,61 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, me
 
           <div className="form-group">
             <label>Meeting Title <span className="required">*</span></label>
-            <input
-              type="text"
-              placeholder="Enter meeting title..."
-              value={formData.title}
-              onChange={(event) => setFormData((prev) => ({ ...prev, title: event.target.value }))}
-            />
+            <input type="text" placeholder="Enter meeting title..." value={formData.title} onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))} disabled={isReadOnly} />
           </div>
 
           <div className="form-group">
             <label>Related Ticket (Optional)</label>
-            <select
-              className="custom-select-trigger"
-              value={formData.ticketId}
-              onChange={(event) => setFormData((prev) => ({ ...prev, ticketId: event.target.value }))}
-            >
+            <select className="custom-select-trigger" value={formData.ticketId} onChange={e => setFormData(prev => ({ ...prev, ticketId: e.target.value }))} disabled={isReadOnly}>
               <option value="">No ticket (general meeting)</option>
-              {tickets.map((ticket) => (
+              {tickets.map(ticket => (
                 <option key={ticket.id} value={ticket.id}>{ticket.requestCode}</option>
               ))}
             </select>
           </div>
 
-
-
           <div className="form-row">
             <div className="form-group half-width">
               <label>Start Time <span className="required">*</span></label>
-              <input
-                type="datetime-local"
-                value={formData.startTime}
-                onChange={(event) => setFormData((prev) => ({ ...prev, startTime: event.target.value }))}
-              />
+              <input type="datetime-local" value={formData.startTime} onChange={e => setFormData(prev => ({ ...prev, startTime: e.target.value }))} disabled={isReadOnly} />
             </div>
-
             <div className="form-group half-width">
               <label>End Time <span className="required">*</span></label>
-              <input
-                type="datetime-local"
-                value={formData.endTime}
-                onChange={(event) => setFormData((prev) => ({ ...prev, endTime: event.target.value }))}
-              />
+              <input type="datetime-local" value={formData.endTime} onChange={e => setFormData(prev => ({ ...prev, endTime: e.target.value }))} disabled={isReadOnly} />
             </div>
           </div>
 
           <div className="form-group">
             <label>Location (Optional)</label>
-            <input
-              type="text"
-              placeholder="Meeting room, virtual meeting, etc..."
-              value={formData.location}
-              onChange={(event) => setFormData((prev) => ({ ...prev, location: event.target.value }))}
-            />
+            <input type="text" placeholder="Meeting room, virtual meeting, etc..." value={formData.location} onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))} disabled={isReadOnly} />
           </div>
 
           <div className="form-group">
             <label>Description (Optional)</label>
-            <textarea
-              placeholder="Meeting agenda and details..."
-              rows={6}
-              style={{ height: "120px" }}
-              value={formData.description}
-              onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
-            />
+            <textarea placeholder="Meeting agenda and details..." rows={6} style={{ height: "120px" }} value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} disabled={isReadOnly} />
           </div>
         </div>
 
         <div className="schedule-modal-footer">
           <button className="btn-cancel" onClick={onClose} disabled={isSubmitting}>Cancel</button>
-          <button className={`btn-create ${!isFormValid || isSubmitting ? "disabled" : ""}`} onClick={handleSubmit} disabled={!isFormValid || isSubmitting}>
-            <Plus size={16} />
-            {isSubmitting ? "Saving..." : initialValues ? "Save Changes" : "Create Meeting"}
-          </button>
+          {!isReadOnly && (
+            <button className={`btn-create ${!isFormValid || isSubmitting ? "disabled" : ""}`} onClick={handleSubmit} disabled={!isFormValid || isSubmitting}>
+              <Plus size={16} />
+              {isSubmitting ? "Saving..." : initialValues ? "Save Changes" : "Create Meeting"}
+            </button>
+          )}
         </div>
       </div>
     </>
   );
 }
 
-function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing, meetingRooms }) {
+function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing, meetingRooms, isReadOnly }) {
   const [mode, setMode] = useState("view");
   const [reason, setReason] = useState("");
 
   useEffect(() => {
-    if (!open) {
-      setMode("view");
-      setReason("");
-    }
+    if (!open) { setMode("view"); setReason(""); }
   }, [open]);
 
   if (!meeting) return null;
@@ -262,7 +230,7 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
 
   return (
     <div className={`dialog-overlay ${open ? "open" : ""}`} onClick={() => onOpenChange(false)}>
-      <div className="dialog-content" onClick={(event) => event.stopPropagation()}>
+      <div className="dialog-content" onClick={e => e.stopPropagation()}>
         <div className="dialog-header">
           <h2 className="dialog-title">{meeting.title}</h2>
           <button className="dialog-close" onClick={() => onOpenChange(false)}>✕</button>
@@ -275,29 +243,12 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
           </div>
 
           <div className="info-grid">
-            <div className="info-item">
-              <div className="info-icon"><User size={16} /></div>
-              <div><span className="info-label">Organizer</span><br />{meeting.organizer}</div>
-            </div>
-            <div className="info-item">
-              <div className="info-icon"><Users size={16} /></div>
-              <div><span className="info-label">Invitee</span><br />{meeting.invitee || "-"}</div>
-            </div>
-            <div className="info-item">
-              <div className="info-icon"><Building size={16} /></div>
-              <div><span className="info-label">Room</span><br />{roomName}</div>
-            </div>
-            <div className="info-item">
-              <div className="info-icon"><Clock size={16} /></div>
-              <div><span className="info-label">Date & Time</span><br />{formatDateTimeRange(meeting)}</div>
-            </div>
+            <div className="info-item"><div className="info-icon"><User size={16} /></div><div><span className="info-label">Organizer</span><br />{meeting.organizer}</div></div>
+            <div className="info-item"><div className="info-icon"><Users size={16} /></div><div><span className="info-label">Invitee</span><br />{meeting.invitee || "-"}</div></div>
+            <div className="info-item"><div className="info-icon"><Building size={16} /></div><div><span className="info-label">Room</span><br />{roomName}</div></div>
+            <div className="info-item"><div className="info-icon"><Clock size={16} /></div><div><span className="info-label">Date & Time</span><br />{formatDateTimeRange(meeting)}</div></div>
             {meeting.ticketCode && (
-              <div className="info-item">
-                <div className="info-icon"><Ticket size={16} /></div>
-                <div><span className="info-label">Related Ticket</span><br />
-                  <button className="ticket-link">{meeting.ticketCode}</button>
-                </div>
-              </div>
+              <div className="info-item"><div className="info-icon"><Ticket size={16} /></div><div><span className="info-label">Related Ticket</span><br /><span className="ticket-link">{meeting.ticketCode}</span></div></div>
             )}
           </div>
 
@@ -307,38 +258,33 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
           </div>
 
           {meeting.status === "Rejected" && meeting.rejectionReason && (
-            <div className="alert-box alert-rejected">
-              <AlertCircle size={18} />
-              <div><strong>Rejection Reason</strong><br />{meeting.rejectionReason}</div>
-            </div>
+            <div className="alert-box alert-rejected"><AlertCircle size={18} /><div><strong>Rejection Reason</strong><br />{meeting.rejectionReason}</div></div>
           )}
 
           {meeting.canRespond && meeting.status === "Pending" && mode === "rejecting" && (
             <div className="reject-box">
               <label>Rejection Reason <span className="required">*</span></label>
-              <textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Please provide a motive..." />
+              <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="Please provide a motive..." />
             </div>
           )}
         </div>
 
         <div className="dialog-footer">
-          {meeting.canRespond && meeting.status === "Pending" && mode === "view" && (
+          {!isReadOnly && meeting.canRespond && meeting.status === "Pending" && mode === "view" && (
             <div className="action-group">
               <button className="btn-reject" onClick={() => setMode("rejecting")} disabled={isProcessing}><X size={14} /> Reject</button>
               <button className="btn-accept" onClick={() => onAccept(meeting)} disabled={isProcessing}><Check size={14} /> Accept</button>
             </div>
           )}
 
-          {meeting.canRespond && meeting.status === "Pending" && mode === "rejecting" && (
+          {!isReadOnly && meeting.canRespond && meeting.status === "Pending" && mode === "rejecting" && (
             <div className="action-group">
               <button className="btn-secondary" onClick={() => { setMode("view"); setReason(""); }} disabled={isProcessing}>Cancel</button>
-              <button className="btn-confirm-reject" disabled={!reason.trim() || isProcessing} onClick={() => onReject(meeting, reason)}>
-                <X size={14} /> Confirm Rejection
-              </button>
+              <button className="btn-confirm-reject" disabled={!reason.trim() || isProcessing} onClick={() => onReject(meeting, reason)}><X size={14} /> Confirm Rejection</button>
             </div>
           )}
 
-          {meeting.canManage && (
+          {!isReadOnly && meeting.canManage && (
             <div className="action-group">
               <button className="btn-secondary" onClick={() => onEdit(meeting)} disabled={isProcessing}><Pencil size={14} /> Edit</button>
               <button className="btn-reject" onClick={() => onDelete(meeting)} disabled={isProcessing}><Trash2 size={14} /> Delete</button>
@@ -354,6 +300,10 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
 
 const Meetings = () => {
   const token = localStorage.getItem("token");
+  const role = getUserRole();
+  const isReadOnly = role === 'Manager';
+  const isSD = role === 'SD';
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
   const [invitees, setInvitees] = useState([]);
@@ -376,7 +326,7 @@ const Meetings = () => {
 
   const meetingsByDate = useMemo(() => {
     const map = {};
-    meetings.forEach((meeting) => {
+    meetings.forEach(meeting => {
       const key = formatDateKeyLocal(meeting.startTime);
       if (!key) return;
       if (!map[key]) map[key] = [];
@@ -386,8 +336,8 @@ const Meetings = () => {
   }, [meetings]);
 
   const stats = useMemo(() => {
-    const pending = meetings.filter((meeting) => meeting.status === "Pending").length;
-    const accepted = meetings.filter((meeting) => meeting.status === "Accepted").length;
+    const pending = meetings.filter(m => m.status === "Pending").length;
+    const accepted = meetings.filter(m => m.status === "Accepted").length;
     const total = meetings.length;
     return { pending, accepted, total };
   }, [meetings]);
@@ -397,20 +347,13 @@ const Meetings = () => {
     "Content-Type": "application/json",
   }), [token]);
 
-  const sortMeetings = (items) =>
-    [...items].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+  const sortMeetings = items => [...items].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
   const loadMeetings = async () => {
-    if (!token) {
-      setError("Please login first.");
-      return;
-    }
-
+    if (!token) { setError("Please login first."); return; }
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/meetings`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(`${API_BASE}/api/meetings`, { headers: { Authorization: `Bearer ${token}` } });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Failed to load meetings");
       setMeetings(sortMeetings(payload.data || []));
@@ -429,26 +372,19 @@ const Meetings = () => {
         fetch(`${API_BASE}/api/meetings/meta`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${API_BASE}/api/meeting-rooms`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
-      
       const metaPayload = await metaRes.json();
       if (metaRes.ok) {
         setInvitees(metaPayload.data?.invitees || []);
         setTicketOptions(metaPayload.data?.tickets || []);
       }
-      
       const roomsPayload = await roomsRes.json();
-      if (roomsRes.ok) {
-        setMeetingRooms(roomsPayload.data || []);
-      }
+      if (roomsRes.ok) setMeetingRooms(roomsPayload.data || []);
     } catch (metaError) {
       setError(metaError.message);
     }
   };
 
-  useEffect(() => {
-    loadMeetings();
-    loadMeta();
-  }, [token]);
+  useEffect(() => { loadMeetings(); loadMeta(); }, [token]);
 
   const goPrevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const goNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
@@ -468,15 +404,11 @@ const Meetings = () => {
 
   const toIsoWithSeconds = (localDateTimeValue) => {
     if (!localDateTimeValue) return localDateTimeValue;
-    // datetime-local gives "YYYY-MM-DDTHH:MM" — append ":00" so Node.js
-    // parses it correctly as a valid ISO 8601 string in all environments.
-    const withSeconds = localDateTimeValue.length === 16
-      ? `${localDateTimeValue}:00`
-      : localDateTimeValue;
-    return withSeconds;
+    return localDateTimeValue.length === 16 ? `${localDateTimeValue}:00` : localDateTimeValue;
   };
 
   const handleCreateOrUpdateMeeting = async (formData) => {
+    if (isReadOnly) { toast.error("You do not have permission to create or edit meetings"); return; }
     try {
       setIsProcessing(true);
       const payload = {
@@ -489,139 +421,106 @@ const Meetings = () => {
         location: formData.location,
         description: formData.description,
       };
-
-      const endpoint = editingMeeting
-        ? `${API_BASE}/api/meetings/${editingMeeting.id}`
-        : `${API_BASE}/api/meetings`;
+      const endpoint = editingMeeting ? `${API_BASE}/api/meetings/${editingMeeting.id}` : `${API_BASE}/api/meetings`;
       const method = editingMeeting ? "PUT" : "POST";
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: authHeaders,
-        body: JSON.stringify(payload),
-      });
-
+      const response = await fetch(endpoint, { method, headers: authHeaders, body: JSON.stringify(payload) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Failed to save meeting");
-
-      setMeetings((prev) => {
-        if (editingMeeting) {
-          return sortMeetings(prev.map((meeting) => (meeting.id === result.data.id ? result.data : meeting)));
-        }
-        return sortMeetings([...prev, result.data]);
-      });
-
+      setMeetings(prev => editingMeeting ? sortMeetings(prev.map(m => m.id === result.data.id ? result.data : m)) : sortMeetings([...prev, result.data]));
       setEditingMeeting(null);
       setShowScheduleModal(false);
       setDialogOpen(false);
       setSelectedMeeting(null);
       setError("");
+      toast.success(editingMeeting ? "Meeting updated" : "Meeting created");
     } catch (actionError) {
-      setError(actionError.message);
+      toast.error(actionError.message);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleAccept = async (meeting) => {
+    if (isReadOnly) { toast.error("You do not have permission to accept meetings"); return; }
     try {
       setIsProcessing(true);
-      const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, {
-        method: "PUT",
-        headers: authHeaders,
-        body: JSON.stringify({ status: "Accepted", rejectionReason: null }),
-      });
+      const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, { method: "PUT", headers: authHeaders, body: JSON.stringify({ status: "Accepted", rejectionReason: null }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Failed to accept meeting");
-
-      setMeetings((prev) => prev.map((item) => (item.id === result.data.id ? result.data : item)));
+      setMeetings(prev => prev.map(item => item.id === result.data.id ? result.data : item));
       setSelectedMeeting(result.data);
-      setError("");
+      toast.success("Meeting accepted");
     } catch (actionError) {
-      setError(actionError.message);
+      toast.error(actionError.message);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleReject = async (meeting, rejectionReason) => {
+    if (isReadOnly) { toast.error("You do not have permission to reject meetings"); return; }
     try {
       setIsProcessing(true);
-      const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, {
-        method: "PUT",
-        headers: authHeaders,
-        body: JSON.stringify({ status: "Rejected", rejectionReason }),
-      });
+      const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, { method: "PUT", headers: authHeaders, body: JSON.stringify({ status: "Rejected", rejectionReason }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Failed to reject meeting");
-
-      setMeetings((prev) => prev.map((item) => (item.id === result.data.id ? result.data : item)));
+      setMeetings(prev => prev.map(item => item.id === result.data.id ? result.data : item));
       setSelectedMeeting(result.data);
-      setError("");
+      toast.success("Meeting rejected");
     } catch (actionError) {
-      setError(actionError.message);
+      toast.error(actionError.message);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleDelete = async (meeting) => {
+    if (isReadOnly) { toast.error("You do not have permission to delete meetings"); return; }
     const confirmed = window.confirm(`Delete meeting "${meeting.title}"?`);
     if (!confirmed) return;
-
     try {
       setIsProcessing(true);
-      const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Failed to delete meeting");
-
-      setMeetings((prev) => prev.filter((item) => item.id !== meeting.id));
+      setMeetings(prev => prev.filter(item => item.id !== meeting.id));
       setDialogOpen(false);
       setSelectedMeeting(null);
-      setError("");
+      toast.success("Meeting deleted");
     } catch (actionError) {
-      setError(actionError.message);
+      toast.error(actionError.message);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const openEditModal = (meeting) => {
+    if (isReadOnly) { toast.error("You do not have permission to edit meetings"); return; }
     setEditingMeeting(meeting);
     setShowScheduleModal(true);
   };
 
   return (
     <div className="meetings-page">
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#1e293b', color: '#f1f5f9', border: '1px solid #334155' } }} />
       <main className="meetings-main">
         <div className="meetings-container">
           <div className="meetings-header-wrapper">
             <header className="meetings-header">
               <div>
-                <div className="header-icon-title">
-                  <FaRegCalendarAlt className="page-icon" />
-                  <h1 className="meetings-title">Meetings</h1>
-                </div>
-                <p className="meetings-description">Schedule and manage team meetings</p>
+                <div className="header-icon-title"><FaRegCalendarAlt className="page-icon" /><h1 className="meetings-title">Meetings</h1></div>
+                <p className="meetings-description">{isReadOnly ? "View team meetings" : "Schedule and manage team meetings"}</p>
               </div>
             </header>
-            <button className="schedule-meeting-btn" onClick={() => { setEditingMeeting(null); setShowScheduleModal(true); }}>
-              <Plus size={18} />
-              Schedule Meeting
-            </button>
+            {!isReadOnly && isSD && (
+              <button className="schedule-meeting-btn" onClick={() => { setEditingMeeting(null); setShowScheduleModal(true); }}>
+                <Plus size={18} /> Schedule Meeting
+              </button>
+            )}
           </div>
 
           {error && (
-            <div className="permission-banner">
-              <AlertCircle size={18} />
-              <div>
-                <p className="permission-title">Action required</p>
-                <p className="permission-text">{error}</p>
-              </div>
-            </div>
+            <div className="permission-banner"><AlertCircle size={18} /><div><p className="permission-title">Action required</p><p className="permission-text">{error}</p></div></div>
           )}
 
           <div className="stats-grid">
@@ -641,9 +540,7 @@ const Meetings = () => {
               <h2 className="calendar-month">{monthName}</h2>
             </div>
 
-            <div className="weekdays">
-              {weekdays.map((day) => <div key={day} className="weekday">{day}</div>)}
-            </div>
+            <div className="weekdays">{weekdays.map(day => <div key={day} className="weekday">{day}</div>)}</div>
 
             <div className="calendar-grid">
               {grid.map((cell, idx) => {
@@ -651,20 +548,11 @@ const Meetings = () => {
                 const events = meetingsByDate[cell.iso] || [];
                 const isLastRow = idx >= 35;
                 return (
-                  <div
-                    key={`${cell.iso}-${idx}`}
-                    className={`calendar-cell ${isOther ? "calendar-cell--other" : ""} ${isLastRow ? "calendar-cell--last-row" : ""} ${events.length > 0 ? "has-events" : ""}`}
-                    onClick={() => handleDateClick(events)}
-                  >
+                  <div key={`${cell.iso}-${idx}`} className={`calendar-cell ${isOther ? "calendar-cell--other" : ""} ${isLastRow ? "calendar-cell--last-row" : ""} ${events.length > 0 ? "has-events" : ""}`} onClick={() => handleDateClick(events)}>
                     <div className={`calendar-day ${isOther ? "calendar-day--other" : ""}`}>{String(cell.day).padStart(2, "0")}</div>
                     <div className="calendar-events">
-                      {events.slice(0, 2).map((meeting) => (
-                        <div
-                          key={meeting.id}
-                          className={`event-tag event-tag--${getEventTone(meeting.status)}`}
-                          onClick={(event) => handleEventClick(meeting, event)}
-                          title={meeting.title}
-                        >
+                      {events.slice(0, 2).map(meeting => (
+                        <div key={meeting.id} className={`event-tag event-tag--${getEventTone(meeting.status)}`} onClick={(event) => handleEventClick(meeting, event)} title={meeting.title}>
                           {meeting.title.length > 22 ? `${meeting.title.slice(0, 19)}…` : meeting.title}
                         </div>
                       ))}
@@ -682,25 +570,12 @@ const Meetings = () => {
 
       {showDateModal && (
         <div className="dialog-overlay open" onClick={() => setShowDateModal(false)}>
-          <div className="dialog-content date-modal" onClick={(event) => event.stopPropagation()}>
-            <div className="dialog-header">
-              <h3 className="dialog-title">Meetings for {selectedDateMeetings[0] ? new Date(selectedDateMeetings[0].startTime).toDateString() : ""}</h3>
-              <button className="dialog-close" onClick={() => setShowDateModal(false)}>✕</button>
-            </div>
+          <div className="dialog-content date-modal" onClick={e => e.stopPropagation()}>
+            <div className="dialog-header"><h3 className="dialog-title">Meetings for {selectedDateMeetings[0] ? new Date(selectedDateMeetings[0].startTime).toDateString() : ""}</h3><button className="dialog-close" onClick={() => setShowDateModal(false)}>✕</button></div>
             <div className="dialog-body">
-              {selectedDateMeetings.map((meeting) => (
-                <div
-                  key={meeting.id}
-                  className="date-meeting-item"
-                  onClick={() => {
-                    setSelectedMeeting(meeting);
-                    setDialogOpen(true);
-                    setShowDateModal(false);
-                  }}
-                >
-                  <div className={`event-tag event-tag--${getEventTone(meeting.status)}`} style={{ display: "inline-block", width: "auto", marginBottom: "8px" }}>
-                    {meeting.status}
-                  </div>
+              {selectedDateMeetings.map(meeting => (
+                <div key={meeting.id} className="date-meeting-item" onClick={() => { setSelectedMeeting(meeting); setDialogOpen(true); setShowDateModal(false); }}>
+                  <div className={`event-tag event-tag--${getEventTone(meeting.status)}`} style={{ display: "inline-block", width: "auto", marginBottom: "8px" }}>{meeting.status}</div>
                   <p className="meeting-title">{meeting.title}</p>
                   <p className="meeting-time">{formatDateTimeRange(meeting)}</p>
                 </div>
@@ -717,26 +592,22 @@ const Meetings = () => {
         onAccept={handleAccept}
         onReject={handleReject}
         onDelete={handleDelete}
-        onEdit={(meeting) => {
-          setDialogOpen(false);
-          openEditModal(meeting);
-        }}
+        onEdit={openEditModal}
         isProcessing={isProcessing}
         meetingRooms={meetingRooms}
+        isReadOnly={isReadOnly}
       />
 
       <ScheduleMeetingModal
         isOpen={showScheduleModal}
-        onClose={() => {
-          setShowScheduleModal(false);
-          setEditingMeeting(null);
-        }}
+        onClose={() => { setShowScheduleModal(false); setEditingMeeting(null); }}
         onSubmit={handleCreateOrUpdateMeeting}
         invitees={invitees}
         tickets={ticketOptions}
         meetingRooms={meetingRooms}
         initialValues={editingMeeting}
         isSubmitting={isProcessing}
+        isReadOnly={isReadOnly}
       />
     </div>
   );

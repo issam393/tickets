@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 
 
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_12345';
+const JWT_SECRET = process.env.JWT_SECRET ;
 
 const auth = (req, res, next) => {
     const authHeader = req.headers.authorization;

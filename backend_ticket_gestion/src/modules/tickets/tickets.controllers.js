@@ -48,10 +48,20 @@ async function updateTicketStatus(req, res) {
     }
 }
 
+async function getNextRequestCode(req, res) {
+    try {
+        const requestCode = await ticketService.getNextRequestCode();
+        res.status(200).json({ data: requestCode });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 module.exports = {
     createTicket,
     listTickets,
     getTicket,
     assignTicket,
-    updateTicketStatus
+    updateTicketStatus,
+    getNextRequestCode
 };

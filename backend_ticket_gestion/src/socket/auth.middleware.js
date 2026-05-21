@@ -4,7 +4,7 @@ const { isBlacklisted } = require('../utils/blacklist');
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_12345';
+const JWT_SECRET = process.env.JWT_SECRET ;
 
 function socketAuthMiddleware(socket, next) {
     try {

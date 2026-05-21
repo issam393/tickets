@@ -3,45 +3,127 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  ShieldCheck,
   Activity,
-  KeyRound,
-  MessageSquare,
   TrendingUp,
   TrendingDown,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import './PKIDashboard.css';
 
-// Data arrays (unchanged)
-const processingTickets = [
-  { id: 'PKI-2024-001', title: 'Certificate Renewal - Production Environment', system: 'PKI Infrastructure', status: 'critical', tags: ['urgent', 'production'], date: '2 hours ago' },
-  { id: 'PKI-2024-002', title: 'Key Rotation Schedule Review', system: 'Certificate Management', status: 'warning', tags: ['scheduled'], date: '4 hours ago' },
-  { id: 'PKI-2024-003', title: 'Certificate Chain Validation Failure', system: 'Validation Service', status: 'critical', tags: ['critical', 'investigation'], date: '6 hours ago' },
-  { id: 'PKI-2024-004', title: 'CSR Processing Backlog', system: 'Request Processing', status: 'warning', tags: ['backlog'], date: '8 hours ago' },
-  { id: 'PKI-2024-005', title: 'Intermediate CA Certificate Expiration', system: 'CA Management', status: 'critical', tags: ['critical', 'urgent'], date: '10 hours ago' },
-  { id: 'PKI-2024-006', title: 'OCSP Responder Configuration', system: 'OCSP Service', status: 'warning', tags: ['configuration'], date: '12 hours ago' },
-  { id: 'PKI-2024-007', title: 'CRL Distribution Sync Issue', system: 'CRL Management', status: 'warning', tags: ['sync', 'distribution'], date: '14 hours ago' },
-];
+// Decode JWT to get user info
+function getUserFromToken() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return {
+      id: payload.id || payload.userId,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      service: payload.service,
+    };
+  } catch {
+    return null;
+  }
+}
 
-const resolvedTickets = [
-  { id: 'PKI-2024-098', title: 'SSL Certificate Installation Complete', system: 'Certificate Deployment', status: 'success', tags: ['completed'], date: '1 hour ago' },
-  { id: 'PKI-2024-099', title: 'Key Escrow Verification Passed', system: 'Security Compliance', status: 'success', tags: ['verified'], date: '3 hours ago' },
-  { id: 'PKI-2024-100', title: 'Digital Signature Validation Fixed', system: 'Signature Service', status: 'success', tags: ['resolved'], date: '5 hours ago' },
-  { id: 'PKI-2024-101', title: 'Certificate Pinning Updated', system: 'Application Security', status: 'success', tags: ['updated'], date: '7 hours ago' },
-  { id: 'PKI-2024-102', title: 'Trust Store Synchronization Complete', system: 'Trust Management', status: 'success', tags: ['synced'], date: '9 hours ago' },
-];
-
-
-
-export default function Dashboard({ onViewAllTickets }) {
+export default function Dashboard({ role, onViewAllTickets }) {
   const [now, setNow] = useState(null);
+  const [stats, setStats] = useState({
+    total: 0,
+    critical: 0,
+    warnings: 0,
+    inProgress: 0,
+    resolved: 0,
+  });
+  const [processingTickets, setProcessingTickets] = useState([]);
+  const [resolvedTickets, setResolvedTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const user = getUserFromToken();
+  const service = role || user?.service;
+  const teamLabel = service === 'PKI' ? 'PKI' : service === 'IT' ? 'IT' : 'Team';
 
   useEffect(() => {
     setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  // Fetch real dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:2300/api/tickets', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'Failed to load tickets');
+
+        const tickets = payload.data || [];
+
+        // Filter for PKI or IT based on allowed_services
+        const teamTickets = tickets.filter((t) => {
+          if (service === 'SD' || service === 'Manager') return true;
+          if (!t.allowed_services) return false;
+          const allowed = Array.isArray(t.allowed_services)
+            ? t.allowed_services
+            : typeof t.allowed_services === 'string'
+            ? JSON.parse(t.allowed_services)
+            : [];
+          return allowed.includes(service);
+        });
+
+        const critical = teamTickets.filter((t) => t.issue_level?.toLowerCase() === 'critical').length;
+        const warnings = teamTickets.filter((t) => t.issue_level?.toLowerCase() === 'warning').length;
+        const resolved = teamTickets.filter((t) => t.status === 'Resolved');
+        const processing = teamTickets.filter((t) => t.status !== 'Resolved');
+
+        setStats({
+          total: teamTickets.length,
+          critical,
+          warnings,
+          inProgress: processing.length,
+          resolved: resolved.length,
+        });
+
+        setProcessingTickets(
+          processing.slice(0, 7).map((t) => ({
+            id: t.request_code || `TKT-${t.id}`,
+            title: t.issue_description?.substring(0, 60) || 'No description',
+            system: t.application || 'N/A',
+            status: t.issue_level?.toLowerCase() || 'pending',
+            tags: [t.issue_type || 'general'],
+            date: new Date(t.createdAt).toLocaleString(),
+          }))
+        );
+
+        setResolvedTickets(
+          resolved.slice(0, 5).map((t) => ({
+            id: t.request_code || `TKT-${t.id}`,
+            title: t.issue_description?.substring(0, 60) || 'No description',
+            system: t.application || 'N/A',
+            status: 'success',
+            tags: ['resolved'],
+            date: new Date(t.updatedAt).toLocaleString(),
+          }))
+        );
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [service]);
+
+  const greeting = user
+    ? `Welcome back, ${user.firstName}`
+    : `Welcome to ${teamLabel} Command Center`;
 
   return (
     <div className="dashboard-main">
@@ -53,10 +135,8 @@ export default function Dashboard({ onViewAllTickets }) {
               <GiCrenulatedShield />
             </div>
             <div className="hero-title-block">
-              <h1>PKI Command Center</h1>
-              <p className="hero-subtitle">
-                Real-time monitoring of your certificate authority infrastructure
-              </p>
+              <h1>{service === 'PKI' ? 'PKI Command Center' : service === 'IT' ? 'IT Command Center' : `${teamLabel} Command Center`}</h1>
+              <p className="hero-subtitle">{greeting}</p>
             </div>
           </div>
           <div className="hero-right">
@@ -82,8 +162,8 @@ export default function Dashboard({ onViewAllTickets }) {
           <div className="top-card">
             <div className="top-card-inner">
               <div>
-                <p className="top-card-title">Total Tickets</p>
-                <p className="top-card-value">47</p>
+                <p className="top-card-title">Total {teamLabel} Tickets</p>
+                <p className="top-card-value">{stats.total}</p>
               </div>
               <div className="top-card-icon-wrapper">
                 <AlertCircle className="top-card-icon" />
@@ -101,9 +181,9 @@ export default function Dashboard({ onViewAllTickets }) {
                 <AlertCircle className="stat-card-icon-svg" />
               </div>
             </div>
-            <p className="stat-card-value">8</p>
+            <p className="stat-card-value">{stats.critical}</p>
             <p className="stat-card-trend up">
-              <TrendingUp size={12} /> +2 since yesterday
+              <TrendingUp size={12} /> {stats.critical} open
             </p>
           </div>
 
@@ -114,9 +194,9 @@ export default function Dashboard({ onViewAllTickets }) {
                 <Clock className="stat-card-icon-svg" />
               </div>
             </div>
-            <p className="stat-card-value">16</p>
+            <p className="stat-card-value">{stats.warnings}</p>
             <p className="stat-card-trend down">
-              <TrendingDown size={12} /> -3 since yesterday
+              <TrendingDown size={12} /> {stats.warnings} pending
             </p>
           </div>
 
@@ -127,8 +207,8 @@ export default function Dashboard({ onViewAllTickets }) {
                 <Activity className="stat-card-icon-svg" />
               </div>
             </div>
-            <p className="stat-card-value">23</p>
-            <p className="stat-card-trend">5 assigned to you</p>
+            <p className="stat-card-value">{stats.inProgress}</p>
+            <p className="stat-card-trend">Active tickets</p>
           </div>
 
           <div className="stat-card">
@@ -138,9 +218,9 @@ export default function Dashboard({ onViewAllTickets }) {
                 <CheckCircle className="stat-card-icon-svg" />
               </div>
             </div>
-            <p className="stat-card-value">47</p>
+            <p className="stat-card-value">{stats.resolved}</p>
             <p className="stat-card-trend down">
-              <TrendingUp size={12} /> +12 this week
+              <TrendingUp size={12} /> Completed
             </p>
           </div>
         </div>
@@ -161,40 +241,46 @@ export default function Dashboard({ onViewAllTickets }) {
 
             <div className="scroll-area">
               <div className="tickets-list">
-                {processingTickets.map((ticket) => (
-                  <div key={ticket.id} className="ticket-card">
-                    <div className="ticket-card-header">
-                      <div className="ticket-card-info">
-                        <div className="ticket-card-id">{ticket.id}</div>
-                        <h3 className="ticket-card-title">{ticket.title}</h3>
-                        <p className="ticket-card-system">{ticket.system}</p>
+                {loading ? (
+                  <p style={{ padding: '1rem', color: 'var(--foreground)' }}>Loading...</p>
+                ) : processingTickets.length === 0 ? (
+                  <p style={{ padding: '1rem', color: 'var(--foreground)' }}>No tickets to process</p>
+                ) : (
+                  processingTickets.map((ticket) => (
+                    <div key={ticket.id} className="ticket-card">
+                      <div className="ticket-card-header">
+                        <div className="ticket-card-info">
+                          <div className="ticket-card-id">{ticket.id}</div>
+                          <h3 className="ticket-card-title">{ticket.title}</h3>
+                          <p className="ticket-card-system">{ticket.system}</p>
+                        </div>
+                        <span className={`ticket-status ticket-status-${ticket.status}`}>
+                          <span>●</span>
+                          {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                        </span>
                       </div>
-                      <span className={`ticket-status ticket-status-${ticket.status}`}>
-                        <span>●</span>
-                        {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-                      </span>
-                    </div>
-                    <div className="ticket-card-footer">
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        {ticket.tags.map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className={`ticket-tag ${
-                              tag === 'urgent' || tag === 'critical'
-                                ? 'ticket-tag-critical'
-                                : tag === 'completed' || tag === 'verified'
-                                  ? 'ticket-tag-success'
-                                  : 'ticket-tag-primary'
-                            }`}
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                      <div className="ticket-card-footer">
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {ticket.tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className={`ticket-tag ${
+                                tag === 'urgent' || tag === 'critical'
+                                  ? 'ticket-tag-critical'
+                                  : tag === 'completed' || tag === 'verified' || tag === 'resolved'
+                                    ? 'ticket-tag-success'
+                                    : 'ticket-tag-primary'
+                              }`}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <span className="ticket-date">{ticket.date}</span>
                       </div>
-                      <span className="ticket-date">{ticket.date}</span>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -207,30 +293,36 @@ export default function Dashboard({ onViewAllTickets }) {
 
             <div className="scroll-area">
               <div className="tickets-list">
-                {resolvedTickets.map((ticket) => (
-                  <div key={ticket.id} className="ticket-card">
-                    <div className="ticket-card-header">
-                      <div className="ticket-card-info">
-                        <div className="ticket-card-id">{ticket.id}</div>
-                        <h3 className="ticket-card-title">{ticket.title}</h3>
+                {loading ? (
+                  <p style={{ padding: '1rem', color: 'var(--foreground)' }}>Loading...</p>
+                ) : resolvedTickets.length === 0 ? (
+                  <p style={{ padding: '1rem', color: 'var(--foreground)' }}>No resolved tickets yet</p>
+                ) : (
+                  resolvedTickets.map((ticket) => (
+                    <div key={ticket.id} className="ticket-card">
+                      <div className="ticket-card-header">
+                        <div className="ticket-card-info">
+                          <div className="ticket-card-id">{ticket.id}</div>
+                          <h3 className="ticket-card-title">{ticket.title}</h3>
+                        </div>
+                        <span className="ticket-status ticket-status-success">
+                          <span>●</span>
+                          Resolved
+                        </span>
                       </div>
-                      <span className={`ticket-status ticket-status-${ticket.status}`}>
-                        <span>●</span>
-                        Resolved
-                      </span>
-                    </div>
-                    <div className="ticket-card-footer">
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {ticket.tags.map((tag, idx) => (
-                          <span key={idx} className="ticket-tag ticket-tag-success">
-                            {tag}
-                          </span>
-                        ))}
+                      <div className="ticket-card-footer">
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          {ticket.tags.map((tag, idx) => (
+                            <span key={idx} className="ticket-tag ticket-tag-success">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <span className="ticket-date">{ticket.date}</span>
                       </div>
-                      <span className="ticket-date">{ticket.date}</span>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>

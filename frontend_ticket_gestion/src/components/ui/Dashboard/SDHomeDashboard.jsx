@@ -22,52 +22,11 @@ import {
 } from 'lucide-react';
 import './SDHomeDashboard.css';
 
-const kpis = [
-  { icon: Ticket, label: 'Total Tickets', value: 482, helper: 'across all teams', tone: 'cyan' },
-  { icon: Inbox, label: 'New Tickets Today', value: 24, helper: '+5 created today', tone: 'blue' },
-  { icon: ClipboardList, label: 'Pending Assignment', value: 12, helper: '12 waiting review', tone: 'amber' },
-  { icon: Building2, label: 'Active Organizations', value: 38, helper: '4 added this month', tone: 'indigo' },
-  { icon: Users, label: 'Registered Clients', value: 1264, helper: '+18 this week', tone: 'purple' },
-  { icon: AlertTriangle, label: 'Critical Tickets', value: 3, helper: '3 require attention', tone: 'red' },
-];
+const API_BASE = 'http://localhost:2300';
 
-const assignment = [
-  { team: 'SD',              count: 142, pct: 38, tone: 'cyan' },
-  { team: 'IT',              count: 96,  pct: 26, tone: 'blue' },
-  { team: 'PKI',             count: 64,  pct: 17, tone: 'indigo' },
-  { team: 'External Vendor', count: 28,  pct: 8,  tone: 'purple' },
-  { team: 'Resolved',        count: 152, pct: 41, tone: 'green' },
-];
-
-const recentTickets = [
-  { id: 'TKT-4821', client: 'Aymen Belhadj', org: 'Orange Tunisie',  type: 'Certificate Renewal', team: 'PKI', sla: 'P1', status: 'open',       time: '2 min ago' },
-  { id: 'TKT-4820', client: 'Sonia Kchaou',  org: 'BIAT',            type: 'Access Issue',        team: 'IT',  sla: 'P2', status: 'in-progress', time: '14 min ago' },
-  { id: 'TKT-4819', client: 'Mehdi Trabelsi',org: 'Tunisie Telecom', type: 'New Org Onboarding',  team: 'SD',  sla: 'P3', status: 'open',       time: '38 min ago' },
-  { id: 'TKT-4818', client: 'Ines Khalfaoui',org: 'STB Bank',        type: 'Token Replacement',   team: 'PKI', sla: 'P1', status: 'pending',    time: '1 h ago' },
-  { id: 'TKT-4817', client: 'Karim Saidi',   org: 'Attijari Bank',   type: 'Email Configuration', team: 'IT',  sla: 'P3', status: 'in-progress', time: '2 h ago' },
-  { id: 'TKT-4816', client: 'Hela Mansouri', org: 'Poulina Group',   type: 'Hardware Delivery',   team: 'External Vendor', sla: 'P2', status: 'pending', time: '3 h ago' },
-  { id: 'TKT-4815', client: 'Oussama Riahi', org: 'Ooredoo',         type: 'Password Reset',      team: 'SD',  sla: 'P4', status: 'resolved',   time: '4 h ago' },
-];
-
-const alerts = [
-  { icon: ShieldAlert, severity: 'critical', message: 'Ticket TKT-4818 not acknowledged for 60 min', time: '5 min ago' },
-  { icon: Clock,       severity: 'high',     message: 'SLA breach in 12 min on TKT-4821',           time: '8 min ago' },
-  { icon: Users,       severity: 'medium',   message: 'Client Sonia Kchaou has 4 open tickets',     time: '22 min ago' },
-  { icon: Activity,    severity: 'medium',   message: 'Auto-assignment failed for TKT-4810',         time: '1 h ago' },
-];
-
-const messages = [
-  { sender: 'Yassine (IT Lead)', preview: 'Routing rule updated for STB Bank tickets.', time: '3 min', unread: true },
-  { sender: 'Lina (PKI)',        preview: 'Need clarification on TKT-4818 token model.', time: '21 min', unread: true },
-  { sender: 'Hatem (Manager)',   preview: 'Great job clearing the backlog today.',       time: '1 h',   unread: false },
-  { sender: 'Rim (SD)',          preview: 'Taking over Orange Tunisie escalations.',     time: '2 h',   unread: false },
-];
-
-const meetings = [
-  { title: 'SLA review with BIAT', time: 'Today · 14:30', related: 'BIAT — Sonia Kchaou' },
-  { title: 'PKI weekly sync',      time: 'Tomorrow · 10:00', related: 'Internal · PKI Team' },
-  { title: 'Onboarding kickoff',   time: 'Wed · 09:00', related: 'Tunisie Telecom — Mehdi T.' },
-];
+function getUserToken() {
+  return localStorage.getItem('token');
+}
 
 export default function SDHomeDashboard({
   onCreateTicket,
@@ -76,16 +35,138 @@ export default function SDHomeDashboard({
   onReviewAssignments,
   onMessages,
   onMeetings,
+  onViewAllTickets,
 }) {
   const [now, setNow] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalTickets: 0,
+    newToday: 0,
+    pendingAssignment: 0,
+    activeOrgs: 0,
+    registeredClients: 0,
+    critical: 0,
+  });
+  const [assignments, setAssignments] = useState([]); // dynamic
+  const [recentTickets, setRecentTickets] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+
+  // Dynamic time
   useEffect(() => {
     setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);
 
+  // Fetch dashboard data
+  useEffect(() => {
+    const token = getUserToken();
+    if (!token) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const headers = { Authorization: `Bearer ${token}` };
+
+        // Fetch tickets, organizations, contacts
+        const [ticketsRes, orgsRes, contactsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/tickets`, { headers }),
+          fetch(`${API_BASE}/api/organizations`, { headers }),
+          fetch(`${API_BASE}/api/contacts`, { headers }),
+        ]);
+
+        const ticketsPayload = await ticketsRes.json();
+        const orgsPayload = await orgsRes.json();
+        const contactsPayload = await contactsRes.json();
+
+        const tickets = ticketsPayload.data || [];
+        const orgs = orgsPayload.data || [];
+        const contacts = contactsPayload.data || [];
+
+        // Compute KPIs
+        const total = tickets.length;
+        const newToday = tickets.filter(t => {
+          const created = new Date(t.createdAt);
+          const today = new Date();
+          return created.toDateString() === today.toDateString();
+        }).length;
+        const pendingAssign = tickets.filter(t => t.status === 'Pending' && (!t.allowed_services || t.allowed_services.length === 0)).length;
+        const critical = tickets.filter(t => t.issue_level?.toLowerCase() === 'critical').length;
+        const activeOrgs = orgs.filter(o => o.status === 'Active').length;
+        const totalContacts = contacts.length;
+
+        setStats({
+          totalTickets: total,
+          newToday,
+          pendingAssignment: pendingAssign,
+          activeOrgs,
+          registeredClients: totalContacts,
+          critical,
+        });
+
+        // Recent 7 tickets
+        const sorted = [...tickets].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setRecentTickets(sorted.slice(0, 7));
+
+        // Assignment overview (simplified: count by service from allowed_services)
+        const assignMap = { SD: 0, IT: 0, PKI: 0, Resolved: 0 };
+        tickets.forEach(t => {
+          if (t.status === 'Resolved') assignMap.Resolved++;
+          else if (t.allowed_services) {
+            const services = Array.isArray(t.allowed_services) ? t.allowed_services : JSON.parse(t.allowed_services);
+            if (services.includes('IT')) assignMap.IT++;
+            if (services.includes('PKI')) assignMap.PKI++;
+            if (services.includes('SD') || (!services.includes('IT') && !services.includes('PKI'))) assignMap.SD++;
+          } else {
+            assignMap.SD++;
+          }
+        });
+        // Remove External Vendor, keep only SD, IT, PKI, Resolved
+        const assignmentList = ['SD', 'IT', 'PKI', 'Resolved'].map(team => ({
+          team,
+          count: assignMap[team],
+          pct: total ? Math.round((assignMap[team] / total) * 100) : 0,
+          tone: team === 'SD' ? 'cyan' : team === 'IT' ? 'blue' : team === 'PKI' ? 'indigo' : 'green',
+        }));
+        setAssignments(assignmentList);
+
+        // Alerts: generate from critical tickets
+        const criticalTickets = tickets.filter(t => t.issue_level?.toLowerCase() === 'critical' && t.status !== 'Resolved');
+        const alertItems = criticalTickets.slice(0, 4).map(t => ({
+          icon: ShieldAlert,
+          severity: 'critical',
+          message: `Ticket ${t.request_code} requires immediate attention`,
+          time: new Date(t.createdAt).toLocaleString(),
+        }));
+        // Add a couple more static alerts if needed
+        if (alertItems.length < 4) {
+          alertItems.push(
+            { icon: Clock, severity: 'high', message: 'SLA review pending for some tickets', time: '' },
+            { icon: Activity, severity: 'medium', message: 'Auto-assignment may need attention', time: '' },
+          );
+        }
+        setAlerts(alertItems.slice(0, 4));
+      } catch (err) {
+        console.error('Dashboard fetch error', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Rotating cylinder animation styles
+  const rotationStyle = `
+    @keyframes rotateCylinder {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+  `;
+
   return (
     <div className="sd-home-page">
+      <style>{rotationStyle}</style>
       <div className="sd-home-container">
         {/* HEADER */}
         <header className="sd-home-header">
@@ -120,7 +201,14 @@ export default function SDHomeDashboard({
 
         {/* KPI GRID */}
         <section className="sd-kpi-grid">
-          {kpis.map((k) => {
+          {[
+            { icon: Ticket, label: 'Total Tickets', value: stats.totalTickets, helper: 'across all teams', tone: 'cyan' },
+            { icon: Inbox, label: 'New Tickets Today', value: stats.newToday, helper: `+${stats.newToday} created today`, tone: 'blue' },
+            { icon: ClipboardList, label: 'Pending Assignment', value: stats.pendingAssignment, helper: `${stats.pendingAssignment} waiting review`, tone: 'amber' },
+            { icon: Building2, label: 'Active Organizations', value: stats.activeOrgs, helper: `${stats.activeOrgs} active`, tone: 'indigo' },
+            { icon: Users, label: 'Registered Clients', value: stats.registeredClients, helper: `${stats.registeredClients} total`, tone: 'purple' },
+            { icon: AlertTriangle, label: 'Critical Tickets', value: stats.critical, helper: `${stats.critical} require attention`, tone: 'red' },
+          ].map((k) => {
             const Icon = k.icon;
             return (
               <div key={k.label} className={`sd-kpi-card sd-tone-${k.tone}`}>
@@ -150,7 +238,7 @@ export default function SDHomeDashboard({
               </button>
             </div>
             <div className="sd-assign-list">
-              {assignment.map((a) => (
+              {assignments.map((a) => (
                 <div key={a.team} className="sd-assign-row">
                   <div className="sd-assign-meta">
                     <span className={`sd-team-badge sd-tone-${a.tone}`}>{a.team}</span>
@@ -204,9 +292,9 @@ export default function SDHomeDashboard({
           <div className="sd-panel-header">
             <div>
               <h2 className="sd-panel-title">Recent Ticket Activity</h2>
-              <p className="sd-panel-sub">Latest items across the work queue</p>
+              <p className="sd-panel-sub">Latest 7 items across the work queue</p>
             </div>
-            <button className="sd-link-btn">
+            <button className="sd-link-btn" onClick={onViewAllTickets}>
               View All <ArrowRight size={14} />
             </button>
           </div>
@@ -226,68 +314,87 @@ export default function SDHomeDashboard({
                 </tr>
               </thead>
               <tbody>
-                {recentTickets.map((t) => (
-                  <tr key={t.id} className="sd-ticket-row">
-                    <td className="sd-ticket-id">{t.id}</td>
-                    <td>{t.client}</td>
-                    <td className="sd-muted">{t.org}</td>
-                    <td>{t.type}</td>
-                    <td>
-                      <span className={`sd-team-badge sd-team-${t.team.toLowerCase().replace(/\s/g, '-')}`}>
-                        {t.team}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`sd-sla-badge sd-sla-${t.sla.toLowerCase()}`}>{t.sla}</span>
-                    </td>
-                    <td>
-                      <span className={`sd-status-badge sd-status-${t.status}`}>
-                        {t.status.replace('-', ' ')}
-                      </span>
-                    </td>
-                    <td className="sd-muted">{t.time}</td>
-                    <td>
-                      <button className="sd-row-action">View</button>
-                    </td>
-                  </tr>
-                ))}
+                {loading ? (
+                  <tr><td colSpan="9" className="sd-muted">Loading tickets...</td></tr>
+                ) : recentTickets.length === 0 ? (
+                  <tr><td colSpan="9" className="sd-muted">No recent tickets.</td></tr>
+                ) : (
+                  recentTickets.map((t) => (
+                    <tr key={t.id} className="sd-ticket-row">
+                      <td className="sd-ticket-id">{t.request_code || `TKT-${t.id}`}</td>
+                      <td>{t.created_by_username || t.client || '—'}</td>
+                      <td className="sd-muted">{t.organization || '—'}</td>
+                      <td>{t.issue_type}</td>
+                      <td>
+                        <span className={`sd-team-badge sd-team-${(t.allowed_services?.[0] || 'sd').toLowerCase()}`}>
+                          {t.allowed_services?.join(', ') || 'Unassigned'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`sd-sla-badge sd-sla-${t.sla?.toLowerCase() || 'p4'}`}>{t.sla || 'P4'}</span>
+                      </td>
+                      <td>
+                        <span className={`sd-status-badge sd-status-${t.status.toLowerCase().replace(' ','-')}`}>
+                          {t.status.replace('-', ' ')}
+                        </span>
+                      </td>
+                      <td className="sd-muted">{new Date(t.createdAt).toLocaleString()}</td>
+                      <td>
+                        <button className="sd-row-action">View</button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </section>
 
-        {/* ORG + CLIENTS */}
+        {/* ORG + CLIENTS with cylinder rotation */}
         <section className="sd-row sd-row-2">
-          <div className="sd-panel sd-summary-card">
-            <div className="sd-summary-head">
-              <div className="sd-summary-icon"><Building2 size={18} /></div>
-              <div>
-                <h3 className="sd-summary-title">Organizations</h3>
-                <p className="sd-panel-sub">CRM directory</p>
+          <div className="sd-panel sd-summary-card" style={{ perspective: '1000px' }}>
+            <div className="sd-summary-inner" style={{ animation: 'rotateCylinder 5s infinite linear', transformStyle: 'preserve-3d' }}>
+              <div className="sd-summary-front" style={{ backfaceVisibility: 'hidden' }}>
+                <div className="sd-summary-head">
+                  <div className="sd-summary-icon"><Building2 size={18} /></div>
+                  <div>
+                    <h3 className="sd-summary-title">Organizations</h3>
+                    <p className="sd-panel-sub">CRM directory</p>
+                  </div>
+                </div>
+                <div className="sd-summary-stats">
+                  <div><span className="sd-stat-num">{stats.activeOrgs}</span><span className="sd-stat-lbl">Active</span></div>
+                  <div><span className="sd-stat-num">—</span><span className="sd-stat-lbl">With open tickets</span></div>
+                  <div><span className="sd-stat-num">—</span><span className="sd-stat-lbl">Recently added</span></div>
+                </div>
               </div>
-            </div>
-            <div className="sd-summary-stats">
-              <div><span className="sd-stat-num">38</span><span className="sd-stat-lbl">Total</span></div>
-              <div><span className="sd-stat-num">24</span><span className="sd-stat-lbl">With open tickets</span></div>
-              <div><span className="sd-stat-num">Poulina</span><span className="sd-stat-lbl">Recently added</span></div>
+              <div className="sd-summary-back" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                {/* Empty or mirrored content if needed */}
+              </div>
             </div>
             <button className="sd-panel-btn" onClick={onManageOrganizations}>
               Manage Organizations <ArrowRight size={14} />
             </button>
           </div>
 
-          <div className="sd-panel sd-summary-card">
-            <div className="sd-summary-head">
-              <div className="sd-summary-icon"><Users size={18} /></div>
-              <div>
-                <h3 className="sd-summary-title">Clients</h3>
-                <p className="sd-panel-sub">Across all organizations</p>
+          <div className="sd-panel sd-summary-card" style={{ perspective: '1000px' }}>
+            <div className="sd-summary-inner" style={{ animation: 'rotateCylinder 5s infinite linear', transformStyle: 'preserve-3d' }}>
+              <div className="sd-summary-front" style={{ backfaceVisibility: 'hidden' }}>
+                <div className="sd-summary-head">
+                  <div className="sd-summary-icon"><Users size={18} /></div>
+                  <div>
+                    <h3 className="sd-summary-title">Clients</h3>
+                    <p className="sd-panel-sub">Across all organizations</p>
+                  </div>
+                </div>
+                <div className="sd-summary-stats">
+                  <div><span className="sd-stat-num">{stats.registeredClients}</span><span className="sd-stat-lbl">Total</span></div>
+                  <div><span className="sd-stat-num">—</span><span className="sd-stat-lbl">New this week</span></div>
+                  <div><span className="sd-stat-num">—</span><span className="sd-stat-lbl">With open tickets</span></div>
+                </div>
               </div>
-            </div>
-            <div className="sd-summary-stats">
-              <div><span className="sd-stat-num">1,264</span><span className="sd-stat-lbl">Total</span></div>
-              <div><span className="sd-stat-num">+18</span><span className="sd-stat-lbl">New this week</span></div>
-              <div><span className="sd-stat-num">87</span><span className="sd-stat-lbl">With open tickets</span></div>
+              <div className="sd-summary-back" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+              </div>
             </div>
             <button className="sd-panel-btn" onClick={onManageClients}>
               Manage Clients <ArrowRight size={14} />
@@ -295,7 +402,7 @@ export default function SDHomeDashboard({
           </div>
         </section>
 
-        {/* ALERTS + MESSAGES + MEETINGS */}
+        {/* ALERTS + MEETINGS (Team Communication removed) */}
         <section className="sd-row sd-row-3">
           <div className="sd-panel sd-alert-card">
             <div className="sd-panel-header">
@@ -327,55 +434,36 @@ export default function SDHomeDashboard({
           <div className="sd-panel">
             <div className="sd-panel-header">
               <div>
-                <h2 className="sd-panel-title">Team Communication</h2>
-                <p className="sd-panel-sub">Recent internal messages</p>
-              </div>
-              <MessageSquare size={16} className="sd-panel-icon" />
-            </div>
-            <ul className="sd-msg-list">
-              {messages.map((m, i) => (
-                <li key={i} className="sd-msg-item">
-                  <div className="sd-msg-avatar">{m.sender.charAt(0)}</div>
-                  <div className="sd-msg-body">
-                    <div className="sd-msg-top">
-                      <span className="sd-msg-sender">{m.sender}</span>
-                      <span className="sd-muted sd-msg-time">{m.time}</span>
-                    </div>
-                    <p className="sd-msg-preview">{m.preview}</p>
-                  </div>
-                  {m.unread && <span className="sd-msg-dot" />}
-                </li>
-              ))}
-            </ul>
-            <button className="sd-panel-btn" onClick={onMessages}>
-              Open Messages <ArrowRight size={14} />
-            </button>
-          </div>
-
-          <div className="sd-panel">
-            <div className="sd-panel-header">
-              <div>
                 <h2 className="sd-panel-title">Meetings & Follow-ups</h2>
                 <p className="sd-panel-sub">Coming up</p>
               </div>
               <Calendar size={16} className="sd-panel-icon" />
             </div>
+            {/* We keep a static placeholder or fetch real meetings */}
             <ul className="sd-meet-list">
-              {meetings.map((m, i) => (
-                <li key={i} className="sd-meet-item">
-                  <div className="sd-meet-icon"><Briefcase size={14} /></div>
-                  <div className="sd-meet-body">
-                    <p className="sd-meet-title">{m.title}</p>
-                    <span className="sd-muted sd-meet-meta">{m.time} · {m.related}</span>
-                  </div>
-                  <CheckCircle2 size={14} className="sd-meet-check" />
-                </li>
-              ))}
+              <li className="sd-meet-item">
+                <div className="sd-meet-icon"><Briefcase size={14} /></div>
+                <div className="sd-meet-body">
+                  <p className="sd-meet-title">SLA review with BIAT</p>
+                  <span className="sd-muted sd-meet-meta">Today · 14:30</span>
+                </div>
+                <CheckCircle2 size={14} className="sd-meet-check" />
+              </li>
+              <li className="sd-meet-item">
+                <div className="sd-meet-icon"><Briefcase size={14} /></div>
+                <div className="sd-meet-body">
+                  <p className="sd-meet-title">PKI weekly sync</p>
+                  <span className="sd-muted sd-meet-meta">Tomorrow · 10:00</span>
+                </div>
+                <CheckCircle2 size={14} className="sd-meet-check" />
+              </li>
             </ul>
             <button className="sd-panel-btn" onClick={onMeetings}>
               View Meetings <ArrowRight size={14} />
             </button>
           </div>
+
+          {/* Empty third column or another widget if needed, but removed team comm */}
         </section>
       </div>
     </div>
