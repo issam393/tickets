@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Tickets from './Tickets';
 import TicketDetailPage from './TicketDetails';
 
-function TicketsContents() {
+function TicketsContents({ onMessages }) {
   const [selectedTicketId, setSelectedTicketId] = useState(null);
 
   const handleSelectTicket = (id) => {
@@ -15,7 +15,7 @@ function TicketsContents() {
   };
 
   if (selectedTicketId) {
-    return <TicketDetailPage ticketId={selectedTicketId} onBack={handleBack} />;
+    return <TicketDetailPage ticketId={selectedTicketId} onBack={handleBack} onMessages={onMessages} />;
   }
 
   return <Tickets onSelectTicket={handleSelectTicket} />;

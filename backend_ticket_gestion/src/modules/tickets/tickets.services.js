@@ -2,6 +2,14 @@ const ticketRepository = require('./tickets.repository');
 const roomRepository = require('../rooms/rooms.repository');
 const { validateCreateTicket } = require('./tickets.validation');
 const { getAllowedRolesForTicket, canRoleAccessRoom, parseAllowedRoles } = require('../../utils/roomAccess');
+const db = require('../../config/db');
+
+async function getNextRequestCode() {
+    const year = new Date().getFullYear();
+    const count = await ticketRepository.getTicketCountForYear(year);
+    const seq = String(Number(count) + 1).padStart(4, '0');
+    return `REQ-${year}-${seq}`;
+}
 
 function buildRequestCode() {
     const now = new Date();
@@ -72,8 +80,39 @@ async function getTicketById(ticketId, service) {
     return ticket;
 }
 
+async function assignTicket(ticketId, team) {
+    if (team !== 'IT' && team !== 'PKI') {
+        throw new Error('Invalid team assignment. Allowed teams are IT or PKI.');
+    }
+    
+    const allowedServices = ['ADMIN', team];
+    await db.execute(
+        `UPDATE rooms SET allowed_services = ? WHERE ticket_id = ?`,
+        [JSON.stringify(allowedServices), ticketId]
+    );
+    
+    return normalizeTicketRow(await ticketRepository.getTicketById(ticketId));
+}
+
+async function updateTicketStatus(ticketId, status) {
+    const VALID_STATUSES = ['Pending', 'Resolved', 'Critical', 'Warning'];
+    if (!VALID_STATUSES.includes(status)) {
+        throw new Error('Invalid status value');
+    }
+    
+    await db.execute(
+        `UPDATE tickets SET status = ? WHERE id = ?`,
+        [status, ticketId]
+    );
+    
+    return normalizeTicketRow(await ticketRepository.getTicketById(ticketId));
+}
+
 module.exports = {
     createTicket,
     listTickets,
-    getTicketById
+    getTicketById,
+    assignTicket,
+    updateTicketStatus,
+    getNextRequestCode
 };

@@ -16,7 +16,7 @@ function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMes
 
   switch (effectiveItem) {
     case 'Tickets':
-      return <TicketsContents />;
+      return <TicketsContents onMessages={onMessages} />;
     case 'Create Ticket':
       return <CreateTicket />;
      case 'Contacts':

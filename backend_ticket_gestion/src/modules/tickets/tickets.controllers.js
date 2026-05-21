@@ -28,8 +28,30 @@ async function getTicket(req, res) {
     }
 }
 
+async function assignTicket(req, res) {
+    try {
+        const { team } = req.body;
+        const result = await ticketService.assignTicket(req.params.ticketId, team);
+        res.status(200).json({ message: 'Ticket assigned successfully', data: result });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
+async function updateTicketStatus(req, res) {
+    try {
+        const { status } = req.body;
+        const result = await ticketService.updateTicketStatus(req.params.ticketId, status);
+        res.status(200).json({ message: 'Ticket status updated successfully', data: result });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
 module.exports = {
     createTicket,
     listTickets,
-    getTicket
+    getTicket,
+    assignTicket,
+    updateTicketStatus
 };

@@ -151,8 +151,16 @@ export default function Messages() {
           throw new Error(payload.error || "Failed to load chat rooms.");
         }
 
-        setRooms(payload.data || []);
-        setSelectedRoomId((previous) => previous || payload.data?.[0]?.id || null);
+        const roomsList = payload.data || [];
+        setRooms(roomsList);
+
+        const preselected = localStorage.getItem("preselectedRoomId");
+        if (preselected) {
+          setSelectedRoomId(Number(preselected));
+          localStorage.removeItem("preselectedRoomId");
+        } else {
+          setSelectedRoomId((previous) => previous || roomsList[0]?.id || null);
+        }
       } catch (loadError) {
         setRoomsError(loadError.message);
       } finally {

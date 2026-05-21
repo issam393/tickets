@@ -55,8 +55,18 @@ async function getTicketsByRole() {
     return rows;
 }
 
+async function getTicketCountForYear(year) {
+    const [rows] = await db.execute(
+        `SELECT COUNT(*) AS count FROM tickets
+         WHERE YEAR(createdAt) = ?`,
+        [year]
+    );
+    return rows[0].count;
+}
+
 module.exports = {
     createTicket,
     getTicketById,
-    getTicketsByRole
+    getTicketsByRole,
+    getTicketCountForYear
 };

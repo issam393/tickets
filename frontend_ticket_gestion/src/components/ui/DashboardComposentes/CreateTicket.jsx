@@ -498,22 +498,7 @@ export default function CreateTicket() {
     issueDescription: ''
   });
 
-  const [assignedRole, setAssignedRole] = useState(null); // 'IT' or 'PKI'
-  const [showRoleSelector, setShowRoleSelector] = useState(false);
 
-  // Ref for closing the role selector when clicking outside
-  const roleSelectorRef = useRef(null);
-
-  // Close role selector when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showRoleSelector && roleSelectorRef.current && !roleSelectorRef.current.contains(event.target)) {
-        setShowRoleSelector(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showRoleSelector]);
 
   const handleClientChange = (client) => {
     const clientName = client.split(' ')[0];
@@ -527,11 +512,6 @@ export default function CreateTicket() {
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear assigned role when relevant fields change
-    if (field === 'issueLevel' || field === 'application') {
-      setAssignedRole(null);
-      setShowRoleSelector(false);
-    }
   };
 
   const buildLocalRequestId = () => {
@@ -591,37 +571,10 @@ export default function CreateTicket() {
       issueLevel: '',
       issueDescription: ''
     });
-    setAssignedRole(null);
-    setShowRoleSelector(false);
     toast('Form has been reset', { icon: '🔄' });
   };
 
-  // --- Assign Role Logic (opens selector) ---
-  const handleAssignRoleClick = () => {
-    const { issueLevel } = formData;
 
-    if (!issueLevel) {
-      toast.error('Please select an SLA level first.');
-      return;
-    }
-
-    if (issueLevel === 'Level 1 Assistance') {
-      toast('Level 1 tickets do not require IT/PKI assignment.', { icon: 'ℹ️' });
-      setAssignedRole(null);
-      setShowRoleSelector(false);
-      return;
-    }
-
-    // Toggle the role selector popover
-    setShowRoleSelector(prev => !prev);
-  };
-
-  // Function called when user picks a team from the popover
-  const handleSelectRole = (role) => {
-    setAssignedRole(role);
-    setShowRoleSelector(false);
-    toast.success(`Ticket assigned to ${role} team`);
-  };
 
   // Toggle email card & mark as read if needed
   const handleEmailToggle = (ticketId) => {
@@ -756,47 +709,11 @@ export default function CreateTicket() {
                   <button className="create-ticket-reset-button" onClick={handleCancel}>
                     Reset Workspace
                   </button>
-<<<<<<< HEAD
+                  
                   <button className="create-ticket-submit-button" onClick={handleCreateTicket} disabled={isSubmitting}>
                     {isSubmitting ? 'Provisioning...' : 'Provision Ticket'}
-=======
-                  
-                  {/* Assign Role Button & Popover */}
-                  <div className="assign-role-wrapper" ref={roleSelectorRef}>
-                    <button className="create-ticket-assign-role-button" onClick={handleAssignRoleClick}>
-                      Assign Role
-                    </button>
-                    {showRoleSelector && (
-                      <div className="role-selector-popover">
-                        <button 
-                          className="role-option role-it" 
-                          onClick={() => handleSelectRole('IT')}
-                        >
-                          <span>IT</span>
-                        </button>
-                        <button 
-                          className="role-option role-pki" 
-                          onClick={() => handleSelectRole('PKI')}
-                        >
-                          <span>PKI</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <button className="create-ticket-submit-button" onClick={handleCreateTicket}>
-                    Provision Ticket
->>>>>>> 318fe51 (last front chabge)
                     <Send size={16} />
                   </button>
-                  
-                  {/* Assigned Role Badge */}
-                  {assignedRole && (
-                    <div className="assigned-role-badge">
-                      <span className="assigned-role-label">Assigned Team:</span>
-                      <span className="assigned-role-value">{assignedRole}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             ) : (

@@ -15,8 +15,6 @@ import {
   Send,
   Users,
   X,
-  SkipForward,
-  CircleDot,
 } from "lucide-react";
 import "./TicketDetails.css";
 
@@ -25,6 +23,7 @@ const STATUS_OPTIONS = [
   { value: "Resolved", label: "Resolved", icon: CheckCircle2 },
   { value: "Critical", label: "Critical", icon: X },
   { value: "Warning",  label: "Warning",  icon: Clock },
+  { value: "Pending",  label: "Pending",  icon: Clock },
 ];
 
 // Returns the CSS class for the status button (used by the new selector)
@@ -33,6 +32,7 @@ function statusButtonClass(status) {
     Resolved: "status-resolved",
     Critical: "status-critical",
     Warning:  "status-warning",
+    Pending:  "status-pending",
   };
   return map[status] || "";
 }
@@ -48,35 +48,58 @@ function Field({ label, value, icon: Icon }) {
         {Icon && <Icon className="field-icon" />}
         {label}
       </p>
-      <p className="field-value">{value}</p>
+      <p className="field-value">{value || "N/A"}</p>
     </div>
   );
 }
 
-function TicketDetails({ ticketId, onBack }) {
+function TicketDetails({ ticketId, onBack, onMessages }) {
   const [expanded, setExpanded] = useState(false);
   const [teamDiscussionCollapsed, setTeamDiscussionCollapsed] = useState(false);
-  const [discussionsCollapsed, setDiscussionsCollapsed] = useState(false);
 
-  // Now ticket.status is editable
-  const [ticket, setTicket] = useState({
-    application: "Web RA",
-    issueType: "Login",
-    issueLevel: "Level 1 Assistance",
-    timeOfReceipt: "30/03/2026 12:30:00",
-    timeOfCreation: "30/03/2026 12:35:00",
-    resolutionTime: "30/03/2026 14:08:00",
-    description:
-      "OTP not received on registered mobile number. User has tried multiple times to authenticate via the Web RA portal without success. The verification code SMS is not being delivered to the registered UAE mobile number.",
-    resolution:
-      "Identified an outage with the SMS provider serving the UAE region. Traffic was rerouted through the secondary gateway, and OTP delivery was restored. User confirmed successful login at 14:08 UTC.",
-    status: "Resolved",
-  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [ticket, setTicket] = useState(null);
 
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-  const statusDropdownRef = useRef(null);
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
-  // Close dropdown when clicking outside
+  const statusDropdownRef = useRef(null);
+  const roleDropdownRef = useRef(null);
+
+  // Fetch ticket details on mount or ID change
+  useEffect(() => {
+    const fetchTicket = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Please login first.");
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`http://localhost:2300/api/tickets/${ticketId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || "Failed to load ticket details");
+        }
+        setTicket(payload.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTicket();
+  }, [ticketId]);
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -84,6 +107,12 @@ function TicketDetails({ ticketId, onBack }) {
         !statusDropdownRef.current.contains(event.target)
       ) {
         setIsStatusDropdownOpen(false);
+      }
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target)
+      ) {
+        setIsRoleDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -102,18 +131,6 @@ function TicketDetails({ ticketId, onBack }) {
       role: "support",
       time: "30/03/2026 13:15:00",
       text: "We are checking the SMS gateway logs. Can you confirm that your mobile number is still active and able to receive SMS from other services?",
-    },
-    {
-      user: "USR-002",
-      role: "user",
-      time: "30/03/2026 13:42:00",
-      text: "Yes, I can receive SMS from my bank and other services normally. Only the OTP from your platform is not arriving.",
-    },
-    {
-      user: "SUP-002",
-      role: "support",
-      time: "30/03/2026 14:08:00",
-      text: "Thank you for confirming. We have identified an issue with our SMS provider for the UAE region and have rerouted traffic. Please try again now.",
     },
   ]);
 
@@ -138,6 +155,92 @@ function TicketDetails({ ticketId, onBack }) {
     setNewComment("");
   };
 
+  const handleStatusChange = async (newStatus) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`http://localhost:2300/api/tickets/${ticketId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "Failed to update status");
+      }
+      setTicket(payload.data);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleAssignTeam = async (team) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`http://localhost:2300/api/tickets/${ticketId}/assign`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ team })
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "Failed to assign ticket");
+      }
+      setTicket(payload.data);
+      setIsRoleDropdownOpen(false);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const getAssignedTeamName = () => {
+    if (!ticket || !ticket.allowed_services) return "Unassigned";
+    if (ticket.allowed_services.includes("IT")) return "IT Team";
+    if (ticket.allowed_services.includes("PKI")) return "PKI Team";
+    return "Unassigned";
+  };
+
+  const handleViewConversation = () => {
+    if (ticket && ticket.room_id) {
+      localStorage.setItem("preselectedRoomId", ticket.room_id);
+      if (onMessages) {
+        onMessages();
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="ticket-detail-page">
+        <main className="ticket-detail-main">
+          <div className="ticket-detail-container" style={{ justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
+            <p style={{ color: "var(--foreground)" }}>Loading ticket details...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="ticket-detail-page">
+        <main className="ticket-detail-main">
+          <div className="ticket-detail-container" style={{ justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
+            <p style={{ color: "var(--critical)" }}>Error: {error}</p>
+            <button onClick={onBack} className="back-button" style={{ marginTop: "1rem" }}>
+              Back to List
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="ticket-detail-page">
       <main className="ticket-detail-main">
@@ -152,7 +255,7 @@ function TicketDetails({ ticketId, onBack }) {
               </button>
               <div>
                 <h1 className="detail-title">Ticket Details</h1>
-                <p className="detail-id">{ticketId}</p>
+                <p className="detail-id">{ticket?.request_code}</p>
               </div>
             </div>
           </header>
@@ -212,10 +315,8 @@ function TicketDetails({ ticketId, onBack }) {
                   <Field label="Role" value="End User / Verified" icon={Shield} />
                   <Field label="Job Title" value="Senior Security Analyst" icon={Briefcase} />
                   <Field label="Organization" value="AGCE" />
-                  <Field label="Country" value="Algeria" />
                   <Field label="Created At" value="15/01/2025 09:12:00" icon={Clock} />
                   <Field label="Updated At" value="30/03/2026 14:08:00" icon={RefreshCw} />
-                  <Field label="Last Login" value="30/03/2026 12:28:00" icon={Clock} />
                 </div>
               </div>
             </div>
@@ -223,64 +324,104 @@ function TicketDetails({ ticketId, onBack }) {
 
           {/* TICKET INFORMATION CARD */}
           <GlassCard className="ticket-info-card">
-            {/* Header with new status selector */}
+            {/* Header with new status & team selector */}
             <div className="ticket-info-header">
               <div>
                 <h2 className="section-title">Ticket Information</h2>
-                <p className="ticket-id-sub">{ticketId}</p>
+                <p className="ticket-id-sub">{ticket?.request_code}</p>
               </div>
 
-              {/* Status selector */}
-              <div className="status-selector-wrapper" ref={statusDropdownRef}>
-                <button
-                  className={`status-selector-btn ${statusButtonClass(ticket.status)}`}
-                  onClick={() => setIsStatusDropdownOpen((prev) => !prev)}
-                >
-                  {(() => {
-                    const current = STATUS_OPTIONS.find((o) => o.value === ticket.status);
-                    const Icon = current ? current.icon : CheckCircle2;
-                    return <Icon className="status-btn-icon" />;
-                  })()}
-                  {ticket.status}
-                  <ChevronDown className="status-chevron" />
-                </button>
-
-                {isStatusDropdownOpen && (
-                  <div className="status-dropdown">
-                    {STATUS_OPTIONS.map((option) => {
-                      const Icon = option.icon;
-                      const isActive = ticket.status === option.value;
-                      return (
-                        <button
-                          key={option.value}
-                          className={`status-dropdown-option ${isActive ? "active" : ""}`}
-                          onClick={() => {
-                            setTicket({ ...ticket, status: option.value });
-                            setIsStatusDropdownOpen(false);
-                          }}
-                        >
-                          <Icon className="option-icon" />
-                          {option.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+                {ticket?.room_id && (
+                  <button 
+                    onClick={handleViewConversation} 
+                    className="view-conversation-btn"
+                  >
+                    <MessageSquare size={14} />
+                    View Conversation
+                  </button>
                 )}
+
+                {/* Team Assignment Selector */}
+                <div className="role-assignment-wrapper" ref={roleDropdownRef}>
+                  <button
+                    className="role-assignment-btn"
+                    onClick={() => setIsRoleDropdownOpen(prev => !prev)}
+                  >
+                    <Users size={14} />
+                    {getAssignedTeamName()}
+                    <ChevronDown size={14} />
+                  </button>
+                  {isRoleDropdownOpen && (
+                    <div className="role-dropdown">
+                      <button
+                        className={`role-dropdown-option ${ticket?.allowed_services?.includes('IT') ? 'active' : ''}`}
+                        onClick={() => handleAssignTeam('IT')}
+                      >
+                        IT Team
+                      </button>
+                      <button
+                        className={`role-dropdown-option ${ticket?.allowed_services?.includes('PKI') ? 'active' : ''}`}
+                        onClick={() => handleAssignTeam('PKI')}
+                      >
+                        PKI Team
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Status selector */}
+                <div className="status-selector-wrapper" ref={statusDropdownRef}>
+                  <button
+                    className={`status-selector-btn ${statusButtonClass(ticket?.status)}`}
+                    onClick={() => setIsStatusDropdownOpen((prev) => !prev)}
+                  >
+                    {(() => {
+                      const current = STATUS_OPTIONS.find((o) => o.value === ticket?.status);
+                      const Icon = current ? current.icon : CheckCircle2;
+                      return <Icon className="status-btn-icon" />;
+                    })()}
+                    {ticket?.status}
+                    <ChevronDown className="status-chevron" />
+                  </button>
+
+                  {isStatusDropdownOpen && (
+                    <div className="status-dropdown">
+                      {STATUS_OPTIONS.map((option) => {
+                        const Icon = option.icon;
+                        const isActive = ticket?.status === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            className={`status-dropdown-option ${isActive ? "active" : ""}`}
+                            onClick={() => {
+                              handleStatusChange(option.value);
+                              setIsStatusDropdownOpen(false);
+                            }}
+                          >
+                            <Icon className="option-icon" />
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="ticket-fields-grid">
-              <Field label="Application" value={ticket.application} />
-              <Field label="Issue Type" value={ticket.issueType} />
-              <Field label="Issue Level" value={ticket.issueLevel} />
-              <Field label="Time of Receipt" value={ticket.timeOfReceipt} />
-              <Field label="Time of Creation" value={ticket.timeOfCreation} />
-              <Field label="Resolution Time" value={ticket.resolutionTime} />
+              <Field label="Application" value={ticket?.application} />
+              <Field label="Issue Type" value={ticket?.issue_type} />
+              <Field label="Issue Level" value={ticket?.issue_level} />
+              <Field label="Time of Receipt" value={ticket ? new Date(ticket.createdAt).toLocaleString() : ""} />
+              <Field label="Time of Creation" value={ticket ? new Date(ticket.createdAt).toLocaleString() : ""} />
+              <Field label="Resolution Time" value={ticket && ticket.status === 'Resolved' ? new Date(ticket.updatedAt).toLocaleString() : "N/A"} />
             </div>
 
             <div className="description-section">
               <h3 className="description-title">Issue Description</h3>
-              <p className="description-text">{ticket.description}</p>
+              <p className="description-text">{ticket?.issue_description}</p>
             </div>
 
             <div className="resolution-section">
@@ -288,7 +429,11 @@ function TicketDetails({ ticketId, onBack }) {
                 <CheckCircle2 className="resolution-icon" />
                 Resolution / Comment
               </h3>
-              <p className="resolution-text">{ticket.resolution}</p>
+              <p className="resolution-text">
+                {ticket?.status === 'Resolved'
+                  ? "Rerouted traffic and successfully verified resolution with secondary gateway configuration."
+                  : "Under active investigation by our support specialists."}
+              </p>
             </div>
           </GlassCard>
 
@@ -345,46 +490,6 @@ function TicketDetails({ ticketId, onBack }) {
                     <Send className="post-icon" />
                     Send
                   </button>
-                </div>
-              </div>
-            </div>
-          </GlassCard>
-
-          {/* DISCUSSIONS & MEETINGS CARD */}
-          <GlassCard className="discussions-card">
-            <h2 className="section-title">Discussions & Meetings</h2>
-
-            <div className="team-discussion">
-              <div
-                className="discussion-header clickable"
-                onClick={() => setDiscussionsCollapsed(!discussionsCollapsed)}
-              >
-                <h3 className="discussion-subtitle">
-                  <Users className="discussion-icon" />
-                  Team Discussion
-                </h3>
-                <div className="discussion-meta">
-                  <button className="collapse-toggle">
-                    {discussionsCollapsed ? <ChevronDown size={30} /> : <ChevronUp size={30} />}
-                  </button>
-                </div>
-              </div>
-
-              <div className={`collapsible-content ${discussionsCollapsed ? "collapsed" : ""}`}>
-                <div className="discussion-thread">
-                  {[
-                    { name: "Fatima Ahmed", time: "30/03/2026 13:20", text: "Looking into the SMS gateway logs now. Seeing a spike in failures for UAE numbers." },
-                    { name: "Mohammed Salem", time: "30/03/2026 13:35", text: "Confirmed — provider has an active incident. I'll trigger the failover to the secondary route." },
-                    { name: "Fatima Ahmed", time: "30/03/2026 14:05", text: "Failover complete. Test OTPs are landing within 3s. Closing this thread." },
-                  ].map((m, i) => (
-                    <div key={i} className="thread-message">
-                      <div className="thread-message-header">
-                        <span className="thread-author">{m.name}</span>
-                        <span className="thread-time">{m.time}</span>
-                      </div>
-                      <p className="thread-text">{m.text}</p>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
