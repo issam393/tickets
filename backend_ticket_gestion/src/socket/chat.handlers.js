@@ -53,6 +53,10 @@ function registerChatHandlers(io, socket) {
             const room = await roomService.getRoomById(roomId);
             roomService.assertRoomAccess(room, socket.user.service);
 
+            if (socket.user.service === 'Manager' || String(socket.user.service).toUpperCase() === 'MANAGER') {
+                throw new Error('Action non autorisée');
+            }
+
             const savedMessage = await messageRepository.saveMessage(roomId, socket.user.id, messageText);
 
             const broadcastPayload = {

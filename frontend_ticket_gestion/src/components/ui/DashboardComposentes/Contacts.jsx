@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Search, Eye, Trash2, Edit, Check, X, Pencil, Plus } from "lucide-react";
+import toast from "react-hot-toast";
 import "./Contacts.css";
 import OrganizationDetails from "./ContactDetails/OrganizationDetails";
 
@@ -32,15 +33,17 @@ function getUserRole() {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.service;
+    const role = payload.service;
+    if (String(role).toUpperCase() === 'MANAGER') return 'Manager';
+    return role;
   } catch {
     return null;
   }
 }
 
-function Contacts() {
+function Contacts({ readOnly = false }) {
   const role = getUserRole();
-  const isReadOnly = role === 'Manager';
+  const isReadOnly = readOnly || role === 'Manager';
   const hasAccess = role === 'SD' || role === 'Manager';
   const [searchTerm, setSearchTerm]             = useState("");
   const [activeTab, setActiveTab]               = useState("contacts");
@@ -69,10 +72,13 @@ function Contacts() {
         fetch(`${API}/organizations`, { headers }),
       ]);
       const [cJson, oJson] = await Promise.all([cRes.json(), oRes.json()]);
+      if (!cRes.ok) throw new Error(cJson.error || cJson.message || "Failed to load contacts");
+      if (!oRes.ok) throw new Error(oJson.error || oJson.message || "Failed to load organizations");
       setContacts(cJson.data || []);
       setOrganizations(oJson.data || []);
-    } catch {
-      setError("Failed to load data");
+    } catch (loadError) {
+      setError(loadError.message || "Failed to load data");
+      toast.error(loadError.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -130,8 +136,9 @@ function Contacts() {
       if (!res.ok) throw new Error(json.error || "Update failed");
       await fetchAll();
       closeDialog();
+      toast.success(`${dialogType === "contact" ? "Contact" : "Organization"} updated successfully.`);
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -152,8 +159,9 @@ function Contacts() {
       if (!res.ok) throw new Error(json.error || "Delete failed");
       await fetchAll();
       setDeleteDialog({ open: false, item: null, type: null });
+      toast.success(`${type === "contact" ? "Contact" : "Organization"} deleted successfully.`);
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
       setDeleteDialog({ open: false, item: null, type: null });
     }
   };
@@ -161,7 +169,7 @@ function Contacts() {
   // ── add organization ───────────────────────────────────────────────────────
   const handleAddOrg = async () => {
     if (!newOrg.name || !newOrg.industry || !newOrg.email || !newOrg.phone) {
-      alert("Please fill all required fields");
+      toast.error("Please fill all required fields.");
       return;
     }
     try {
@@ -175,8 +183,9 @@ function Contacts() {
       await fetchAll();
       setIsAddOrgOpen(false);
       setNewOrg({ name: "", industry: "", email: "", phone: "", address: "" });
+      toast.success("Organization created successfully.");
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -237,6 +246,7 @@ function Contacts() {
     return (
       <OrganizationDetails
         organization={selectedOrganization}
+        readOnly={isReadOnly}
         onBack={() => { setSelectedOrganization(null); fetchAll(); }}
       />
     );

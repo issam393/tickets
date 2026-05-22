@@ -9,6 +9,8 @@ const meetingRoomRoutes  = require("./modules/meetingRooms/meetingRooms.routes")
 const contactRoutes      = require("./modules/contacts/contacts.routes");
 const organizationRoutes = require("./modules/organizations/organizations.routes");
 const commentRoutes      = require("./modules/comments/comments.routes");
+const dashboardRoutes    = require("./modules/dashboard/dashboard.routes");
+const activityRoutes     = require("./modules/activity/activity.routes");
 
 
 const app = express();
@@ -27,5 +29,7 @@ app.use("/api/meeting-rooms", meetingRoomRoutes);
 app.use("/api/contacts",      contactRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api",               commentRoutes);
+app.use("/api/dashboard",     dashboardRoutes);
+app.use("/api/activity",      activityRoutes);
 
 module.exports = app;

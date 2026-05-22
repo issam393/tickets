@@ -22,32 +22,29 @@ export default function UserIdentityBar() {
   });
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
 
     if (!token) return;
 
     const fetchUserDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:2300/api/employees/GetAllEmps`, {
+        const response = await fetch(`http://localhost:2300/api/employees/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
         const data = await response.json();
         if (response.ok && data.data) {
-          const user = data.data.find(u => u.id === parseInt(userId) || u.userName === username);
-          if (user) {
-            setCurrentUser({
-              name: `${user.firstName} ${user.lastName}`,
-              email: user.email,
-              role: user.service_name,
-              avatar: `${user.firstName[0]}${user.lastName[0]}`.toUpperCase(),
-            });
-          }
+          const user = data.data;
+          setCurrentUser({
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            role: user.service_name,
+            avatar: `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || 'U',
+          });
         }
-      } catch (error) {
-        console.error('Failed to fetch user details:', error);
+      } catch {
+        toast.error('Failed to load user details');
       }
     };
 

@@ -1644,3 +1644,215 @@ body {
 .Area-chart{
   color: #fff;
 }
+
+/* ============================
+   DYNAMIC MANAGER DASHBOARD
+   ============================ */
+.manager-dynamic-dashboard .kpi-card__icon-wrapper {
+  position: static;
+}
+
+.dashboard-state-page {
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.dashboard-state {
+  max-width: 520px;
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.dashboard-state svg {
+  color: var(--primary);
+}
+
+.dashboard-state button,
+.manager-dynamic-dashboard button {
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  background: rgba(0, 217, 255, 0.1);
+  color: var(--primary);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.manager-grid {
+  display: grid;
+  gap: 22px;
+}
+
+.manager-grid--charts,
+.manager-grid--two {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.manager-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.manager-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.manager-section-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.manager-section-header p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.manager-section-header svg {
+  color: var(--primary);
+  width: 20px;
+  height: 20px;
+}
+
+.manager-chart-split {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.manager-chart-legend,
+.manager-mini-metrics,
+.manager-readonly-list,
+.manager-activity-list,
+.manager-assignment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.manager-chart-legend strong {
+  font-size: 24px;
+  color: var(--text-primary);
+}
+
+.manager-chart-legend span,
+.manager-mini-metrics span,
+.manager-readonly-list div,
+.manager-employee-card {
+  border: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.manager-chart-legend span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.manager-chart-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.manager-mini-metrics strong {
+  color: var(--text-primary);
+  font-size: 20px;
+  margin-right: 6px;
+}
+
+.manager-readonly-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.manager-readonly-list strong {
+  color: var(--text-primary);
+}
+
+.manager-readonly-list span,
+.manager-employee-card span,
+.manager-employee-card small {
+  color: var(--text-secondary);
+}
+
+.manager-activity-item,
+.manager-assignment-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--border-light);
+}
+
+.manager-activity-item p,
+.manager-assignment-item p {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.manager-activity-item small,
+.manager-assignment-item small {
+  color: var(--text-secondary);
+}
+
+.manager-activity-dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: var(--glow-primary);
+  flex-shrink: 0;
+}
+
+.manager-assignment-item svg {
+  color: var(--primary);
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.manager-employee-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.manager-employee-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manager-empty-state {
+  border: 1px dashed var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .manager-grid--charts,
+  .manager-grid--two,
+  .manager-grid--three {
+    grid-template-columns: 1fr;
+  }
+}

@@ -26,6 +26,10 @@ function assertRoomAccess(room, service) {
         throw new Error('Room not found');
     }
 
+    if (room.ticket_status === 'Resolved') {
+        throw new Error('Ticket already resolved. Messages are read-only and hidden.');
+    }
+
     if (!canRoleAccessRoom(service, room.allowed_services)) {
         throw new Error('Access denied');
     }
@@ -35,6 +39,7 @@ async function listRoomsForRole(service) {
     const rooms = await roomRepository.getAccessibleRoomsByRole();
     return rooms
         .map(normalizeRoom)
+        .filter((room) => room.ticket_status !== 'Resolved')
         .filter((room) => canRoleAccessRoom(service, room.allowed_services));
 }
 

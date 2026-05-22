@@ -761,6 +761,64 @@
   width: 100%;
 }
 
+.email-processing-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.email-processing-search {
+  flex: 1;
+  min-width: 260px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.email-processing-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.email-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 42px;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(99, 179, 237, 0.35);
+  background: rgba(99, 179, 237, 0.1);
+  color: #63b3ed;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: all 180ms ease;
+}
+
+.email-upload-button:hover {
+  border-color: rgba(99, 179, 237, 0.65);
+  background: rgba(99, 179, 237, 0.18);
+  color: #fff;
+}
+
+.email-upload-button input {
+  display: none;
+}
+
 .create-ticket-email-list {
   display: flex;
   flex-direction: column;
@@ -862,6 +920,43 @@
 .email-attachments {
   color: #3b82f6;
   font-weight: 500;
+}
+
+.email-file-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.email-file-list-toolbar {
+  margin: 0 0 1rem 0;
+}
+
+.email-file-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 220px;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.24);
+  color: #93c5fd;
+  font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-empty-state {
+  padding: 2rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .email-chevron {

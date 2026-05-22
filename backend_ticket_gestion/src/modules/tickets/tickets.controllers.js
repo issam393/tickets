@@ -1,40 +1,41 @@
 const ticketService = require('./tickets.services');
+const { sendSuccess, sendError, getErrorStatus } = require('../../utils/apiResponse');
 
 async function createTicket(req, res) {
     try {
         const result = await ticketService.createTicket(req.user.id, req.body);
-        res.status(201).json({ message: 'Ticket created', data: result });
+        sendSuccess(res, 201, 'Ticket created successfully with status Pending', result);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        sendError(res, getErrorStatus(error, 400), error.message);
     }
 }
 
 async function listTickets(req, res) {
     try {
         const result = await ticketService.listTickets(req.user.service);
-        res.status(200).json({ data: result });
+        sendSuccess(res, 200, 'Tickets loaded successfully', result);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        sendError(res, 500, error.message);
     }
 }
 
 async function getTicket(req, res) {
     try {
         const result = await ticketService.getTicketById(req.params.ticketId, req.user.service);
-        res.status(200).json({ data: result });
+        sendSuccess(res, 200, 'Ticket loaded successfully', result);
     } catch (error) {
         const status = error.message === 'Access denied' ? 403 : 404;
-        res.status(status).json({ error: error.message });
+        sendError(res, status, error.message);
     }
 }
 
 async function assignTicket(req, res) {
     try {
         const { team } = req.body;
-        const result = await ticketService.assignTicket(req.params.ticketId, team);
-        res.status(200).json({ message: 'Ticket assigned successfully', data: result });
+        const result = await ticketService.assignTicket(req.params.ticketId, team, req.user.id);
+        sendSuccess(res, 200, `Ticket assigned successfully to ${team}`, result);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        sendError(res, getErrorStatus(error, 400), error.message);
     }
 }
 
@@ -42,18 +43,28 @@ async function updateTicketStatus(req, res) {
     try {
         const { status } = req.body;
         const result = await ticketService.updateTicketStatus(req.params.ticketId, status);
-        res.status(200).json({ message: 'Ticket status updated successfully', data: result });
+        sendSuccess(res, 200, 'Ticket status updated successfully', result);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        sendError(res, getErrorStatus(error, 400), error.message);
     }
 }
 
 async function getNextRequestCode(req, res) {
     try {
         const requestCode = await ticketService.getNextRequestCode();
-        res.status(200).json({ data: requestCode });
+        sendSuccess(res, 200, 'Next request code generated', requestCode);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        sendError(res, 500, error.message);
+    }
+}
+
+async function getAssignmentHistory(req, res) {
+    try {
+        const result = await ticketService.getAssignmentHistory(req.params.ticketId, req.user.service);
+        sendSuccess(res, 200, 'Assignment history loaded successfully', result);
+    } catch (error) {
+        const status = error.message === 'Access denied' ? 403 : 404;
+        sendError(res, status, error.message);
     }
 }
 
@@ -63,5 +74,6 @@ module.exports = {
     getTicket,
     assignTicket,
     updateTicketStatus,
+    getAssignmentHistory,
     getNextRequestCode
 };

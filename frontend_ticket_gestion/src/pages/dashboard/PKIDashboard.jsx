@@ -3,8 +3,8 @@ import SideBar from '../../components/ui/SideBar';
 import DashboardContent from '../../components/ui/DashboardContent';
 import './PKIDashboard.css';
 
-function PKIDashboard() {
-  const [activeItem, setActiveItem] = useState('Dashboard');
+function PKIDashboard({ initialActiveItem = 'Dashboard' }) {
+  const [activeItem, setActiveItem] = useState(initialActiveItem);
   const [contentOverride, setContentOverride] = useState(null);
 
   const handleViewAllTickets = () => {
@@ -15,6 +15,21 @@ function PKIDashboard() {
   const handleMessages = () => {
     setContentOverride('Messages');
     setActiveItem('Messages');          // optional: highlight Messages in sidebar
+  };
+
+  const handleCreateTicket = () => {
+    setContentOverride('Create Ticket');
+    setActiveItem('Create Ticket');
+  };
+
+  const handleContacts = () => {
+    setContentOverride('Contacts');
+    setActiveItem('Contacts');
+  };
+
+  const handleMeetings = () => {
+    setContentOverride('Meetings');
+    setActiveItem('Meetings');
   };
 
   const handleSidebarChange = (item) => {
@@ -31,6 +46,11 @@ function PKIDashboard() {
           contentOverride={contentOverride}
           onViewAllTickets={handleViewAllTickets}
           onMessages={handleMessages}
+          onCreateTicket={handleCreateTicket}
+          onManageOrganizations={handleContacts}
+          onManageClients={handleContacts}
+          onReviewAssignments={handleViewAllTickets}
+          onMeetings={handleMeetings}
         />
       </main>
     </div>

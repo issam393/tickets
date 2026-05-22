@@ -48,9 +48,20 @@ const findAll = async () => {
     return rows;
 };
 
+const findById = async (id) => {
+    const [rows] = await db.execute(
+        `SELECT e.*, s.name as service_name 
+         FROM employees e
+         LEFT JOIN services s ON e.service_id = s.id
+         WHERE e.id = ?`,
+        [id]
+    );
+    return rows[0];
+};
+
 const Delete = async (id) => {
     const [result] = await db.execute('DELETE FROM employees WHERE id = ?', [id]);
     return result;
 };
 
-module.exports = { create, update, isUser, findAll, Delete };
+module.exports = { create, update, isUser, findAll, findById, Delete };

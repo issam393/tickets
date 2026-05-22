@@ -10,8 +10,15 @@ import {
   User,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './SideBar.css';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:2300/api';
+
+function normalizeRole(role) {
+  if (!role) return null;
+  return String(role).toUpperCase() === 'MANAGER' ? 'Manager' : role;
+}
 
 function getUserFromToken() {
   const token = localStorage.getItem('token');
@@ -20,10 +27,10 @@ function getUserFromToken() {
     const payload = JSON.parse(atob(token.split('.')[1]));
     return {
       id: payload.id || payload.userId,
-      userName: payload.userName,
+      userName: payload.userName || payload.username || localStorage.getItem('username'),
       firstName: payload.firstName,
       lastName: payload.lastName,
-      service: payload.service,
+      service: normalizeRole(payload.service || payload.role),
     };
   } catch {
     return null;
@@ -32,34 +39,49 @@ function getUserFromToken() {
 
 function Sidebar({ activeItem, setActiveItem }) {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const tokenUser = useMemo(() => getUserFromToken(), []);
+  const [user, setUser] = useState(tokenUser);
 
-useEffect(() => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      console.log('Token payload:', payload);
-      setUser({
-        id: payload.id || payload.userId,
-        userName: payload.userName || payload.username || payload.email,
-        firstName: payload.firstName || payload.firstname || payload.given_name,
-        lastName: payload.lastName || payload.lastname || payload.family_name,
-        service: payload.service || payload.role,
-      });
-    } catch (e) {
-      console.error('Failed to decode token:', e);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    let isMounted = true;
+
+    async function loadCurrentUser() {
+      try {
+        const response = await fetch(`${API_BASE}/employees/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const payload = await response.json();
+        if (!response.ok || !payload.data || !isMounted) return;
+
+        const employee = payload.data;
+        setUser({
+          id: employee.id,
+          userName: employee.userName || employee.email || tokenUser?.userName,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          service: normalizeRole(employee.service_name || tokenUser?.service),
+        });
+      } catch {
+        if (isMounted) setUser(tokenUser);
+      }
     }
-  } else {
-    console.log('No token found in localStorage');
-  }
-}, []);
+
+    loadCurrentUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tokenUser]);
 
   const role = user?.service;
   const initials = user
-    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase()
+    ? `${user.firstName?.[0] || user.userName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase()
     : '??';
-  const displayName = user ? `${user.firstName} ${user.lastName}` : 'Loading...';
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+  const displayName = fullName || user?.userName || 'Loading...';
 
   const navItems = [
     { label: 'Dashboard', icon: LayoutDashboard },
@@ -73,7 +95,7 @@ useEffect(() => {
   // Filter nav items based on role
   const visibleNavItems = navItems.filter((item) => {
     if (role === 'Manager') {
-      return ['Dashboard', 'Tickets', 'Messages', 'Meetings'].includes(item.label);
+      return ['Dashboard', 'Contacts', 'Tickets', 'Messages', 'Meetings'].includes(item.label);
     }
     if (role === 'PKI' || role === 'IT') {
       return ['Dashboard', 'Tickets', 'Messages', 'Meetings'].includes(item.label);

@@ -20,14 +20,23 @@ const editEmployee = async (id, employeeData) => {
         employeeData.password = await bcrypt.hash(employeeData.password, 10);
     }
     return await employeeRepository.update(id, employeeData);
-};//REVIEW - modifie it
+};
 
 const getAllEmployees = async () => {
     return await employeeRepository.findAll();
 };
 
+const getEmployeeById = async (id) => {
+    const employee = await employeeRepository.findById(id);
+    if (!employee) {
+        throw new Error('Employee not found');
+    }
+    return employee;
+};
+
+
 const deleteEmployee = async (id) => {
     return await employeeRepository.Delete(id);
 };
 
-module.exports = { createEmployee, editEmployee, getAllEmployees, deleteEmployee };
+module.exports = { createEmployee, editEmployee, getAllEmployees, getEmployeeById, deleteEmployee };

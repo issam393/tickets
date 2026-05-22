@@ -31,6 +31,44 @@ async function getTicketById(ticketId) {
     return rows[0];
 }
 
+async function createAssignmentHistory(data) {
+    const { ticketId, previousService, newService, assignedBy } = data;
+    const [result] = await db.execute(
+        `INSERT INTO ticket_assignment_history (
+            ticket_id, previous_service, new_service, assigned_by
+        ) VALUES (?, ?, ?, ?)`,
+        [ticketId, previousService || null, newService, assignedBy]
+    );
+    return result.insertId;
+}
+
+async function getAssignmentHistoryByTicketId(ticketId) {
+    const [rows] = await db.execute(
+        `SELECT
+            h.id,
+            h.ticket_id,
+            h.previous_service,
+            h.new_service,
+            h.assigned_by,
+            h.assigned_at,
+            e.firstName,
+            e.lastName,
+            e.userName,
+            s.name AS assigner_service
+         FROM ticket_assignment_history h
+         JOIN employees e ON e.id = h.assigned_by
+         LEFT JOIN services s ON s.id = e.service_id
+         WHERE h.ticket_id = ?
+         ORDER BY h.assigned_at ASC`,
+        [ticketId]
+    );
+    return rows;
+}
+
+async function getAssignmentHistoryForApi(ticketId) {
+    return getAssignmentHistoryByTicketId(ticketId);
+}
+
 async function getTicketsByRole() {
     const [rows] = await db.execute(
         `SELECT
@@ -42,6 +80,7 @@ async function getTicketsByRole() {
             t.issue_level,
             t.issue_description,
             t.status,
+            t.created_by,
             t.createdAt,
             t.updatedAt,
             r.id AS room_id,
@@ -68,5 +107,8 @@ module.exports = {
     createTicket,
     getTicketById,
     getTicketsByRole,
-    getTicketCountForYear
+    getTicketCountForYear,
+    createAssignmentHistory,
+    getAssignmentHistoryByTicketId,
+    getAssignmentHistoryForApi
 };

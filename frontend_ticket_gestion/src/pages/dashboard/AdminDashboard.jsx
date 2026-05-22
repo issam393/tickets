@@ -598,7 +598,7 @@ const AdminDashboard = () => {
         headers: { "Authorization": `Bearer ${token}` }
       });
       
-      if (response.status === 403 || response.status === 401) {
+      if (response.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('username');
@@ -606,11 +606,17 @@ const AdminDashboard = () => {
         navigate('/');
         return;
       }
+
+      if (response.status === 403) {
+        toast.error('Action non autorisée.');
+        setUsers([]);
+        return;
+      }
       
       const data = await response.json();
       if (response.ok) setUsers(data.data || []);
       else toast.error(data.error || "Failed to fetch users");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Cannot connect to server");
     } finally {
       setLoading(false);
@@ -670,7 +676,7 @@ const AdminDashboard = () => {
         const data = await response.json();
         toast.error(data.error || "Update failed");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Cannot connect to server");
     }
   };

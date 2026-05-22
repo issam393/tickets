@@ -17,6 +17,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getAuthUser, getDefaultRouteForRole, normalizeRole } from "../../../lib/authAccess";
 import "./ProfilePage.css";
 
 const getInitials = (first, last) => `${first?.charAt(0) || ''}${last?.charAt(0) || ''}`.toUpperCase();
@@ -32,12 +33,6 @@ const serviceOptions = [
   { id: 3, name: "MANAGER" },
   { id: 4, name: "ADMIN" },
   { id: 5, name: "PKI" },
-];
-
-const roleOptions = [
-  { id: 1, name: "TECHNICIAN" },
-  { id: 2, name: "AGENT" },
-  { id: 3, name: "ADMIN" },
 ];
 
 const StatusBadge = ({ status }) => {
@@ -240,7 +235,7 @@ const PasswordChangeModal = ({ isOpen, onClose }) => {
       } else {
         toast.error(data.error || "Failed to update password");
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error("Network error");
     } finally {
       setSubmitting(false);
@@ -308,17 +303,17 @@ const ProfilePage = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("http://localhost:2300/api/employees/GetAllEmps", {
+      const response = await fetch("http://localhost:2300/api/employees/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
+    
       const data = await response.json();
       if (response.ok) {
-        const currentUser = data.data.find((u) => u.id === parseInt(userId));
-        setUser(currentUser);
+        setUser(data.data);
       } else {
-        toast.error("Failed to load profile");
+        toast.error(data.error || data.message || "Failed to load profile");
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error("Cannot connect to server");
     } finally {
       setLoading(false);
@@ -359,13 +354,14 @@ const ProfilePage = () => {
 
   const fullName = `${user.firstName} ${user.lastName}`;
   const initials = getInitials(user.firstName, user.lastName);
-  const statusCfg = statusConfig[user.status] || statusConfig.Inactive;
-
+  const dashboardRoute = getDefaultRouteForRole(
+    getAuthUser()?.role || normalizeRole(user.service_name)
+  );
   return (
     <main className="profile-page-main-container">
       <div className="profile-content-wrapper-box">
         <div className="back-navigation-section">
-          <a href="/admin" className="back-link-button-style">
+          <a href={dashboardRoute} className="back-link-button-style">
             <ArrowLeft className="small-icon-size-main" />
             Back to Dashboard
           </a>

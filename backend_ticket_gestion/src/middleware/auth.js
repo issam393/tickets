@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { isBlacklisted } = require('../utils/blacklist');
+const { sendError } = require('../utils/apiResponse');
 const dotenv = require("dotenv");
 
 
@@ -12,17 +13,17 @@ const auth = (req, res, next) => {
    
     
     if (!token) {
-        return res.status(401).json({ error: "Access token required" });
+        return sendError(res, 401, "Access token required");
     }
     
     if (isBlacklisted(token)) {
-        return res.status(401).json({ error: "Token invalidated. Please login again." });
+        return sendError(res, 401, "Token invalidated. Please login again.");
     }
  
     jwt.verify(token, JWT_SECRET, (err, user) => {
 
         if (err) {
-            return res.status(403).json({ error: "Invalid or expired token" });
+            return sendError(res, 403, "Invalid or expired token");
         }
         req.user = user;
         next();

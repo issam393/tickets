@@ -16,14 +16,16 @@ import {
   Users,
   X,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import "./TicketDetails.css";
 
 // Status options for the selector
 const STATUS_OPTIONS = [
+  { value: "Pending", label: "Pending", icon: Clock },
+  { value: "In Progress", label: "In Progress", icon: RefreshCw },
   { value: "Resolved", label: "Resolved", icon: CheckCircle2 },
   { value: "Critical", label: "Critical", icon: X },
   { value: "Warning", label: "Warning", icon: Clock },
-  { value: "Pending", label: "Pending", icon: Clock },
 ];
 
 // Returns the CSS class for the status button
@@ -33,6 +35,7 @@ function statusButtonClass(status) {
     Critical: "status-critical",
     Warning: "status-warning",
     Pending: "status-pending",
+    "In Progress": "status-progress",
   };
   return map[status] || "";
 }
@@ -54,6 +57,19 @@ function Field({ label, value, icon: Icon }) {
 }
 
 function TicketDetails({ ticketId, onBack, onMessages }) {
+  const getRole = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const role = payload.service;
+      return String(role).toUpperCase() === "MANAGER" ? "Manager" : role;
+    } catch {
+      return null;
+    }
+  };
+  const role = getRole();
+  const canManageTicket = role === "SD";
   const [expanded, setExpanded] = useState(false);
   const [teamDiscussionCollapsed, setTeamDiscussionCollapsed] = useState(false);
 
@@ -70,6 +86,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
   // Comments state
   const [commentsList, setCommentsList] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsError, setCommentsError] = useState("");
   const [newComment, setNewComment] = useState("");
 
   // Fetch ticket details on mount or ID change
@@ -104,30 +121,34 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     fetchTicket();
   }, [ticketId]);
 
-  // Fetch comments whenever ticketId changes
+  // Fetch comments whenever ticketId changes. Resolved tickets keep their history visible.
   useEffect(() => {
     const fetchComments = async () => {
       const token = localStorage.getItem("token");
       if (!token || !ticketId) return;
       try {
         setCommentsLoading(true);
+        setCommentsError("");
         const response = await fetch(
           `http://localhost:2300/api/tickets/${ticketId}/comments`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const payload = await response.json();
-        if (response.ok) {
-          setCommentsList(payload.data);
+        if (!response.ok) {
+          throw new Error(payload.message || payload.error || "Failed to load comments");
         }
+        setCommentsList(payload.data || []);
       } catch (err) {
-        console.error("Failed to load comments", err);
+        setCommentsList([]);
+        setCommentsError(err.message || "Failed to load comments");
+        toast.error(err.message || "Failed to load comments");
       } finally {
         setCommentsLoading(false);
       }
     };
 
     fetchComments();
-  }, [ticketId]);
+  }, [ticketId, ticket?.status]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -152,6 +173,14 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
   // Send a comment
   const handleSendComment = async () => {
     if (!newComment.trim()) return;
+    if (ticket?.status === "Resolved") {
+      toast.error("Cannot add comment because the ticket is resolved.");
+      return;
+    }
+    if (role === "Manager") {
+      toast.error("Action non autorisée.");
+      return;
+    }
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
@@ -167,17 +196,26 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
       );
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload.error || "Failed to add comment");
+        throw new Error(payload.message || payload.error || "Failed to add comment");
       }
       // Append the new comment (returned by backend with full user info)
-      setCommentsList([...commentsList, payload.data]);
+      setCommentsList((previous) => [...previous, payload.data]);
       setNewComment("");
+      toast.success("Comment sent.");
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
   const handleStatusChange = async (newStatus) => {
+    if (!canManageTicket) {
+      toast.error("Action non autorisée.");
+      return;
+    }
+    if (ticket?.status === "Resolved") {
+      toast.error("Cannot reopen a resolved ticket.");
+      return;
+    }
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
@@ -193,15 +231,24 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
       );
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload.error || "Failed to update status");
+        throw new Error(payload.message || payload.error || "Failed to update status");
       }
       setTicket(payload.data);
+      toast.success(newStatus === "Resolved" ? "Ticket resolved successfully." : "Ticket updated successfully.");
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
   const handleAssignTeam = async (team) => {
+    if (!canManageTicket) {
+      toast.error("Action non autorisée.");
+      return;
+    }
+    if (ticket?.status === "Resolved") {
+      toast.error("Ticket already resolved.");
+      return;
+    }
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
@@ -217,12 +264,13 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
       );
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload.error || "Failed to assign ticket");
+        throw new Error(payload.message || payload.error || "Failed to assign ticket");
       }
       setTicket(payload.data);
       setIsRoleDropdownOpen(false);
+      toast.success(`Ticket assigned successfully to ${team}.`);
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -489,10 +537,8 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                     )}
 
                     {/* Team Assignment Selector */}
-                    <div
-                      className="role-assignment-wrapper"
-                      ref={roleDropdownRef}
-                    >
+                    {canManageTicket && (
+                    <div className="role-assignment-wrapper" ref={roleDropdownRef}>
                       <button
                         className="role-assignment-btn"
                         onClick={() => setIsRoleDropdownOpen((prev) => !prev)}
@@ -526,8 +572,10 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                         </div>
                       )}
                     </div>
+                    )}
 
                     {/* Status selector */}
+                    {canManageTicket && (
                     <div
                       className="status-selector-wrapper"
                       ref={statusDropdownRef}
@@ -575,6 +623,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                         </div>
                       )}
                     </div>
+                    )}
                   </>
                 )}
               </div>
@@ -672,10 +721,10 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                     <p
                       style={{
                         padding: "1rem",
-                        color: "var(--foreground)",
+                        color: commentsError ? "var(--critical)" : "var(--foreground)",
                       }}
                     >
-                      No comments yet.
+                      {commentsError || "No comments yet."}
                     </p>
                   ) : (
                     commentsList.map((comment, idx) => (
@@ -705,34 +754,43 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                 </div>
               </div>
 
-              {/* Comment input area – disabled when resolved */}
-              {ticket?.status !== "Resolved" && (
-  <div className="comment-input-area">
-    <textarea
-      className="comment-textarea"
-      rows="3"
-      placeholder="Write a comment..."
-      value={newComment}
-      onChange={(e) => setNewComment(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          handleSendComment();
-        }
-      }}
-    />
-    <div className="comment-actions">
-      <button className="attach-btn">
-        <Paperclip className="attach-icon" />
-        Attach
-      </button>
-      <button onClick={handleSendComment} className="post-btn">
-        <Send className="post-icon" />
-        Send
-      </button>
-    </div>
-  </div>
-)}
+              {ticket?.status === "Resolved" ? (
+                <div className="ticket-resolved-banner">
+                  <CheckCircle2 size={16} />
+                  This ticket is resolved. New comments are disabled.
+                </div>
+              ) : role === "Manager" ? (
+                <div className="ticket-resolved-banner">
+                  <Shield size={16} />
+                  Manager access is read-only.
+                </div>
+              ) : (
+                <div className="comment-input-area">
+                  <textarea
+                    className="comment-textarea"
+                    rows="3"
+                    placeholder="Write a comment..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendComment();
+                      }
+                    }}
+                  />
+                  <div className="comment-actions">
+                    <button className="attach-btn" type="button">
+                      <Paperclip className="attach-icon" />
+                      Attach
+                    </button>
+                    <button onClick={handleSendComment} className="post-btn" type="button">
+                      <Send className="post-icon" />
+                      Send
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </GlassCard>
         </div>

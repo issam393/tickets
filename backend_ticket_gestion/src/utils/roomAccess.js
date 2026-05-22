@@ -1,16 +1,8 @@
-const ALL_CHAT_ROLES = ['ADMIN', 'SD', 'IT', 'PKI', 'MANAGER'];
+const ALL_CHAT_ROLES = ['SD'];
 
 function getAllowedRolesForTicket(issueLevel = '', issueType = '') {
     const normalizedLevel = String(issueLevel).toLowerCase();
     const normalizedType = String(issueType).toLowerCase();
-
-    if (normalizedLevel.includes('critical')) {
-        return ['ADMIN', 'TECHNICIAN'];
-    }
-
-    if (normalizedType.includes('incident')) {
-        return ['ADMIN', 'AGENT', 'TECHNICIAN'];
-    }
 
     return ALL_CHAT_ROLES;
 }
@@ -39,9 +31,10 @@ function parseAllowedRoles(rawAllowedRoles) {
 
 function canRoleAccessRoom(role, allowedRoles) {
     if (!role) return false;
-    if (role === 'SD' || role === 'MANAGER' ) return true;
+    const normalizedRole = String(role).trim().toUpperCase() === 'MANAGER' ? 'Manager' : role;
+    if (normalizedRole === 'SD' || normalizedRole === 'Manager') return true;
     if (!Array.isArray(allowedRoles) || allowedRoles.length === 0) return true;
-    return allowedRoles.includes(role);
+    return allowedRoles.includes(normalizedRole);
 }
 
 function toSocketRoom(roomId) {

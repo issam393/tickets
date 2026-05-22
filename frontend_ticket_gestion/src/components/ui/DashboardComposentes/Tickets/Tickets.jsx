@@ -9,6 +9,7 @@ function getStatusTone(status) {
   if (status === "Resolved") return "success";
   if (status === "Warning") return "muted";
   if (status === "Critical") return "destructive";
+  if (status === "In Progress") return "info";
   return "warning";
 }
 
@@ -17,7 +18,8 @@ function getUserRole() {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.service;
+    const role = payload.service;
+    return String(role).toUpperCase() === 'MANAGER' ? 'Manager' : role;
   } catch {
     return null;
   }
@@ -85,6 +87,7 @@ const Tickets = ({ onSelectTicket }) => {
   const filterDefs = useMemo(() => {
     const allCount = roleFilteredRows.length;
     const pendingCount = roleFilteredRows.filter((ticket) => ticket.status === "Pending").length;
+    const progressCount = roleFilteredRows.filter((ticket) => ticket.status === "In Progress").length;
     const resolvedCount = roleFilteredRows.filter((ticket) => ticket.status === "Resolved").length;
     const criticalCount = roleFilteredRows.filter((ticket) => ticket.status === "Critical").length;
     const warningCount = roleFilteredRows.filter((ticket) => ticket.status === "Warning").length;
@@ -92,6 +95,7 @@ const Tickets = ({ onSelectTicket }) => {
     return [
       { label: "All Tickets", filter: null, count: allCount },
       { label: "Pending", filter: "Pending", count: pendingCount },
+      { label: "In Progress", filter: "In Progress", count: progressCount },
       { label: "Resolved", filter: "Resolved", count: resolvedCount },
       { label: "Critical", filter: "Critical", count: criticalCount },
       { label: "Warning", filter: "Warning", count: warningCount },

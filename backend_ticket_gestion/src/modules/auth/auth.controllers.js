@@ -1,11 +1,12 @@
 const authService = require("./auth.services");
+const { sendError } = require('../../utils/apiResponse');
 
 async function login(req, res) {
     try {
         const result = await authService.login(req.body);
-        res.status(200).json(result);
+        res.status(200).json({ success: true, ...result });
     } catch (error) {
-        res.status(401).json({ error: error.message });
+        sendError(res, 401, error.message);
     }
 }
 
@@ -14,12 +15,12 @@ async function logout(req, res) {
         const token = req.headers.authorization?.split(' ')[1];
 
         if (!token) {
-            return res.status(400).json({ error: "Token required" });
+            return sendError(res, 400, "Token required");
         }
         const result = await authService.logout(token);
-        res.status(200).json(result);
+        res.status(200).json({ success: true, message: result.message || 'Logout successful' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        sendError(res, 500, error.message);
     }
 }
 

@@ -7,19 +7,24 @@ import Contacts from './DashboardComposentes/Contacts';
 import CreateTicket from './DashboardComposentes/CreateTicket';
 import PKIDashboard from './Dashboard/PKIDashboard';
 import SDHomeDashboard from './Dashboard/SDHomeDashboard';
+import AccessDenied from './AccessDenied/AccessDenied';
+import { getAuthUser } from '../../lib/authAccess';
 
 function getUserRole() {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.service;
-  } catch {
-    return null;
-  }
+  return getAuthUser()?.role || null;
 }
 
-function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMessages }) {
+function DashboardContent({
+  activeItem,
+  contentOverride,
+  onViewAllTickets,
+  onMessages,
+  onCreateTicket,
+  onManageOrganizations,
+  onManageClients,
+  onReviewAssignments,
+  onMeetings,
+}) {
   const effectiveItem = contentOverride || activeItem;
   const role = getUserRole();
 
@@ -29,7 +34,7 @@ function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMes
       case 'SD':
         return true;
       case 'Manager':
-        return ['Dashboard', 'Tickets', 'Messages', 'Meetings'].includes(item);
+        return ['Dashboard', 'Contacts', 'Tickets', 'Messages', 'Meetings'].includes(item);
       case 'PKI':
       case 'IT':
         return ['Dashboard', 'Tickets', 'Messages', 'Meetings'].includes(item);
@@ -41,12 +46,7 @@ function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMes
   };
 
   if (!hasAccess(effectiveItem)) {
-    return (
-      <div style={{ padding: '2rem', color: 'var(--foreground)' }}>
-        <h2>Access Denied</h2>
-        <p>Your role does not have permission to view this section.</p>
-      </div>
-    );
+    return <AccessDenied userRole={role} />;
   }
 
   switch (effectiveItem) {
@@ -55,7 +55,7 @@ function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMes
     case 'Create Ticket':
       return <CreateTicket />;
     case 'Contacts':
-      return <Contacts />;
+      return <Contacts readOnly={role === 'Manager'} />;
     case 'Messages':
       return <Messages />;
     case 'Meetings':
@@ -63,7 +63,19 @@ function DashboardContent({ activeItem, contentOverride, onViewAllTickets, onMes
     case 'Dashboard':
     default: {
       if (!role) return null;
-      if (role === 'SD') return <SDHomeDashboard onViewAllTickets={onViewAllTickets} onMessages={onMessages} />;
+      if (role === 'SD') {
+        return (
+          <SDHomeDashboard
+            onViewAllTickets={onViewAllTickets}
+            onMessages={onMessages}
+            onCreateTicket={onCreateTicket}
+            onManageOrganizations={onManageOrganizations}
+            onManageClients={onManageClients}
+            onReviewAssignments={onReviewAssignments}
+            onMeetings={onMeetings}
+          />
+        );
+      }
       if (role === 'Manager') return <ManagerDaschboard onViewAllTickets={onViewAllTickets} onMessages={onMessages} />;
       if (role === 'PKI') return <PKIDashboard role="PKI" onViewAllTickets={onViewAllTickets} onMessages={onMessages} />;
       if (role === 'IT') return <PKIDashboard role="IT" onViewAllTickets={onViewAllTickets} onMessages={onMessages} />;

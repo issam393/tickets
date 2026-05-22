@@ -5,11 +5,13 @@ const VALID_INDUSTRIES = [
     'Financial Services', 'Management Consulting', 'Government',
     'Legal Services', 'Technology', 'Healthcare', 'Retail', 'Manufacturing'
 ];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateOrganizationPayload(payload) {
     if (!payload.name     || !String(payload.name).trim())     throw new Error('name is required');
     if (!payload.industry || !String(payload.industry).trim()) throw new Error('industry is required');
     if (!payload.email    || !String(payload.email).trim())    throw new Error('email is required');
+    if (!EMAIL_PATTERN.test(String(payload.email).trim()))      throw new Error('Invalid email format');
     if (!payload.phone    || !String(payload.phone).trim())    throw new Error('phone is required');
 }
 
@@ -69,7 +71,11 @@ async function updateOrganization(id, payload) {
     const updateData = {};
     if (payload.name !== undefined)     updateData.name     = String(payload.name).trim();
     if (payload.industry !== undefined) updateData.industry = String(payload.industry).trim();
-    if (payload.email !== undefined)    updateData.email    = String(payload.email).trim();
+    if (payload.email !== undefined) {
+        const email = String(payload.email).trim();
+        if (!EMAIL_PATTERN.test(email)) throw new Error('Invalid email format');
+        updateData.email = email;
+    }
     if (payload.phone !== undefined)    updateData.phone    = payload.phone ? String(payload.phone).trim() : null;
     if (payload.address !== undefined)  updateData.address  = payload.address ? String(payload.address).trim() : null;
     if (payload.status !== undefined)   updateData.status   = payload.status;

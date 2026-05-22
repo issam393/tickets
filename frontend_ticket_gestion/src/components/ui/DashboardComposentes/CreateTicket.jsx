@@ -13,7 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 import './CreateTicket.css';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 // Decode JWT
 function getUserFromToken() {
@@ -21,46 +21,12 @@ function getUserFromToken() {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return { service: payload.service };
+    const role = payload.service;
+    return { service: String(role).toUpperCase() === 'MANAGER' ? 'Manager' : role };
   } catch {
     return null;
   }
 }
-
-// --- Constants ---
-const emailTickets = [
-  {
-    id: '1',
-    subject: 'Urgent: Cannot access E-Tawki3 portal - Login Error',
-    sender: 'yasmin.saeed@business.ae',
-    date: 'Mar 31, 2026 at 03:23 PM',
-  },
-  {
-    id: '2',
-    subject: 'OTP codes not being received',
-    sender: 'karim.ahmed@ventures.ae',
-    date: 'Mar 31, 2026 at 02:45 PM',
-  },
-  {
-    id: '3',
-    subject: 'Re: Digital Signature Validation Error - Attached Logs',
-    sender: 'noor.khalil@tech.ae',
-    date: 'Mar 31, 2026 at 12:10 PM',
-    attachments: 2,
-  },
-  {
-    id: '4',
-    subject: 'Account activation email not received',
-    sender: 'sara.mahmoud@consulting.ae',
-    date: 'Mar 31, 2026 at 10:30 AM',
-  },
-  {
-    id: '5',
-    subject: 'Bug Report: Document upload stuck',
-    sender: 'hassan.omar@holdings.ae',
-    date: 'Mar 30, 2026 at 05:20 PM',
-  },
-];
 
 const APPLICATION_OPTIONS = [
   'Web RA',
@@ -238,10 +204,10 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
               <Mail size={12} />
               {ticket.sender}
             </span>
-            {ticket.attachments && (
+            {ticket.attachments?.length > 0 && (
               <span className="email-attachments">
                 <Paperclip size={12} />
-                {ticket.attachments} Files
+                {ticket.attachments.length} Files
               </span>
             )}
           </div>
@@ -262,25 +228,16 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
               Original Content
             </h4>
             <div className="email-original-text">
-{`Hello AGCE Support Team,
-
-I am Yasmin Saeed from Al-Nahda Business Group. I am experiencing issues accessing the E-Tawki3 Web Portal.
-
-When I try to log in with my credentials, I receive an error message saying "Authentication Failed - Invalid Credentials". However, I am certain that I am using the correct username and password.
-
-Best regards,
-Yasmin Saeed
-IT Coordinator
-Al-Nahda Business Group`}
+              {ticket.originalContent}
             </div>
           </div>
 
           <div className="email-ai-section">
             <div className="email-ai-grid">
               {[
-                { label: 'Client', value: 'Yasmin Saeed', icon: User },
-                { label: 'Org', value: 'Al-Nahda Group', icon: Building2 },
-                { label: 'Phone', value: '+971 54 789...', icon: Phone },
+                { label: 'Client', value: ticket.contactName || '—', icon: User },
+                { label: 'Org', value: ticket.organization || '—', icon: Building2 },
+                { label: 'Phone', value: ticket.phone || '—', icon: Phone },
               ].map((item) => (
                 <div key={item.label} className="ai-card">
                   <div className="ai-card-label">
@@ -320,13 +277,14 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedContact, setSelected
           headers: { Authorization: `Bearer ${token}` }
         });
         const json = await res.json();
-        if (res.ok) {
-          setOrganizations(json.data || []);
-          if (json.data?.length > 0 && !selectedOrg) {
-            setSelectedOrg(json.data[0]);
+        if (!res.ok) throw new Error(json.error || json.message || 'Failed to load organizations');
+        setOrganizations(json.data || []);
+        if (json.data?.length > 0 && !selectedOrg) {
+          setSelectedOrg(json.data[0]);
           }
-        }
-      } catch (_) {}
+      } catch (error) {
+        toast.error(error.message);
+      }
       finally { setOrgsLoading(false); }
     };
     if (token) fetchOrgs();
@@ -341,13 +299,14 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedContact, setSelected
           headers: { Authorization: `Bearer ${token}` }
         });
         const json = await res.json();
-        if (res.ok) {
-          setContacts(json.data || []);
-          const first = json.data?.[0] || null;
-          setSelectedContact(first);
-          if (onContactChange) onContactChange(first);
-        }
-      } catch (_) {}
+        if (!res.ok) throw new Error(json.error || json.message || 'Failed to load contacts');
+        setContacts(json.data || []);
+        const first = json.data?.[0] || null;
+        setSelectedContact(first);
+        if (onContactChange) onContactChange(first);
+      } catch (error) {
+        toast.error(error.message);
+      }
       finally { setContactsLoading(false); }
     };
     fetchContacts();
@@ -528,6 +487,10 @@ export default function CreateTicket() {
   const [tab, setTab] = useState('manual');
   const [expandedId, setExpandedId] = useState(null);
   const [readIds, setReadIds] = useState([]);
+  const [emailSearch, setEmailSearch] = useState('');
+  const [emailContacts, setEmailContacts] = useState([]);
+  const [emailsLoading, setEmailsLoading] = useState(false);
+  const [emailFiles, setEmailFiles] = useState([]);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [selectedContact, setSelectedContact] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -568,15 +531,99 @@ export default function CreateTicket() {
         headers: { Authorization: `Bearer ${token}` }
       });
       const payload = await response.json();
-      if (response.ok) {
-        setFormData(prev => ({ ...prev, requestId: payload.data }));
-      }
-    } catch (_) {}
+      if (!response.ok) throw new Error(payload.error || payload.message || 'Failed to generate request code');
+      setFormData(prev => ({ ...prev, requestId: payload.data }));
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
     if (token && role === 'SD') fetchNextRequestCode();
   }, [token, role]);
+
+  useEffect(() => {
+    if (!token || role !== 'SD') return;
+
+    const fetchEmailContacts = async () => {
+      try {
+        setEmailsLoading(true);
+        const response = await fetch('http://localhost:2300/api/contacts', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || payload.message || 'Failed to load contact emails');
+        setEmailContacts((payload.data || []).filter((contact) => contact.email));
+      } catch (error) {
+        toast.error(error.message);
+      } finally {
+        setEmailsLoading(false);
+      }
+    };
+
+    fetchEmailContacts();
+  }, [token, role]);
+
+  const emailTickets = emailContacts.map((contact) => ({
+    id: String(contact.id),
+    contactId: contact.id,
+    contactName: contact.name,
+    organizationId: contact.organization_id || contact.organizationId,
+    organization: contact.organization,
+    phone: contact.phone,
+    subject: `Support request from ${contact.name}`,
+    sender: contact.email,
+    date: contact.updatedAt
+      ? new Date(contact.updatedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : 'Existing database contact',
+    attachments: emailFiles,
+    originalContent: `Email sender: ${contact.name}
+Email address: ${contact.email}
+Organization: ${contact.organization || 'Not linked'}
+Phone: ${contact.phone || 'Not provided'}
+
+Describe the request received from this verified database email before provisioning the ticket.`
+  }));
+
+  const filteredEmailTickets = emailTickets.filter((ticket) => {
+    const query = emailSearch.trim().toLowerCase();
+    if (!query) return true;
+    return `${ticket.sender} ${ticket.contactName} ${ticket.organization} ${ticket.subject}`.toLowerCase().includes(query);
+  });
+
+  const handleEmailFilesChange = (event) => {
+    const files = Array.from(event.target.files || []);
+    setEmailFiles(files);
+    if (files.length) {
+      toast.success(`${files.length} file${files.length > 1 ? 's' : ''} attached.`);
+    }
+  };
+
+  const hydrateFormFromEmail = (ticket) => {
+    setSelectedContact({
+      id: ticket.contactId,
+      name: ticket.contactName,
+      email: ticket.sender,
+      phone: ticket.phone,
+      organization: ticket.organization,
+      organization_id: ticket.organizationId
+    });
+    if (ticket.organizationId || ticket.organization) {
+      setSelectedOrg({
+        id: ticket.organizationId,
+        name: ticket.organization || 'Linked organization'
+      });
+    }
+    setFormData((prev) => ({
+      ...prev,
+      clientId: ticket.contactId,
+      organization_id: ticket.organizationId || null,
+      issueType: 'Undeliverable Email',
+      issueDescription: `${ticket.originalContent}
+
+Attachments selected: ${ticket.attachments?.length ? ticket.attachments.map((file) => file.name).join(', ') : 'None'}`
+    }));
+  };
 
   const handleCreateTicket = async () => {
     if (!formData.application || !formData.issueType || !formData.issueLevel || !formData.issueDescription) {
@@ -598,7 +645,11 @@ export default function CreateTicket() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          clientId: selectedContact?.id || formData.clientId || null,
+          organization_id: selectedOrg?.id || null
+        })
       });
 
       const payload = await response.json();
@@ -606,7 +657,7 @@ export default function CreateTicket() {
         throw new Error(payload.error || 'Ticket creation failed');
       }
 
-      toast.success('Ticket created successfully! Room provisioned.');
+      toast.success('Ticket created successfully with status Pending.');
       fetchNextRequestCode();
       setFormData((prev) => ({
         ...prev,
@@ -630,13 +681,15 @@ export default function CreateTicket() {
       issueLevel: '',
       issueDescription: ''
     });
-    toast('Form has been reset', { icon: '🔄' });
+    toast('Form has been reset');
   };
 
   const handleEmailToggle = (ticketId) => {
     setExpandedId((prevExpandedId) => {
       const isOpening = prevExpandedId !== ticketId;
       if (isOpening) {
+        const ticket = emailTickets.find((item) => item.id === ticketId);
+        if (ticket) hydrateFormFromEmail(ticket);
         setReadIds((prevReadIds) => {
           if (prevReadIds.includes(ticketId)) return prevReadIds;
           return [...prevReadIds, ticketId];
@@ -660,18 +713,6 @@ export default function CreateTicket() {
 
   return (
     <div className="create-ticket-app dark-mode">
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#1e293b',
-            color: '#f1f5f9',
-            border: '1px solid #334155',
-          },
-        }}
-      />
-
       <div className="create-ticket-glow-bg">
         <div className="create-ticket-glow-circle create-ticket-glow-circle-1" />
         <div className="create-ticket-glow-circle create-ticket-glow-circle-2" />
@@ -777,8 +818,43 @@ export default function CreateTicket() {
               </div>
             ) : (
               <div className="create-ticket-email-container">
+                <div className="email-processing-toolbar">
+                  <div className="email-processing-search">
+                    <Mail size={16} />
+                    <input
+                      type="email"
+                      value={emailSearch}
+                      onChange={(event) => setEmailSearch(event.target.value)}
+                      placeholder="Filter by existing database email..."
+                    />
+                  </div>
+                  <label className="email-upload-button">
+                    <Paperclip size={16} />
+                    Attach files/images
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.log,.zip"
+                      onChange={handleEmailFilesChange}
+                    />
+                  </label>
+                </div>
+                {emailFiles.length > 0 && (
+                  <div className="email-file-list email-file-list-toolbar">
+                    {emailFiles.map((file) => (
+                      <span key={`${file.name}-${file.size}`} className="email-file-pill">
+                        <Paperclip size={12} />
+                        {file.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="create-ticket-email-list">
-                  {emailTickets.map((ticket) => (
+                  {emailsLoading ? (
+                    <div className="email-empty-state">Loading database emails...</div>
+                  ) : filteredEmailTickets.length === 0 ? (
+                    <div className="email-empty-state">No matching database emails found.</div>
+                  ) : filteredEmailTickets.map((ticket) => (
                     <div key={ticket.id}>
                       <EmailTicketCard
                         ticket={ticket}

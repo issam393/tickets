@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { TiMessages } from "react-icons/ti";
 import { MessageSquare, Search, Send, ChevronDown } from "lucide-react";
+import toast from "react-hot-toast";
 import useChatRoom from "../../../hooks/useChatRoom";
 import "./Messages.css";
 
@@ -21,7 +22,21 @@ function getUserRole() {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.service;
+    const role = payload.service;
+    return String(role).toUpperCase() === 'MANAGER' ? 'Manager' : role;
+  } catch {
+    return null;
+  }
+}
+
+function getUserId() {
+  const token = localStorage.getItem("token");
+  const stored = localStorage.getItem("userId");
+  if (stored) return Number(stored);
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return Number(payload.id || payload.userId);
   } catch {
     return null;
   }
@@ -57,8 +72,9 @@ function ChatThread({ room, messages, onSend, currentUserId, isJoining, isReadOn
     try {
       await onSend(text);
       setInputText("");
+      toast.success("Message sent.");
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message || "Message could not be sent.");
     }
   };
 
@@ -132,7 +148,7 @@ function ChatThread({ room, messages, onSend, currentUserId, isJoining, isReadOn
 
 export default function Messages() {
   const token = localStorage.getItem("token");
-  const currentUserId = Number(localStorage.getItem("userId"));
+  const currentUserId = getUserId();
   const role = getUserRole();
   const isReadOnly = role === 'Manager';
 
@@ -225,9 +241,9 @@ export default function Messages() {
           </header>
 
           {(roomsError || socketError) && (
-            <div className="empty-state" style={{ marginBottom: "1rem" }}>
-              {roomsError || socketError}
-            </div>
+          <div className="empty-state" style={{ marginBottom: "1rem" }}>
+            {roomsError || socketError}
+          </div>
           )}
 
           <div className="split-layout">

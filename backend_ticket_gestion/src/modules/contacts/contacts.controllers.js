@@ -1,11 +1,12 @@
 const contactService = require('./contacts.services');
+const { sendSuccess, sendError, getErrorStatus } = require('../../utils/apiResponse');
 
 async function listContacts(req, res) {
     try {
         const data = await contactService.listContacts();
-        res.status(200).json({ data });
+        sendSuccess(res, 200, 'Contacts loaded successfully', data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        sendError(res, 500, error.message);
     }
 }
 
@@ -13,28 +14,28 @@ async function listContacts(req, res) {
 async function listContactsByOrganization(req, res) {
     try {
         const data = await contactService.listContactsByOrganization(req.params.orgId);
-        res.status(200).json({ data });
+        sendSuccess(res, 200, 'Contacts loaded successfully', data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        sendError(res, 500, error.message);
     }
 }
 
 async function getContact(req, res) {
     try {
         const data = await contactService.getContact(req.params.id);
-        res.status(200).json({ data });
+        sendSuccess(res, 200, 'Contact loaded successfully', data);
     } catch (error) {
         const status = error.message === 'Contact not found' ? 404 : 500;
-        res.status(status).json({ error: error.message });
+        sendError(res, status, error.message);
     }
 }
 
 async function createContact(req, res) {
     try {
         const data = await contactService.createContact(req.body);
-        res.status(201).json({ data });
+        sendSuccess(res, 201, 'Contact created successfully', data);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        sendError(res, getErrorStatus(error, 400), error.message);
     }
 }
 
@@ -42,29 +43,29 @@ async function createContact(req, res) {
 async function createContactForOrganization(req, res) {
     try {
         const data = await contactService.createContact(req.body, req.params.orgId);
-        res.status(201).json({ data });
+        sendSuccess(res, 201, 'Contact created successfully', data);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        sendError(res, getErrorStatus(error, 400), error.message);
     }
 }
 
 async function updateContact(req, res) {
     try {
         const data = await contactService.updateContact(req.params.id, req.body);
-        res.status(200).json({ data });
+        sendSuccess(res, 200, 'Contact updated successfully', data);
     } catch (error) {
         const status = error.message === 'Contact not found' ? 404 : 400;
-        res.status(status).json({ error: error.message });
+        sendError(res, status, error.message);
     }
 }
 
 async function deleteContact(req, res) {
     try {
         await contactService.deleteContact(req.params.id);
-        res.status(200).json({ message: 'Contact deleted' });
+        sendSuccess(res, 200, 'Contact deleted successfully');
     } catch (error) {
         const status = error.message === 'Contact not found' ? 404 : 500;
-        res.status(status).json({ error: error.message });
+        sendError(res, status, error.message);
     }
 }
 

@@ -37,7 +37,7 @@ function toMysqlDatetime(input) {
 }
 
 function normalizeMeetingRecord(record, currentUser) {
-    const canManage = currentUser.service === 'ADMIN' || Number(record.organizer_id) === Number(currentUser.id);
+    const canManage = currentUser.service === 'SD';
     const canRespond = Number(record.invitee_id) === Number(currentUser.id);
 
     return {
@@ -63,7 +63,8 @@ function normalizeMeetingRecord(record, currentUser) {
 }
 
 function assertReadAccess(record, user) {
-    const canRead = user.service === 'ADMIN'
+    const canRead = user.service === 'SD'
+        || user.service === 'Manager'
         || Number(record.organizer_id) === Number(user.id)
         || Number(record.invitee_id) === Number(user.id);
 
@@ -145,7 +146,7 @@ async function updateMeeting(meetingId, payload, user) {
 
     assertReadAccess(existing, user);
 
-    const canManage = user.service === 'ADMIN' || Number(existing.organizer_id) === Number(user.id);
+    const canManage = user.service === 'SD';
     const canRespond = Number(existing.invitee_id) === Number(user.id);
     const updateData = {};
 
@@ -165,6 +166,9 @@ async function updateMeeting(meetingId, payload, user) {
         if (hasForbiddenKey) {
             throw new Error('Access denied');
         }
+        if (payload.status && !['Accepted', 'Rejected'].includes(payload.status)) {
+            throw new Error('Invalid status value');
+        }
     } else {
         throw new Error('Access denied');
     }
@@ -179,6 +183,10 @@ async function updateMeeting(meetingId, payload, user) {
 
     if (payload.rejectionReason !== undefined) {
         updateData.rejectionReason = payload.rejectionReason ? String(payload.rejectionReason).trim() : null;
+    }
+
+    if (updateData.status === 'Rejected' && !updateData.rejectionReason) {
+        throw new Error('Rejection reason is required');
     }
 
     const computedStartTime = updateData.startTimeUtc || existing.start_time_utc;
@@ -199,7 +207,7 @@ async function deleteMeeting(meetingId, user) {
         throw new Error('Meeting not found');
     }
 
-    const canManage = user.service === 'ADMIN' || Number(existing.organizer_id) === Number(user.id);
+    const canManage = user.service === 'SD';
     if (!canManage) {
         throw new Error('Access denied');
     }

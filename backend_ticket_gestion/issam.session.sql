@@ -207,3 +207,5 @@ INSERT INTO services (name) VALUES
 ('MANAGER'),
 ('ADMIN'),
 ('PKI');
+--@block
+SELECT * FROM employees;

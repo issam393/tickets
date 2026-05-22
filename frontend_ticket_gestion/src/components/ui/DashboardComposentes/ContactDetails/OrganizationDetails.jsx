@@ -15,6 +15,7 @@ import {
   X,
   AlertCircle
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import './OrganizationDetails.css';
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:2300/api";
@@ -23,7 +24,7 @@ function getToken() {
   return localStorage.getItem("token");
 }
 
-function OrganizationDetails({ organization, onBack }) {
+function OrganizationDetails({ organization, onBack, readOnly = false }) {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -104,6 +105,7 @@ function OrganizationDetails({ organization, onBack }) {
   };
 
   const openCreateModal = () => {
+    if (readOnly) return;
     setModalMode('create');
     setSelectedContactId(null);
     setFormData({
@@ -123,6 +125,7 @@ function OrganizationDetails({ organization, onBack }) {
   };
 
   const openEditModal = (contact) => {
+    if (readOnly) return;
     setModalMode('edit');
     setSelectedContactId(contact.id);
     const nameParts = (contact.name || '').trim().split(' ');
@@ -173,6 +176,10 @@ function OrganizationDetails({ organization, onBack }) {
   };
 
   const handleSubmit = async () => {
+    if (readOnly) {
+      toast.error('Action non autorisée.');
+      return;
+    }
     if (!isFormValid()) return;
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
@@ -218,13 +225,18 @@ function OrganizationDetails({ organization, onBack }) {
       }
 
       setIsModalOpen(false);
-      fetchContacts();
+      await fetchContacts();
+      toast.success(modalMode === 'create' ? 'Contact created successfully.' : 'Contact updated successfully.');
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
   const handleDeleteContact = async (contact) => {
+    if (readOnly) {
+      toast.error('Action non autorisée.');
+      return;
+    }
     const confirmDelete = window.confirm(`Are you sure you want to delete ${contact.name}?`);
     if (!confirmDelete) return;
 
@@ -238,9 +250,10 @@ function OrganizationDetails({ organization, onBack }) {
         const json = await res.json();
         throw new Error(json.error || 'Failed to delete contact');
       }
-      fetchContacts();
+      await fetchContacts();
+      toast.success('Contact deleted successfully.');
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -369,10 +382,12 @@ function OrganizationDetails({ organization, onBack }) {
               <p className="card-subtitle">Manage contacts for this organization</p>
             </div>
           </div>
+          {!readOnly && (
           <button className="btn-primary" onClick={openCreateModal}>
             <Plus size={16} />
             <span>Create Contact</span>
           </button>
+          )}
         </div>
 
         {/* Statistics Row */}
@@ -461,12 +476,16 @@ function OrganizationDetails({ organization, onBack }) {
                         <button className="icon-btn" onClick={() => openViewModal(c)} title="View Details">
                           <Eye size={16} />
                         </button>
-                        <button className="icon-btn" onClick={() => openEditModal(c)} title="Edit Contact">
-                          <Edit size={16} />
-                        </button>
-                        <button className="icon-btn" onClick={() => handleDeleteContact(c)} title="Delete Contact">
-                          <Trash2 size={16} />
-                        </button>
+                        {!readOnly && (
+                          <>
+                            <button className="icon-btn" onClick={() => openEditModal(c)} title="Edit Contact">
+                              <Edit size={16} />
+                            </button>
+                            <button className="icon-btn" onClick={() => handleDeleteContact(c)} title="Delete Contact">
+                              <Trash2 size={16} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -662,16 +681,16 @@ function OrganizationDetails({ organization, onBack }) {
               <button className="btn-secondary" onClick={() => setIsModalOpen(false)}>
                 {modalMode === 'view' ? 'Close' : 'Cancel'}
               </button>
-              {modalMode === 'view' ? (
+              {modalMode === 'view' && !readOnly ? (
                 <button className="btn-primary" onClick={() => setModalMode('edit')}>
                   <Edit size={16} />
                   <span>Edit Contact</span>
                 </button>
-              ) : (
+              ) : modalMode !== 'view' ? (
                 <button className="btn-primary" onClick={handleSubmit} disabled={!isFormValid()}>
                   {modalMode === 'create' ? 'Create Contact' : 'Save Changes'}
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
         </>

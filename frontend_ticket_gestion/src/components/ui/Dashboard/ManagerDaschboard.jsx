@@ -1,477 +1,394 @@
-import React, { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 import {
-  BarChart3, Users, Sparkles,
-  ArrowUpRight, ArrowDownRight, Minus,
-  TrendingUp, AlertTriangle,
-  AlertCircle, AlertOctagon, Clock,
-  Ticket, ChevronRight, Trophy,
+  Activity,
+  AlertOctagon,
+  BarChart3,
+  Building2,
+  Clock,
+  GitBranch,
+  PieChart as PieChartIcon,
+  ShieldCheck,
+  Ticket,
+  Users,
 } from 'lucide-react';
-
 import {
-  ResponsiveContainer,
-  Pie,
-  PieChart,
-  Cell,
   Area,
   AreaChart,
   CartesianGrid,
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  Legend
-} from "recharts";
-
+} from 'recharts';
 import './ManagerDaschboard.css';
 
-const kpis = {
-  totalTickets: 248,
-  resolutionRate: 78.4,
-  avgResolutionHours: 14.2,
-  activeTickets: 42,
-  resolvedToday: 18,
-  totalToday: 23,
-};
+const API_BASE = 'http://localhost:2300';
+const CHART_COLORS = ['#00d9ff', '#00f5a0', '#ffa500', '#7c3aed', '#ff4757', '#94a3b8'];
 
-const kpiList = [
-  { label: 'Total Tickets', value: kpis.totalTickets, suffix: '', context: `${kpis.totalToday} today`, icon: Ticket, tone: 'primary', delta: { value: '+12%', positive: true } },
-  { label: 'Resolution Rate', value: kpis.resolutionRate, suffix: '%', context: `${kpis.resolvedToday} resolved today`, icon: TrendingUp, tone: 'success', delta: { value: '+5%', positive: true } },
-  { label: 'Avg Resolution', value: kpis.avgResolutionHours, suffix: 'h', context: 'Last 30 days', icon: Clock, tone: 'warning', delta: { value: '-8%', positive: true } },
-  { label: 'Active Tickets', value: kpis.activeTickets, suffix: '', context: 'Require immediate action', icon: AlertCircle, tone: 'accent', delta: { value: '+3', positive: false } },
-];
-
-const ticketStatus = [
-  { name: "Resolved", value: 156, color: "#10b981" },
-  { name: "Pending User", value: 38, color: "#f59e0b" },
-  { name: "Pending AGCE", value: 24, color: "#a855f7" },
-  { name: "Skipped", value: 12, color: "#6b7280" },
-  { name: "Known Issues", value: 18, color: "#ef4444" },
-];
-
-const flowStages = [
-  { stage: "Created", time: "0.4h", count: 248, tone: "primary" },
-  { stage: "Assigned", time: "1.2h", count: 240, tone: "accent" },
-  { stage: "In Progress", time: "6.8h", count: 198, tone: "warning" },
-  { stage: "Pending", time: "4.2h", count: 86, tone: "warning" },
-  { stage: "Resolved", time: "1.6h", count: 156, tone: "success" },
-];
-
-const teamCards = [
-  { team: "Delivery", members: 8, tickets: 112, avg: "11.4h", trend: "up", delta: "+12%" },
-  { team: "PKI", members: 5, tickets: 78, avg: "9.8h", trend: "up", delta: "+6%" },
-  { team: "IT Support", members: 4, tickets: 58, avg: "18.2h", trend: "down", delta: "-4%" },
-];
-
-const topEmployees = [
-  { rank: 1, name: "Sara Khelifi", role: "Senior Engineer · Delivery", tickets: 42, avg: "8.2h", messages: 312, trend: "up", delta: "+18%" },
-  { rank: 2, name: "Marc Dupont", role: "Engineer · Delivery", tickets: 38, avg: "9.6h", messages: 268, trend: "up", delta: "+11%" },
-  { rank: 3, name: "Eva Larsson", role: "Lead · PKI", tickets: 36, avg: "10.1h", messages: 240, trend: "up", delta: "+7%" },
-  { rank: 4, name: "Lina Haddad", role: "Engineer · PKI", tickets: 28, avg: "7.4h", messages: 198, trend: "flat", delta: "0%" },
-  { rank: 5, name: "Yann Bensaid", role: "Specialist · PKI", tickets: 31, avg: "14.8h", messages: 224, trend: "down", delta: "-5%" },
-  { rank: 6, name: "Nora Saidi", role: "Engineer · Delivery", tickets: 24, avg: "11.2h", messages: 176, trend: "up", delta: "+3%" },
-];
-
-const alerts = [
-  { id: "TKT-2841", severity: "critical", problem: "Client signature pending — contract renewal blocked", stuck: "9d 4h", context: "waiting client" },
-  { id: "TKT-2790", severity: "high", problem: "PKI certificate revocation chain unreachable", stuck: "5d 11h", context: "infrastructure" },
-  { id: "TKT-2812", severity: "high", problem: "Validation backlog from compliance team", stuck: "4d 2h", context: "internal validation" },
-  { id: "TKT-2855", severity: "medium", problem: "User account locked after 3 failed delivery attempts", stuck: "2d 6h", context: "waiting user" },
-  { id: "TKT-2860", severity: "medium", problem: "Hardware token shipment delayed by carrier", stuck: "1d 18h", context: "logistics" },
-];
-
-const ticketsTrendData = [
-  { day: "Mon", created: 32, resolved: 24 },
-  { day: "Tue", created: 38, resolved: 30 },
-  { day: "Wed", created: 41, resolved: 36 },
-  { day: "Thu", created: 35, resolved: 38 },
-  { day: "Fri", created: 44, resolved: 39 },
-  { day: "Sat", created: 18, resolved: 22 },
-  { day: "Sun", created: 12, resolved: 15 },
-];
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="custom-tooltip" style={{ backgroundColor: 'rgba(0,0,0,0.8)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <p style={{ margin: 0, color: '#fff' }}>{`${label}`}</p>
-        {payload.map((entry, index) => (
-          <p key={index} style={{ margin: '4px 0 0 0', color: entry.color }}>
-            {`${entry.name}: ${entry.value}`}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
-
-
-
-function TicketsTrendChart() {
-  return (
-    <GlassCard className="trend-card">
-      <div style={{ marginBottom: '40px' }}>
-        <div>
-          <p style={{ color: "var(--primary)" }} className="trend-card__eyebrow">
-            TREND · TICKETS OVER TIME
-          </p>
-          <h3 className="trend-card__title">Created vs Resolved</h3>
-        </div>
-      </div>
-
-      <ResponsiveContainer width="100%" height={300}>  {/* ✅ nombre */}
-        <AreaChart data={ticketsTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id="createdGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#a855f7" stopOpacity={0.35} />
-              <stop offset="95%" stopColor="#a855f7" stopOpacity={0.02} />
-            </linearGradient>
-            <linearGradient id="resolvedGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
-              <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid stroke="rgba(148, 163, 184, 0.12)" vertical={false} />
-          <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={14} stroke="#94a3b8" />
-          <YAxis tickLine={false} axisLine={false} tickMargin={16} domain={[0, 60]} ticks={[0, 15, 30, 45, 60]} stroke="#94a3b8" />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend wrapperStyle={{ position: 'absolute', bottom: -10, left: -150, display: 'flex', flexDirection: 'column', gap: '8px' }} />
-          <Area type="monotone" dataKey="created" stroke="#a855f7" fill="url(#createdGradient)" strokeWidth={3} dot={false} activeDot={{ r: 6 }} name="Created" />
-          <Area type="monotone" dataKey="resolved" stroke="#10b981" fill="url(#resolvedGradient)" strokeWidth={3} dot={false} activeDot={{ r: 6 }} name="Resolved" />
-        </AreaChart>
-      </ResponsiveContainer>
-
-    
-    </GlassCard>
-  );
+function getToken() {
+  return localStorage.getItem('token');
 }
 
+function minutesToHours(minutes, emptyLabel = 'No data') {
+  if (minutes === null || minutes === undefined || Number.isNaN(Number(minutes))) return emptyLabel;
+  const value = Number(minutes);
+  if (value === 0) return '<1m';
+  if (value < 60) return `${Math.round(value)}m`;
+  return `${(value / 60).toFixed(1)}h`;
+}
 
-function SimplePieChart() {
-  const total = ticketStatus.reduce((sum, item) => sum + item.value, 0);
-  
+function formatDate(date) {
+  if (!date) return 'Not available';
+  return new Date(date).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function formatDay(date) {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function safeNumber(value) {
+  return Number(value) || 0;
+}
+
+function GlassCard({ children, className = '' }) {
+  return <div className={`glass-card glass-card--hover ${className}`}>{children}</div>;
+}
+
+function StateCard({ type, message, onRetry }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-      <div style={{ position: 'relative', width: 260, height: 260 }}>
-        <PieChart width={260} height={260}>
-          <Pie
-            data={ticketStatus}
-            cx="50%"
-            cy="50%"
-            innerRadius={70}
-            outerRadius={100}
-            paddingAngle={2}
-            dataKey="value"
-            nameKey="name"
-          >
-            {ticketStatus.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip />} />
-        </PieChart>
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'white' }}>{total}</div>
-          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Total Tickets</div>
-        </div>
-      </div>
-      
-      <div style={{ flex: 1 }}>
-        {ticketStatus.map((item) => (
-          <div key={item.name} style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            padding: '8px 0',
-            borderBottom: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ 
-                width: '12px', 
-                height: '12px', 
-                borderRadius: '3px', 
-                background: item.color,
-                display: 'inline-block'
-              }} />
-              <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>{item.name}</span>
-            </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <span style={{ color: 'white', fontWeight: 600 }}>{item.value}</span>
-              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-                ({((item.value / total) * 100).toFixed(0)}%)
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="dashboard dashboard-state-page">
+      <GlassCard className={`dashboard-state dashboard-state--${type}`}>
+        <AlertOctagon />
+        <h2>{type === 'loading' ? 'Loading dashboard' : 'Unable to load dashboard'}</h2>
+        <p>{message}</p>
+        {onRetry && <button onClick={onRetry}>Retry</button>}
+      </GlassCard>
     </div>
   );
 }
 
-function GlassCard({ children, className = '', hover = true, ...props }) {
-  return <div className={`glass-card ${hover ? 'glass-card--hover' : ''} ${className}`} {...props}>{children}</div>;
-}
-
-function CardTitle({ children, className = '' }) {
-  return <h3 className={`card__title ${className}`}>{children}</h3>;
-}
-
-function CardSubtitle({ children }) {
-  return <p className="card__subtitle">{children}</p>;
-}
-
-function DashboardHeader() {
-  return (
-    <header className="dashboard-header">
-      <div className="header-content">
-        <div className="header-left">
-          <div className="header-icon-box">
-            <BarChart3 className="header-icon" />
-            <span className="pulse-dot" />
-          </div>
-          <div className="header-text">
-            <h1 className="header-title">
-              Manager Analytics
-              <span className="text-gradient"> Dashboard</span>
-            </h1>
-            <p className="header-description">Performance monitoring and strategic insights</p>
-            <p className="header-eyebrow">Manager Cockpit</p>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function KpiCard({ label, value, suffix, context, icon: Icon, tone = 'primary', delta }) {
-  const toneClass = `kpi-card__icon--${tone}`;
+function KpiCard({ icon: Icon, label, value, helper, tone = 'primary' }) {
   return (
     <GlassCard className="kpi-card">
-      <div className={`kpi-card__bg ${toneClass}-bg`} />
+      <div className={`kpi-card__bg ${tone}-bg`} />
       <div className="kpi-card__content">
         <div className="kpi-card__text">
           <p className="kpi-card__label">{label}</p>
           <div className="kpi-card__value">
             <span className="kpi-card__number">{value}</span>
-            {suffix && <span className="kpi-card__suffix">{suffix}</span>}
           </div>
-          {context && <p className="kpi-card__context">{context}</p>}
+          <p className="kpi-card__context">{helper}</p>
         </div>
-        <div className={`kpi-card__icon-wrapper ${toneClass}`}>
+        <div className={`kpi-card__icon-wrapper ${tone}`}>
           <Icon className="kpi-card__icon" />
         </div>
       </div>
-      {delta && (
-        <div className={`delta-badge ${delta.positive ? 'delta-badge--positive' : 'delta-badge--negative'}`}>
-          {delta.positive ? <ArrowUpRight className="icon-small" /> : <ArrowDownRight className="icon-small" />}
-          {delta.value}
-        </div>
-      )}
     </GlassCard>
   );
 }
 
-function TeamCards() {
+function SectionHeader({ title, subtitle, icon: Icon }) {
   return (
-    <div className="section-wrapper">
-      <div className="section-label">Team Performance</div>
-      <div className="team-cards">
-        {teamCards.map((t) => (
-          <GlassCard key={t.team} className="team-card">
-            <div className="team-card__header">
-              <div>
-                <p className="team-card__team-name">{t.team}</p>
-                <p className="team-card__members">{t.members} members</p>
-              </div>
-              <div className="team-card__icon"><Users className="icon" /></div>
-            </div>
-            <div className="team-card__stats">
-              <div>
-                <p className="team-card__stat-label">Tickets</p>
-                <p className="team-card__stat-value">{t.tickets}</p>
-              </div>
-              <div>
-                <p className="team-card__stat-label">Avg time</p>
-                <p className="team-card__stat-value">{t.avg}</p>
-              </div>
-            </div>
-            <div className={`trend-badge ${t.trend === 'up' ? 'trend-badge--positive' : t.trend === 'down' ? 'trend-badge--negative' : 'trend-badge--neutral'}`}>
-              {t.trend === 'up' ? <ArrowUpRight className="icon-small" /> : t.trend === 'down' ? <ArrowDownRight className="icon-small" /> : <Minus className="icon-small" />}
-              {t.delta} this week
-            </div>
-          </GlassCard>
+    <div className="manager-section-header">
+      <div>
+        <h3>{title}</h3>
+        {subtitle && <p>{subtitle}</p>}
+      </div>
+      {Icon && <Icon />}
+    </div>
+  );
+}
+
+function EmptyState({ children = 'No data available yet.' }) {
+  return <div className="manager-empty-state">{children}</div>;
+}
+
+function StatusPie({ data, total }) {
+  if (!data.length) return <EmptyState>No ticket status data yet.</EmptyState>;
+
+  return (
+    <div className="manager-chart-split">
+      <ResponsiveContainer width={240} height={240}>
+        <PieChart>
+          <Pie data={data} dataKey="value" nameKey="name" innerRadius={64} outerRadius={96} paddingAngle={2}>
+            {data.map((entry, index) => (
+              <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} stroke="none" />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="manager-chart-legend">
+        <strong>{total} tickets</strong>
+        {data.map((item, index) => (
+          <span key={item.name}>
+            <i style={{ background: CHART_COLORS[index % CHART_COLORS.length] }} />
+            {item.name}: {item.value}
+          </span>
         ))}
       </div>
     </div>
   );
 }
 
-function TopEmployees() {
+function TrendChart({ data }) {
+  if (!data.length) return <EmptyState>No created/resolved trend yet.</EmptyState>;
+
+  const normalized = data.map((item) => ({
+    ...item,
+    day: formatDay(item.day),
+    created: safeNumber(item.created),
+    resolved: safeNumber(item.resolved),
+  }));
+
   return (
-    <GlassCard className="leaderboard-section">
-      <div className="leaderboard-header">
-        <div>
-          <CardTitle>Top Performers</CardTitle>
-          <CardSubtitle>Based on tickets resolved and activity</CardSubtitle>
-        </div>
-        <Trophy className="icon leaderboard-icon" />
-      </div>
-      <div className="employee-list">
-        {topEmployees.map((e) => (
-          <div key={e.rank} className="employee-row">
-            <div className={`rank-badge rank-badge--${e.rank}`}>
-              {e.rank === 1 ? <Trophy className="icon-small" /> : `#${e.rank}`}
-            </div>
-            <div className="employee-row__info">
-              <div className="employee-row__name">{e.name}</div>
-              <div className="employee-row__role">{e.role}</div>
-            </div>
-            <div className="employee-row__stats">
-              <div className="stat-mini">
-                <span className="stat-mini__value">{e.tickets}</span>
-                <span className="stat-mini__label">Tickets</span>
-              </div>
-              <div className="stat-mini">
-                <span className="stat-mini__value">{e.avg}</span>
-                <span className="stat-mini__label">Avg time</span>
-              </div>
-              <div className="stat-mini">
-                <span className="stat-mini__value">{e.messages}</span>
-                <span className="stat-mini__label">Messages</span>
-              </div>
-            </div>
-            <div className={`trend-badge-small trend-badge--${e.trend === 'up' ? 'positive' : e.trend === 'down' ? 'negative' : 'neutral'}`}>
-              {e.trend === 'up' ? <ArrowUpRight className="icon-small" /> : e.trend === 'down' ? <ArrowDownRight className="icon-small" /> : <Minus className="icon-small" />}
-              {e.delta}
-            </div>
-          </div>
-        ))}
-      </div>
-    </GlassCard>
+    <ResponsiveContainer width="100%" height={280}>
+      <AreaChart data={normalized} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="managerCreated" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#00d9ff" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#00d9ff" stopOpacity={0.02} />
+          </linearGradient>
+          <linearGradient id="managerResolved" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#00f5a0" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#00f5a0" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid stroke="rgba(148, 163, 184, 0.12)" vertical={false} />
+        <XAxis dataKey="day" tickLine={false} axisLine={false} stroke="#94a3b8" />
+        <YAxis tickLine={false} axisLine={false} stroke="#94a3b8" allowDecimals={false} />
+        <Tooltip />
+        <Legend />
+        <Area type="monotone" dataKey="created" name="Created" stroke="#00d9ff" fill="url(#managerCreated)" strokeWidth={3} />
+        <Area type="monotone" dataKey="resolved" name="Resolved" stroke="#00f5a0" fill="url(#managerResolved)" strokeWidth={3} />
+      </AreaChart>
+    </ResponsiveContainer>
   );
 }
 
-function AlertsSection() {
-  return (
-    <GlassCard className="alerts-section">
-      <div className="alerts-header">
-        <div>
-          <CardTitle>Critical Alerts</CardTitle>
-          <CardSubtitle>{alerts.length} active issues requiring attention</CardSubtitle>
-        </div>
-        <AlertOctagon className="icon alerts-icon" />
-      </div>
-      <div className="alerts-list">
-        {alerts.map((alert) => (
-          <div key={alert.id} className={`alert alert--${alert.severity}`}>
-            <div className="alert__icon">
-              {alert.severity === 'critical' ? (
-                <AlertOctagon className="icon-small" />
-              ) : (
-                <AlertTriangle className="icon-small" />
-              )}
-            </div>
-            <div className="alert__body">
-              <div className="alert__meta">
-                <span className="alert__id">{alert.id}</span>
-                <span className="alert__badge">{alert.severity}</span>
-                <span className="alert__context">{alert.context}</span>
-              </div>
-              <p className="alert__problem">{alert.problem}</p>
-            </div>
-            <div className="alert__time">
-              <Clock className="icon-small" />
-              {alert.stuck}
-            </div>
-          </div>
-        ))}
-      </div>
-    </GlassCard>
-  );
-}
+function ActivityFeed({ items }) {
+  if (!items.length) return <EmptyState>No recent activity has been recorded.</EmptyState>;
 
-function VisualizationSection() {
   return (
-    <div className="visualization-grid">
-      <GlassCard>
-        <CardTitle>Ticket Status Distribution</CardTitle>
-        <div className="chart-wrapper" style={{ padding: '20px 0' }}>
-          <SimplePieChart />
+    <div className="manager-activity-list">
+      {items.map((item) => (
+        <div className="manager-activity-item" key={item.id}>
+          <span className="manager-activity-dot" />
+          <div>
+            <p>{item.description}</p>
+            <small>{item.actorName || item.actorRole || 'System'} · {formatDate(item.createdAt)}</small>
+          </div>
         </div>
-      </GlassCard>
-      <TicketsTrendChart />
+      ))}
     </div>
-  );
-}
-
-function FlowDiagram() {
-  return (
-    <GlassCard className="flow-section">
-      <div className="flow-header">
-        <CardTitle>Ticket Flow Analysis</CardTitle>
-        <CardSubtitle>Average time in each stage and volume</CardSubtitle>
-      </div>
-      <div className="flow-diagram">
-        {flowStages.map((stage, idx) => (
-          <div key={stage.stage} className="flow-item">
-            <div className={`flow-stage flow-stage--${stage.tone}`}>
-              <div className="flow-stage__label">{stage.stage}</div>
-              <div className="flow-stage__time">{stage.time}</div>
-              <div className="flow-stage__count">{stage.count} tickets</div>
-            </div>
-            {idx < flowStages.length - 1 && <ChevronRight className="flow-arrow" />}
-          </div>
-        ))}
-      </div>
-    </GlassCard>
   );
 }
 
 export default function ManagerDashboard() {
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadDashboard = async () => {
+    const token = getToken();
+    if (!token) {
+      setError('Session expired. Please login again.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      const response = await fetch(`${API_BASE}/api/dashboard/manager`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = await response.json();
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message || 'Dashboard data could not be loaded.');
+      }
+
+      setDashboard(payload.data);
+    } catch (err) {
+      const message = err.message || 'Dashboard data could not be loaded.';
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const kpis = useMemo(() => {
+    const stats = dashboard?.ticketStats || {};
+    const workflow = dashboard?.workflowAnalytics || {};
+    const total = safeNumber(stats.totalTickets);
+    const resolved = safeNumber(stats.resolvedTickets);
+    const resolutionRate = total ? Math.round((resolved / total) * 100) : 0;
+
+    return [
+      { icon: Ticket, label: 'Total tickets', value: total, helper: `${safeNumber(stats.createdToday)} created today`, tone: 'primary' },
+      { icon: ShieldCheck, label: 'Resolved tickets', value: resolved, helper: `${resolutionRate}% resolution rate`, tone: 'success' },
+      { icon: AlertOctagon, label: 'Critical + Warning', value: safeNumber(stats.criticalTickets) + safeNumber(stats.warningTickets), helper: 'Tickets requiring supervision', tone: 'warning' },
+      {
+        icon: Clock,
+        label: 'Avg resolution',
+        value: minutesToHours(stats.avgResolutionMinutes),
+        helper: safeNumber(stats.resolvedTickets) ? `${safeNumber(stats.resolvedTickets)} resolved tickets` : 'No resolved tickets yet',
+        tone: 'accent'
+      },
+      { icon: GitBranch, label: 'Waiting assignment', value: safeNumber(workflow.waitingForAssignment), helper: `${minutesToHours(stats.avgAssignmentMinutes)} avg assignment`, tone: 'warning' },
+      { icon: Users, label: 'Contacts', value: safeNumber(dashboard?.contactsSummary?.totalContacts), helper: `${safeNumber(dashboard?.contactsSummary?.totalOrganizations)} organizations`, tone: 'primary' },
+    ];
+  }, [dashboard]);
+
+  if (loading) return <StateCard type="loading" message="Real analytics are being loaded from the backend." />;
+  if (error) return <StateCard type="error" message={error} onRetry={loadDashboard} />;
+  if (!dashboard) return <StateCard type="error" message="No dashboard payload returned by the backend." onRetry={loadDashboard} />;
+
+  const stats = dashboard.ticketStats || {};
+  const workflow = dashboard.workflowAnalytics || {};
+  const charts = dashboard.charts || {};
+  const contacts = dashboard.contactsSummary || {};
+  const crud = dashboard.crudSummary || {};
+  const currentUser = dashboard.currentUser || {};
+
   return (
-    <div className="dashboard">
-      <DashboardHeader />
+    <div className="dashboard manager-dynamic-dashboard">
+      <header className="dashboard-header">
+        <div className="header-content">
+          <div className="header-left">
+            <div className="header-icon-box">
+              <BarChart3 className="header-icon" />
+              <span className="pulse-dot" />
+            </div>
+            <div className="header-text">
+              <p className="header-eyebrow">Manager Cockpit · Read only</p>
+              <h1 className="header-title">Manager Analytics <span className="text-gradient">Dashboard</span></h1>
+              <p className="header-description">
+                {currentUser.name || 'Manager'} · {currentUser.role || 'Manager'} · {currentUser.service || 'Supervision'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <div className="dashboard-content">
-        {/* KPI Summary */}
         <section className="section">
-          <div className="section-label">Key Performance Indicators</div>
+          <span className="section-label">Dynamic KPI cards</span>
           <div className="kpi-grid">
-            {kpiList.map((kpi) => (
-              <KpiCard key={kpi.label} {...kpi} />
-            ))}
+            {kpis.map((kpi) => <KpiCard key={kpi.label} {...kpi} />)}
           </div>
         </section>
 
-        {/* Team Performance */}
-        <section className="section">
-          <TeamCards />
+        <section className="section manager-grid manager-grid--charts">
+          <GlassCard>
+            <SectionHeader title="Ticket status distribution" subtitle="Calculated from current database rows" icon={PieChartIcon} />
+            <StatusPie data={charts.statusDistribution || []} total={safeNumber(stats.totalTickets)} />
+          </GlassCard>
+          <GlassCard>
+            <SectionHeader title="Created vs resolved" subtitle="Real ticket lifecycle trend" icon={Activity} />
+            <TrendChart data={charts.createdVsResolved || []} />
+          </GlassCard>
         </section>
 
-        {/* Main Visualizations */}
-        <section className="section">
-          <VisualizationSection />
+        <section className="section manager-grid manager-grid--three">
+          <GlassCard>
+            <SectionHeader title="Assignment distribution" subtitle="IT, PKI and unassigned workload" icon={GitBranch} />
+            <div className="manager-mini-metrics">
+              <span><strong>{safeNumber(stats.assignedToIT)}</strong> IT</span>
+              <span><strong>{safeNumber(stats.assignedToPKI)}</strong> PKI</span>
+              <span><strong>{safeNumber(stats.notAssigned)}</strong> Unassigned</span>
+            </div>
+          </GlassCard>
+          <GlassCard>
+            <SectionHeader title="Workflow timing" subtitle="Average operational timing" icon={Clock} />
+            <div className="manager-mini-metrics">
+              <span><strong>{minutesToHours(workflow.avgCreationToAssignmentMinutes)}</strong> creation to assignment</span>
+              <span><strong>{minutesToHours(workflow.avgAssignmentToResolutionMinutes)}</strong> assignment to resolution</span>
+              <span><strong>{safeNumber(workflow.delayed48h)}</strong> delayed over 48h</span>
+            </div>
+          </GlassCard>
+          <GlassCard>
+            <SectionHeader title="CRUD activity" subtitle="Objects created in the system" icon={Building2} />
+            <div className="manager-mini-metrics">
+              <span><strong>{safeNumber(crud.organizationsCreated)}</strong> organizations</span>
+              <span><strong>{safeNumber(crud.contactsCreated)}</strong> contacts</span>
+              <span><strong>{safeNumber(crud.meetingsCreated)}</strong> meetings</span>
+              <span><strong>{safeNumber(crud.commentsCreated) + safeNumber(crud.messagesCreated)}</strong> comments/messages</span>
+            </div>
+          </GlassCard>
         </section>
 
-        {/* Ticket Flow */}
         <section className="section">
-          <FlowDiagram />
+          <GlassCard>
+            <SectionHeader title="Recent activity feed" subtitle="CRUD and workflow activity" icon={Activity} />
+            <ActivityFeed items={dashboard.recentActivity || []} />
+          </GlassCard>
         </section>
 
-        {/* Top Performers */}
-        <section className="section">
-          <TopEmployees />
+        <section className="section manager-grid manager-grid--two">
+          <GlassCard>
+            <SectionHeader title="Read-only contacts overview" subtitle="Organizations and clients without CRUD actions" icon={Users} />
+            <div className="manager-mini-metrics">
+              <span><strong>{safeNumber(contacts.totalOrganizations)}</strong> total organizations</span>
+              <span><strong>{safeNumber(contacts.totalContacts)}</strong> total contacts</span>
+              <span><strong>{safeNumber(contacts.newOrganizationsThisWeek)}</strong> new organizations this week</span>
+              <span><strong>{safeNumber(contacts.contactsWithUnresolvedTickets)}</strong> contacts with unresolved tickets</span>
+            </div>
+            <div className="manager-readonly-list">
+              {(contacts.organizations || []).slice(0, 5).map((org) => (
+                <div key={org.id}>
+                  <strong>{org.name}</strong>
+                  <span>{safeNumber(org.contactsCount)} contacts · {safeNumber(org.ticketsCount)} tickets</span>
+                </div>
+              ))}
+              {!(contacts.organizations || []).length && <EmptyState>No organizations yet.</EmptyState>}
+            </div>
+          </GlassCard>
+          <GlassCard>
+            <SectionHeader title="Delayed tickets" subtitle="Open tickets requiring attention" icon={AlertOctagon} />
+            <div className="manager-readonly-list">
+              {(dashboard.delayedTickets || []).map((ticket) => (
+                <div key={ticket.id}>
+                  <strong>{ticket.request_code || `Ticket #${ticket.id}`} · {ticket.assignedService}</strong>
+                  <span>{ticket.issue_type} · {ticket.issue_level} · {safeNumber(ticket.ageHours)}h pending</span>
+                </div>
+              ))}
+              {!(dashboard.delayedTickets || []).length && <EmptyState>No delayed tickets.</EmptyState>}
+            </div>
+          </GlassCard>
         </section>
 
-        {/* Risk & Alerts */}
-        <section className="section risk-alerts-section">
-          <div className="risk-alerts-grid">
-            <AlertsSection />
-          </div>
+        <section className="section">
+          <GlassCard>
+            <SectionHeader title="Employee activity summary" subtitle="Created tickets, comments and assignments" icon={Users} />
+            <div className="manager-employee-grid">
+              {(dashboard.employeeActivity || []).map((employee) => (
+                <div className="manager-employee-card" key={employee.id}>
+                  <strong>{employee.name}</strong>
+                  <span>{employee.service || 'No service'}</span>
+                  <small>{safeNumber(employee.ticketsCreated)} tickets · {safeNumber(employee.commentsCreated)} comments · {safeNumber(employee.assignmentsMade)} assignments</small>
+                </div>
+              ))}
+              {!(dashboard.employeeActivity || []).length && <EmptyState>No employee activity yet.</EmptyState>}
+            </div>
+          </GlassCard>
         </section>
       </div>
     </div>

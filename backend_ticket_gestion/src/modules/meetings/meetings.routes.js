@@ -10,9 +10,9 @@ router.get('/meta', auth, meetingController.getMeetingMeta);
 router.get('/', auth, meetingController.listMeetings);
 router.get('/:meetingId', auth, meetingController.getMeeting);
 
-// Write – Service Delivery only
+// Write – Service Delivery can manage; invited users can only accept/reject in service layer
 router.post('/', auth, requireServiceDelivery, meetingController.createMeeting);
-router.put('/:meetingId', auth, requireServiceDelivery, meetingController.updateMeeting);
+router.put('/:meetingId', auth, meetingController.updateMeeting);
 router.delete('/:meetingId', auth, requireServiceDelivery, meetingController.deleteMeeting);
 
 module.exports = router;

@@ -2,11 +2,13 @@ const contactRepository = require('./contacts.repository');
 
 const VALID_TYPES    = ['Applicant', 'Representative', 'LRAO', 'Consultant', 'Government Official', 'Legal Representative', 'Technical Expert'];
 const VALID_STATUSES = ['Active', 'Inactive', 'Pending'];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateContactPayload(payload) {
     if (!payload.name  || !String(payload.name).trim())  throw new Error('name is required');
     if (!payload.type)                                    throw new Error('type is required');
     if (!payload.email || !String(payload.email).trim()) throw new Error('email is required');
+    if (!EMAIL_PATTERN.test(String(payload.email).trim())) throw new Error('Invalid email format');
     
     const types = String(payload.type).split(',').map(t => t.trim());
     for (const t of types) {
@@ -84,7 +86,11 @@ async function updateContact(id, payload) {
     const updateData = {};
     if (payload.name !== undefined)           updateData.name           = String(payload.name).trim();
     if (payload.type !== undefined)           updateData.type           = payload.type;
-    if (payload.email !== undefined)          updateData.email          = String(payload.email).trim();
+    if (payload.email !== undefined) {
+        const email = String(payload.email).trim();
+        if (!EMAIL_PATTERN.test(email)) throw new Error('Invalid email format');
+        updateData.email = email;
+    }
     if (payload.phone !== undefined)          updateData.phone          = payload.phone    ? String(payload.phone).trim()    : null;
     if (payload.jobTitle !== undefined)       updateData.jobTitle       = payload.jobTitle ? String(payload.jobTitle).trim() : null;
     if (payload.status !== undefined)         updateData.status         = payload.status;

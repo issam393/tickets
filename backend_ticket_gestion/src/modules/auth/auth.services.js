@@ -35,7 +35,7 @@ async function login(userData) {
     return { 
         message: "Login successful", 
         userId: user.id,
-        username: user.username,
+        username: user.userName,
         token: token  
     };
 }

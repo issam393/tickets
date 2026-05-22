@@ -20,6 +20,13 @@ router.get('/', auth, ticketController.listTickets);
 // Next request code – Service Delivery only
 router.get('/next-request-code', auth, requireServiceDelivery, ticketController.getNextRequestCode);
 
+router.get(
+    '/assignment-history/:ticketId',
+    auth,
+    requireTicketAccess(ticketRepository),
+    ticketController.getAssignmentHistory
+);
+
 // Get single ticket – check access first
 router.get(
     '/:ticketId',

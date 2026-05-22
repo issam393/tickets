@@ -1,5 +1,5 @@
 import { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import image from "../../assets/image.png";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
@@ -158,8 +158,6 @@ function Register() {
           This portal is restricted to authorized users only. All access attempts may be logged, reviewed, and monitored.
         </div>
       </div>
-
-      <Toaster position="top-center" />
     </div>
   );
 }

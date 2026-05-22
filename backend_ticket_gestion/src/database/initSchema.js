@@ -11,7 +11,7 @@ async function initializeMessagingSchema() {
             issue_type VARCHAR(255) NOT NULL,
             issue_level VARCHAR(255) NOT NULL,
             issue_description TEXT NOT NULL,
-            status ENUM('Pending', 'Resolved', 'Critical', 'Warning') DEFAULT 'Pending',
+            status ENUM('Pending', 'In Progress', 'Warning', 'Critical', 'Resolved') DEFAULT 'Pending',
             created_by INT NOT NULL,
             createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -19,6 +19,14 @@ async function initializeMessagingSchema() {
             FOREIGN KEY (created_by) REFERENCES employees(id) ON DELETE CASCADE
         )`
     );
+
+    try {
+        await db.execute("ALTER TABLE tickets MODIFY COLUMN status ENUM('Pending', 'Open', 'In Progress', 'Warning', 'Critical', 'Resolved') DEFAULT 'Pending'");
+        await db.execute("UPDATE tickets SET status = 'Pending' WHERE status IN ('Open')");
+        await db.execute("ALTER TABLE tickets MODIFY COLUMN status ENUM('Pending', 'In Progress', 'Warning', 'Critical', 'Resolved') DEFAULT 'Pending'");
+    } catch (err) {
+        console.warn("Could not normalize ticket status column:", err.message);
+    }
 
     await db.execute(
         `CREATE TABLE IF NOT EXISTS rooms (
@@ -31,6 +39,71 @@ async function initializeMessagingSchema() {
             FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
         )`
     );
+
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS ticket_assignment_history (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            ticket_id INT NOT NULL,
+            previous_service VARCHAR(50) NULL,
+            new_service VARCHAR(50) NOT NULL,
+            assigned_by INT NOT NULL,
+            assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            action_type VARCHAR(50) DEFAULT 'assigned',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+            FOREIGN KEY (assigned_by) REFERENCES employees(id) ON DELETE CASCADE
+        )`
+    );
+
+    try {
+        const [columns] = await db.execute("SHOW COLUMNS FROM ticket_assignment_history LIKE 'action_type'");
+        if (columns.length === 0) {
+            await db.execute("ALTER TABLE ticket_assignment_history ADD COLUMN action_type VARCHAR(50) DEFAULT 'assigned'");
+        }
+        const [createdColumns] = await db.execute("SHOW COLUMNS FROM ticket_assignment_history LIKE 'created_at'");
+        if (createdColumns.length === 0) {
+            await db.execute("ALTER TABLE ticket_assignment_history ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+        }
+    } catch (err) {
+        console.warn("Could not update ticket_assignment_history table:", err.message);
+    }
+
+    const [assignmentIndexes] = await db.execute(
+        `SHOW INDEX FROM ticket_assignment_history WHERE Key_name = 'idx_ticket_assignment_history_ticket'`
+    );
+
+    if (!assignmentIndexes.length) {
+        await db.execute(
+            `CREATE INDEX idx_ticket_assignment_history_ticket
+             ON ticket_assignment_history (ticket_id, assigned_at)`
+        );
+    }
+
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS activity_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            actor_employee_id INT NULL,
+            actor_role VARCHAR(50) NULL,
+            action_type VARCHAR(80) NOT NULL,
+            entity_type VARCHAR(80) NOT NULL,
+            entity_id INT NULL,
+            description TEXT NOT NULL,
+            metadata JSON NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (actor_employee_id) REFERENCES employees(id) ON DELETE SET NULL
+        )`
+    );
+
+    const [activityIndexes] = await db.execute(
+        `SHOW INDEX FROM activity_logs WHERE Key_name = 'idx_activity_logs_created_at'`
+    );
+
+    if (!activityIndexes.length) {
+        await db.execute(
+            `CREATE INDEX idx_activity_logs_created_at
+             ON activity_logs (created_at)`
+        );
+    }
 
     await db.execute(
         `CREATE TABLE IF NOT EXISTS messages (

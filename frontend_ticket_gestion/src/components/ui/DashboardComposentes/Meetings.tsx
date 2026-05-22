@@ -4,7 +4,7 @@ import {
   X, Check, User, Users, MapPin, Ticket, Plus, Pencil, Trash2, Building
 } from "lucide-react";
 import { FaRegCalendarAlt } from "react-icons/fa";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import "./Meetings.css";
 
 const API_BASE = "http://localhost:2300";
@@ -85,7 +85,8 @@ function getUserRole() {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.service;
+    const role = payload.service;
+    return String(role).toUpperCase() === 'MANAGER' ? 'Manager' : role;
   } catch {
     return null;
   }
@@ -216,7 +217,7 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, me
   );
 }
 
-function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing, meetingRooms, isReadOnly }) {
+function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing, meetingRooms, isReadOnly, canRespondAllowed }) {
   const [mode, setMode] = useState("view");
   const [reason, setReason] = useState("");
 
@@ -270,14 +271,14 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
         </div>
 
         <div className="dialog-footer">
-          {!isReadOnly && meeting.canRespond && meeting.status === "Pending" && mode === "view" && (
+          {canRespondAllowed && meeting.canRespond && meeting.status === "Pending" && mode === "view" && (
             <div className="action-group">
               <button className="btn-reject" onClick={() => setMode("rejecting")} disabled={isProcessing}><X size={14} /> Reject</button>
               <button className="btn-accept" onClick={() => onAccept(meeting)} disabled={isProcessing}><Check size={14} /> Accept</button>
             </div>
           )}
 
-          {!isReadOnly && meeting.canRespond && meeting.status === "Pending" && mode === "rejecting" && (
+          {canRespondAllowed && meeting.canRespond && meeting.status === "Pending" && mode === "rejecting" && (
             <div className="action-group">
               <button className="btn-secondary" onClick={() => { setMode("view"); setReason(""); }} disabled={isProcessing}>Cancel</button>
               <button className="btn-confirm-reject" disabled={!reason.trim() || isProcessing} onClick={() => onReject(meeting, reason)}><X size={14} /> Confirm Rejection</button>
@@ -301,8 +302,9 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
 const Meetings = () => {
   const token = localStorage.getItem("token");
   const role = getUserRole();
-  const isReadOnly = role === 'Manager';
   const isSD = role === 'SD';
+  const isReadOnly = !isSD;
+  const canRespondAllowed = role !== 'Manager';
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
@@ -366,7 +368,7 @@ const Meetings = () => {
   };
 
   const loadMeta = async () => {
-    if (!token) return;
+    if (!token || !isSD) return;
     try {
       const [metaRes, roomsRes] = await Promise.all([
         fetch(`${API_BASE}/api/meetings/meta`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -384,7 +386,7 @@ const Meetings = () => {
     }
   };
 
-  useEffect(() => { loadMeetings(); loadMeta(); }, [token]);
+  useEffect(() => { loadMeetings(); loadMeta(); }, [token, isSD]);
 
   const goPrevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const goNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
@@ -408,7 +410,7 @@ const Meetings = () => {
   };
 
   const handleCreateOrUpdateMeeting = async (formData) => {
-    if (isReadOnly) { toast.error("You do not have permission to create or edit meetings"); return; }
+    if (!isSD) { toast.error("Action non autorisée."); return; }
     try {
       setIsProcessing(true);
       const payload = {
@@ -432,7 +434,8 @@ const Meetings = () => {
       setDialogOpen(false);
       setSelectedMeeting(null);
       setError("");
-      toast.success(editingMeeting ? "Meeting updated" : "Meeting created");
+      await loadMeetings();
+      toast.success(editingMeeting ? "Meeting updated successfully." : "Meeting created successfully.");
     } catch (actionError) {
       toast.error(actionError.message);
     } finally {
@@ -441,7 +444,7 @@ const Meetings = () => {
   };
 
   const handleAccept = async (meeting) => {
-    if (isReadOnly) { toast.error("You do not have permission to accept meetings"); return; }
+    if (!canRespondAllowed || !meeting.canRespond) { toast.error("Action non autorisée."); return; }
     try {
       setIsProcessing(true);
       const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, { method: "PUT", headers: authHeaders, body: JSON.stringify({ status: "Accepted", rejectionReason: null }) });
@@ -458,7 +461,8 @@ const Meetings = () => {
   };
 
   const handleReject = async (meeting, rejectionReason) => {
-    if (isReadOnly) { toast.error("You do not have permission to reject meetings"); return; }
+    if (!canRespondAllowed || !meeting.canRespond) { toast.error("Action non autorisée."); return; }
+    if (!rejectionReason.trim()) { toast.error("Rejection reason is required."); return; }
     try {
       setIsProcessing(true);
       const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, { method: "PUT", headers: authHeaders, body: JSON.stringify({ status: "Rejected", rejectionReason }) });
@@ -475,7 +479,7 @@ const Meetings = () => {
   };
 
   const handleDelete = async (meeting) => {
-    if (isReadOnly) { toast.error("You do not have permission to delete meetings"); return; }
+    if (!isSD) { toast.error("Action non autorisée."); return; }
     const confirmed = window.confirm(`Delete meeting "${meeting.title}"?`);
     if (!confirmed) return;
     try {
@@ -495,14 +499,13 @@ const Meetings = () => {
   };
 
   const openEditModal = (meeting) => {
-    if (isReadOnly) { toast.error("You do not have permission to edit meetings"); return; }
+    if (!isSD) { toast.error("Action non autorisée."); return; }
     setEditingMeeting(meeting);
     setShowScheduleModal(true);
   };
 
   return (
     <div className="meetings-page">
-      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#1e293b', color: '#f1f5f9', border: '1px solid #334155' } }} />
       <main className="meetings-main">
         <div className="meetings-container">
           <div className="meetings-header-wrapper">
@@ -596,6 +599,7 @@ const Meetings = () => {
         isProcessing={isProcessing}
         meetingRooms={meetingRooms}
         isReadOnly={isReadOnly}
+        canRespondAllowed={canRespondAllowed}
       />
 
       <ScheduleMeetingModal
