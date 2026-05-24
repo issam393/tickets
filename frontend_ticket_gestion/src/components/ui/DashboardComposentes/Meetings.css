@@ -350,6 +350,11 @@ body {
   border-color: rgba(239, 68, 68, 0.4);
 }
 
+.event-tag--assigned {
+  box-shadow: inset 3px 0 0 var(--primary);
+  font-weight: 600;
+}
+
 .more-events {
   font-size: 0.6rem;
   color: var(--muted-foreground);
@@ -447,6 +452,41 @@ body {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+.meeting-assignee-badge {
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid rgba(168, 85, 247, 0.55);
+  background: rgba(168, 85, 247, 0.14);
+  color: var(--purple-soft);
+}
+
+.meeting-assignment-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  border-radius: 0.75rem;
+  background: rgba(168, 85, 247, 0.06);
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+
+.meeting-assignment-legend strong {
+  color: var(--purple-soft);
+}
+
+.meeting-assignment-marker {
+  width: 0.3rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
 }
 .status-pending::before {
   display: none;

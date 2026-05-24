@@ -29,7 +29,20 @@ function getIO() {
     return ioInstance;
 }
 
+function disconnectEmployee(employeeId) {
+    if (!ioInstance) return;
+    ioInstance.sockets.sockets.forEach((socket) => {
+        if (Number(socket.user?.id) === Number(employeeId)) {
+            socket.emit('account_disabled', {
+                message: 'Your account is inactive. Please contact an administrator.'
+            });
+            socket.disconnect(true);
+        }
+    });
+}
+
 module.exports = {
     initializeSocket,
-    getIO
+    getIO,
+    disconnectEmployee
 };

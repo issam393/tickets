@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 import './SideBar.css';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:2300/api';
@@ -114,6 +115,7 @@ function Sidebar({ activeItem, setActiveItem }) {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('username');
+    toast.success('Logged out successfully');
     navigate('/');
   };
 

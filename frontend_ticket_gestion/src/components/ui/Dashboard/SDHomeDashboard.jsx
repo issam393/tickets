@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Activity,
   AlertTriangle,
   ArrowRight,
   Building2,
@@ -10,12 +9,10 @@ import {
   Clock,
   GitBranch,
   Inbox,
-  MessageSquare,
   Plus,
   Send,
   Ticket,
   UserPlus,
-  Users,
   Zap,
 } from 'lucide-react';
 import './SDHomeDashboard.css';
@@ -146,11 +143,9 @@ export default function SDHomeDashboard({
   const stats = dashboard?.ticketStats || {};
   const workflow = dashboard?.workflowAnalytics || {};
   const contacts = dashboard?.contactsSummary || {};
-  const crud = dashboard?.crudSummary || {};
   const queue = dashboard?.pendingAssignmentQueue || [];
   const recentTickets = dashboard?.recentTickets || [];
   const delayedTickets = dashboard?.delayedTickets || [];
-  const recentActivity = dashboard?.recentActivity || [];
   const currentUser = dashboard?.currentUser || {};
 
   const assignmentRows = useMemo(() => {
@@ -172,13 +167,6 @@ export default function SDHomeDashboard({
     { icon: GitBranch, label: 'Waiting Assignment', value: safeNumber(stats.notAssigned), helper: `${minutesToHours(stats.avgAssignmentMinutes)} avg assignment`, tone: 'amber' },
     { icon: CheckCircle2, label: 'Resolved Tickets', value: safeNumber(stats.resolvedTickets), helper: 'closed by support teams', tone: 'green' },
     { icon: AlertTriangle, label: 'Critical / Warning', value: safeNumber(stats.criticalTickets) + safeNumber(stats.warningTickets), helper: `${safeNumber(workflow.delayed24h)} delayed over 24h`, tone: 'red' },
-    {
-      icon: Clock,
-      label: 'Avg Resolution',
-      value: minutesToHours(stats.avgResolutionMinutes),
-      helper: safeNumber(stats.resolvedTickets) ? `${safeNumber(stats.resolvedTickets)} resolved tickets` : 'No resolved tickets yet',
-      tone: 'purple'
-    },
   ];
 
   if (loading) {
@@ -413,8 +401,6 @@ export default function SDHomeDashboard({
               <Clock size={16} className="sd-panel-icon" />
             </div>
             <div className="sd-summary-stats">
-              <div><span className="sd-stat-num">{minutesToHours(stats.avgPendingMinutes)}</span><span className="sd-stat-lbl">Avg pending</span></div>
-              <div><span className="sd-stat-num">{minutesToHours(stats.avgResolutionMinutes)}</span><span className="sd-stat-lbl">Avg resolution</span></div>
               <div><span className="sd-stat-num">{safeNumber(workflow.delayed24h)}</span><span className="sd-stat-lbl">Pending 24h+</span></div>
               <div><span className="sd-stat-num">{safeNumber(workflow.delayed48h)}</span><span className="sd-stat-lbl">Pending 48h+</span></div>
               <div><span className="sd-stat-num">{safeNumber(workflow.activeInIT)}</span><span className="sd-stat-lbl">Active in IT</span></div>
@@ -423,7 +409,7 @@ export default function SDHomeDashboard({
           </div>
         </section>
 
-        <section className="sd-row sd-row-2">
+        <section className="sd-row">
           <div className="sd-panel sd-alert-card">
             <div className="sd-panel-header">
               <div>
@@ -449,59 +435,8 @@ export default function SDHomeDashboard({
               ))}
             </ul>
           </div>
-
-          <div className="sd-panel">
-            <div className="sd-panel-header">
-              <div>
-                <h2 className="sd-panel-title">Recent Service Delivery Activity</h2>
-                <p className="sd-panel-sub">Tickets, assignments, contacts, comments and meetings</p>
-              </div>
-              <Activity size={16} className="sd-panel-icon" />
-            </div>
-            <ul className="sd-activity-list">
-              {recentActivity.length === 0 ? (
-                <li className="sd-muted">No activity has been recorded yet.</li>
-              ) : recentActivity.slice(0, 10).map((item) => (
-                <li key={item.id}>
-                  <span className="sd-activity-dot" />
-                  <div>
-                    <p>{item.description}</p>
-                    <small>{item.actorName || item.actorRole || 'System'} · {formatDate(item.createdAt)}</small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
         </section>
 
-        <section className="sd-row sd-row-2">
-          <div className="sd-panel">
-            <div className="sd-panel-header">
-              <div>
-                <h2 className="sd-panel-title">Latest Created Records</h2>
-                <p className="sd-panel-sub">Real CRUD summary from the backend</p>
-              </div>
-              <MessageSquare size={16} className="sd-panel-icon" />
-            </div>
-            <div className="sd-latest-list">
-              <span><strong>Ticket</strong>{crud.latestTicket?.request_code || 'No ticket yet'}</span>
-              <span><strong>Organization</strong>{crud.latestOrganization?.name || 'No organization yet'}</span>
-              <span><strong>Contact</strong>{crud.latestContact?.name || 'No contact yet'}</span>
-              <span><strong>Meeting</strong>{crud.latestMeeting?.title || 'No meeting yet'}</span>
-            </div>
-          </div>
-          <div className="sd-panel">
-            <div className="sd-panel-header">
-              <div>
-                <h2 className="sd-panel-title">Meetings & Follow-ups</h2>
-                <p className="sd-panel-sub">Open the real meetings workspace</p>
-              </div>
-              <Calendar size={16} className="sd-panel-icon" />
-            </div>
-            <p className="sd-muted">Meetings are managed from the dedicated section and remain restricted to authorized roles.</p>
-            <button className="sd-panel-btn" onClick={onMeetings}>View Meetings <ArrowRight size={14} /></button>
-          </div>
-        </section>
       </div>
     </div>
   );

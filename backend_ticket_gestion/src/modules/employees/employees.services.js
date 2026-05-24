@@ -1,6 +1,7 @@
 const employeeRepository = require('./employees.repository');
 const bcrypt = require('bcrypt');
 const { createEmployeeValidation, updateEmployeeValidation } = require('./employees.validation');
+const { disconnectEmployee } = require('../../socket');
 
 const createEmployee = async (employeeData) => {
     const existingUser = await employeeRepository.isUser(employeeData.userName);
@@ -19,7 +20,11 @@ const editEmployee = async (id, employeeData) => {
     if (employeeData.password) {
         employeeData.password = await bcrypt.hash(employeeData.password, 10);
     }
-    return await employeeRepository.update(id, employeeData);
+    const result = await employeeRepository.update(id, employeeData);
+    if (employeeData.status === 'Inactive') {
+        disconnectEmployee(id);
+    }
+    return result;
 };
 
 const getAllEmployees = async () => {

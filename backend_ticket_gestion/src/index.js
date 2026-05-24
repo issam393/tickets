@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const http = require("http");
 const { initializeSocket } = require("./socket");
 const initializeMessagingSchema = require("./database/initSchema");
+const { startAutomaticGmailSync } = require("./modules/clientEmails/gmailSync.services");
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ async function startServer() {
 
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
+      startAutomaticGmailSync();
     });
   } catch (error) {
     console.error("Failed to initialize server:", error.message);

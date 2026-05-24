@@ -34,7 +34,7 @@ async function getRoomByTicketId(ticketId) {
     return rows[0];
 }
 
-async function getAccessibleRoomsByRole() {
+async function getAccessibleRoomsByRole(employeeId) {
     const [rows] = await db.execute(
         `SELECT
             r.id,
@@ -49,9 +49,18 @@ async function getAccessibleRoomsByRole() {
             t.issue_level,
             t.status AS ticket_status,
             lm.text AS last_message_text,
-            lm.createdAt AS last_message_time
+            lm.createdAt AS last_message_time,
+            (
+                SELECT COUNT(*)
+                FROM messages unread_message
+                WHERE unread_message.room_id = r.id
+                  AND unread_message.sender_id <> ?
+                  AND unread_message.id > COALESCE(room_read.last_read_message_id, 0)
+            ) AS unread_count
          FROM rooms r
          JOIN tickets t ON t.id = r.ticket_id
+         LEFT JOIN room_message_reads room_read
+            ON room_read.room_id = r.id AND room_read.employee_id = ?
          LEFT JOIN messages lm ON lm.id = (
              SELECT m2.id
              FROM messages m2
@@ -60,15 +69,29 @@ async function getAccessibleRoomsByRole() {
              LIMIT 1
          )
          ORDER BY COALESCE(lm.createdAt, r.createdAt) DESC`,
-        []
+        [employeeId, employeeId]
     );
 
     return rows;
+}
+
+async function markRoomAsRead(roomId, employeeId) {
+    await db.execute(
+        `INSERT INTO room_message_reads (room_id, employee_id, last_read_message_id)
+         SELECT ?, ?, MAX(m.id)
+         FROM messages m
+         WHERE m.room_id = ?
+         ON DUPLICATE KEY UPDATE
+            last_read_message_id = VALUES(last_read_message_id),
+            read_at = CURRENT_TIMESTAMP`,
+        [roomId, employeeId, roomId]
+    );
 }
 
 module.exports = {
     createRoom,
     getRoomById,
     getRoomByTicketId,
-    getAccessibleRoomsByRole
+    getAccessibleRoomsByRole,
+    markRoomAsRead
 };

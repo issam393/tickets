@@ -8,6 +8,7 @@ const authRepository = require('./auth.repository');
 const { validateLogin } = require('./auth.validation');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_12345';
+const INACTIVE_ACCOUNT_MESSAGE = 'Your account is inactive. Please contact an administrator.';
 
 
 async function login(userData) {
@@ -23,6 +24,10 @@ async function login(userData) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
         throw new Error('Invalid credential');
+    }
+
+    if (String(user.status || '').trim().toLowerCase() !== 'active') {
+        throw new Error(INACTIVE_ACCOUNT_MESSAGE);
     }
     
    
@@ -48,5 +53,6 @@ async function logout(token) {
 module.exports = {
 
     login,
-    logout
+    logout,
+    INACTIVE_ACCOUNT_MESSAGE
 };

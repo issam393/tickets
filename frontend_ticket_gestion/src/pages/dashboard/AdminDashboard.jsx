@@ -11,6 +11,8 @@ import {
   Search,
   Pencil,
   Trash2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -367,6 +369,12 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
 
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const closeModal = () => {
+    setShowPassword(false);
+    onOpenChange(false);
+  };
 
   const validateField = (name, value) => {
     let error = "";
@@ -449,7 +457,7 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
         status: "Active"
       });
       setErrors({});
-      onOpenChange(false);
+      closeModal();
     } else {
       toast.error("Please fix all errors before submitting");
     }
@@ -458,7 +466,7 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
   return (
     <Modal
       isOpen={open}
-      onClose={() => onOpenChange(false)}
+      onClose={closeModal}
       title="Create User"
       description="Fill out the form below to create a new internal user account."
     >
@@ -512,12 +520,23 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
 
             <div className="ad-form-field">
               <label>Password *</label>
-              <input
-                type="password"
-                required
-                value={form.password}
-                onChange={(e) => handleChange("password", e.target.value)}
-              />
+              <div className="ad-password-field">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={form.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                />
+                <button
+                  className="ad-password-toggle"
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword((visible) => !visible)}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
               {errors.password && <p style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>{errors.password}</p>}
             </div>
           </div>
@@ -543,7 +562,7 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
         </fieldset>
       </form>
       <div className="ad-modal-actions">
-        <button type="button" className="ad-modal-btn ad-cancel" onClick={() => onOpenChange(false)}>
+        <button type="button" className="ad-modal-btn ad-cancel" onClick={closeModal}>
           Cancel
         </button>
         <button 

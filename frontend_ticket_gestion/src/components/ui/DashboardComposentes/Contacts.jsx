@@ -5,6 +5,18 @@ import "./Contacts.css";
 import OrganizationDetails from "./ContactDetails/OrganizationDetails";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:2300/api";
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^\d{10}$/;
+
+function validateContactDetails(email, phone) {
+  if (!EMAIL_PATTERN.test(String(email || "").trim())) {
+    return "Please enter a valid email address.";
+  }
+  if (!PHONE_PATTERN.test(String(phone || "").trim())) {
+    return "Phone number must contain exactly 10 digits.";
+  }
+  return "";
+}
 
 function getToken() {
   return localStorage.getItem("token");
@@ -126,6 +138,11 @@ function Contacts({ readOnly = false }) {
     const payload = dialogType === "contact"
       ? { name: editedData.name, type: editedData.type, email: editedData.email, phone: editedData.phone, jobTitle: editedData.jobTitle, status: editedData.status }
       : { name: editedData.name, industry: editedData.industry, email: editedData.email, phone: editedData.phone, address: editedData.address, status: editedData.status };
+    const validationMessage = validateContactDetails(payload.email, payload.phone);
+    if (validationMessage) {
+      toast.error(validationMessage);
+      return;
+    }
     try {
       const res  = await fetch(url, {
         method: "PUT",
@@ -170,6 +187,11 @@ function Contacts({ readOnly = false }) {
   const handleAddOrg = async () => {
     if (!newOrg.name || !newOrg.industry || !newOrg.email || !newOrg.phone) {
       toast.error("Please fill all required fields.");
+      return;
+    }
+    const validationMessage = validateContactDetails(newOrg.email, newOrg.phone);
+    if (validationMessage) {
+      toast.error(validationMessage);
       return;
     }
     try {
@@ -217,7 +239,19 @@ function Contacts({ readOnly = false }) {
                   {opts.selectOptions.map((o) => (<option key={o} value={o}>{o}</option>))}
                 </select>
               ) : (
-                <input type={opts.type} value={currentValue ?? ""} onChange={(e) => handleFieldChange(field, e.target.value)} className="dialog-input" style={{ borderRadius: "30px" }} />
+                <input
+                  type={field === "phone" ? "tel" : opts.type}
+                  value={currentValue ?? ""}
+                  onChange={(e) => handleFieldChange(
+                    field,
+                    field === "phone" ? e.target.value.replace(/\D/g, "").slice(0, 10) : e.target.value
+                  )}
+                  className="dialog-input"
+                  style={{ borderRadius: "30px" }}
+                  inputMode={field === "phone" ? "numeric" : undefined}
+                  maxLength={field === "phone" ? 10 : undefined}
+                  pattern={field === "phone" ? "\\d{10}" : undefined}
+                />
               )}
             </div>
             <div className="editable-field__actions">
@@ -519,7 +553,20 @@ function Contacts({ readOnly = false }) {
                 ].map(({ label, field, type, placeholder }) => (
                   <div className="editable-field" key={field}>
                     <div className="editable-field__label">{label}</div>
-                    <input type={type} value={newOrg[field]} onChange={(e) => setNewOrg((p) => ({ ...p, [field]: e.target.value }))} className="dialog-input" style={{ borderRadius: "30px" }} placeholder={placeholder} />
+                <input
+                  type={type}
+                  value={newOrg[field]}
+                  onChange={(e) => setNewOrg((p) => ({
+                    ...p,
+                    [field]: field === "phone" ? e.target.value.replace(/\D/g, "").slice(0, 10) : e.target.value
+                  }))}
+                  className="dialog-input"
+                  style={{ borderRadius: "30px" }}
+                  placeholder={field === "phone" ? "10 digits" : placeholder}
+                  inputMode={field === "phone" ? "numeric" : undefined}
+                  maxLength={field === "phone" ? 10 : undefined}
+                  pattern={field === "phone" ? "\\d{10}" : undefined}
+                />
                   </div>
                 ))}
                 <div className="editable-field">

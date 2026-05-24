@@ -5,6 +5,7 @@ import {
   AlertOctagon,
   BarChart3,
   Building2,
+  CalendarDays,
   Clock,
   GitBranch,
   PieChart as PieChartIcon,
@@ -15,9 +16,13 @@ import {
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -29,6 +34,39 @@ import './ManagerDaschboard.css';
 
 const API_BASE = 'http://localhost:2300';
 const CHART_COLORS = ['#00d9ff', '#00f5a0', '#ffa500', '#7c3aed', '#ff4757', '#94a3b8'];
+const PERIOD_OPTIONS = [
+  { value: 'yearly', label: 'Year' },
+  { value: 'monthly', label: 'Month' },
+  { value: 'weekly', label: 'Week' },
+  { value: 'daily', label: 'Day' },
+];
+const MONTH_OPTIONS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+function pad2(value) {
+  return String(value).padStart(2, '0');
+}
+
+function getIsoWeekValue(date) {
+  const current = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = current.getUTCDay() || 7;
+  current.setUTCDate(current.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(current.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((current - yearStart) / 86400000) + 1) / 7);
+  return `${current.getUTCFullYear()}-W${pad2(week)}`;
+}
+
+function getInitialAnalyticsSelection() {
+  const now = new Date();
+  return {
+    year: String(now.getFullYear()),
+    month: String(now.getMonth() + 1),
+    week: getIsoWeekValue(now),
+    date: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`,
+  };
+}
 
 function getToken() {
   return localStorage.getItem('token');
@@ -42,19 +80,17 @@ function minutesToHours(minutes, emptyLabel = 'No data') {
   return `${(value / 60).toFixed(1)}h`;
 }
 
-function formatDate(date) {
-  if (!date) return 'Not available';
-  return new Date(date).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
 function formatDay(date) {
   if (!date) return '';
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatBucket(date, period) {
+  if (!date) return '';
+  const parsed = new Date(date);
+  if (period === 'yearly') return parsed.toLocaleDateString('en-US', { month: 'short' });
+  if (period === 'daily') return parsed.toLocaleTimeString('en-US', { hour: 'numeric' });
+  return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function safeNumber(value) {
@@ -177,21 +213,79 @@ function TrendChart({ data }) {
   );
 }
 
-function ActivityFeed({ items }) {
-  if (!items.length) return <EmptyState>No recent activity has been recorded.</EmptyState>;
+function AnalyticsVolumeChart({ data, period }) {
+  if (!data.length) return <EmptyState>No tickets were recorded for this period.</EmptyState>;
+  const normalized = data.map((item) => ({ ...item, label: formatBucket(item.bucket, period) }));
 
   return (
-    <div className="manager-activity-list">
-      {items.map((item) => (
-        <div className="manager-activity-item" key={item.id}>
-          <span className="manager-activity-dot" />
-          <div>
-            <p>{item.description}</p>
-            <small>{item.actorName || item.actorRole || 'System'} · {formatDate(item.createdAt)}</small>
-          </div>
-        </div>
-      ))}
-    </div>
+    <ResponsiveContainer width="100%" height={285}>
+      <BarChart data={normalized} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+        <CartesianGrid stroke="rgba(148, 163, 184, 0.12)" vertical={false} />
+        <XAxis dataKey="label" tickLine={false} axisLine={false} stroke="#94a3b8" />
+        <YAxis tickLine={false} axisLine={false} stroke="#94a3b8" allowDecimals={false} />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="created" name="Created" fill="#00d9ff" radius={[5, 5, 0, 0]} />
+        <Bar dataKey="resolved" name="Resolved" fill="#00f5a0" radius={[5, 5, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+function ResolutionTrendChart({ data, period }) {
+  if (!data.length) return <EmptyState>No resolved ticket data for this period.</EmptyState>;
+  const normalized = data.map((item) => ({
+    ...item,
+    label: formatBucket(item.bucket, period),
+    hours: item.avgResolutionMinutes === null ? null : Number((item.avgResolutionMinutes / 60).toFixed(1)),
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={285}>
+      <LineChart data={normalized} margin={{ top: 12, right: 18, left: 0, bottom: 0 }}>
+        <CartesianGrid stroke="rgba(148, 163, 184, 0.12)" vertical={false} />
+        <XAxis dataKey="label" tickLine={false} axisLine={false} stroke="#94a3b8" />
+        <YAxis tickLine={false} axisLine={false} stroke="#94a3b8" unit="h" />
+        <Tooltip formatter={(value) => [`${value}h`, 'Average resolution']} />
+        <Line type="monotone" dataKey="hours" name="Average resolution" stroke="#ffa500" strokeWidth={3} dot={{ fill: '#ffa500', r: 4 }} />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+function CategoryChart({ data }) {
+  if (!data.length) return <EmptyState>No ticket categories for this period.</EmptyState>;
+
+  return (
+    <ResponsiveContainer width="100%" height={285}>
+      <PieChart>
+        <Pie data={data} dataKey="value" nameKey="name" innerRadius={56} outerRadius={94} paddingAngle={2}>
+          {data.map((entry, index) => (
+            <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} stroke="none" />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+function AgentPerformanceChart({ data }) {
+  if (!data.length) return <EmptyState>No employee activity for this period.</EmptyState>;
+  return (
+    <ResponsiveContainer width="100%" height={Math.max(260, data.length * 40)}>
+      <BarChart data={data} layout="vertical" margin={{ top: 8, right: 20, left: 34, bottom: 0 }}>
+        <CartesianGrid stroke="rgba(148, 163, 184, 0.12)" horizontal={false} />
+        <XAxis type="number" tickLine={false} axisLine={false} stroke="#94a3b8" allowDecimals={false} />
+        <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} stroke="#94a3b8" width={118} />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="ticketsCreated" name="Tickets" stackId="activity" fill="#00d9ff" />
+        <Bar dataKey="commentsAdded" name="Comments" stackId="activity" fill="#7c3aed" />
+        <Bar dataKey="assignments" name="Assignments" stackId="activity" fill="#00f5a0" radius={[0, 5, 5, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
 
@@ -199,6 +293,12 @@ export default function ManagerDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('general');
+  const [analyticsPeriod, setAnalyticsPeriod] = useState('weekly');
+  const [analyticsSelection, setAnalyticsSelection] = useState(getInitialAnalyticsSelection);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState('');
 
   const loadDashboard = async () => {
     const token = getToken();
@@ -234,6 +334,46 @@ export default function ManagerDashboard() {
     loadDashboard();
   }, []);
 
+  const loadAnalytics = async (period, selection) => {
+    const token = getToken();
+    if (!token) {
+      setAnalyticsError('Session expired. Please login again.');
+      return;
+    }
+    try {
+      setAnalyticsLoading(true);
+      setAnalyticsError('');
+      const query = new URLSearchParams({ period });
+      if (period === 'yearly') query.set('year', selection.year);
+      if (period === 'monthly') {
+        query.set('year', selection.year);
+        query.set('month', selection.month);
+      }
+      if (period === 'weekly') query.set('week', selection.week);
+      if (period === 'daily') query.set('date', selection.date);
+      const response = await fetch(`${API_BASE}/api/dashboard/manager/analytics?${query.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message || 'Detailed analytics could not be loaded.');
+      }
+      setAnalytics(payload.data);
+    } catch (err) {
+      const message = err.message || 'Detailed analytics could not be loaded.';
+      setAnalyticsError(message);
+      toast.error(message);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'details') {
+      loadAnalytics(analyticsPeriod, analyticsSelection);
+    }
+  }, [activeTab, analyticsPeriod, analyticsSelection]);
+
   const kpis = useMemo(() => {
     const stats = dashboard?.ticketStats || {};
     const workflow = dashboard?.workflowAnalytics || {};
@@ -245,28 +385,34 @@ export default function ManagerDashboard() {
       { icon: Ticket, label: 'Total tickets', value: total, helper: `${safeNumber(stats.createdToday)} created today`, tone: 'primary' },
       { icon: ShieldCheck, label: 'Resolved tickets', value: resolved, helper: `${resolutionRate}% resolution rate`, tone: 'success' },
       { icon: AlertOctagon, label: 'Critical + Warning', value: safeNumber(stats.criticalTickets) + safeNumber(stats.warningTickets), helper: 'Tickets requiring supervision', tone: 'warning' },
-      {
-        icon: Clock,
-        label: 'Avg resolution',
-        value: minutesToHours(stats.avgResolutionMinutes),
-        helper: safeNumber(stats.resolvedTickets) ? `${safeNumber(stats.resolvedTickets)} resolved tickets` : 'No resolved tickets yet',
-        tone: 'accent'
-      },
       { icon: GitBranch, label: 'Waiting assignment', value: safeNumber(workflow.waitingForAssignment), helper: `${minutesToHours(stats.avgAssignmentMinutes)} avg assignment`, tone: 'warning' },
       { icon: Users, label: 'Contacts', value: safeNumber(dashboard?.contactsSummary?.totalContacts), helper: `${safeNumber(dashboard?.contactsSummary?.totalOrganizations)} organizations`, tone: 'primary' },
     ];
   }, [dashboard]);
+
+  const availableYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = (analytics?.filters?.availableYears || []).map(Number).filter(Boolean);
+    const selectedYear = Number(analyticsSelection.year);
+    return [...new Set([currentYear, selectedYear, ...years])].filter(Boolean).sort((a, b) => b - a);
+  }, [analytics, analyticsSelection.year]);
 
   if (loading) return <StateCard type="loading" message="Real analytics are being loaded from the backend." />;
   if (error) return <StateCard type="error" message={error} onRetry={loadDashboard} />;
   if (!dashboard) return <StateCard type="error" message="No dashboard payload returned by the backend." onRetry={loadDashboard} />;
 
   const stats = dashboard.ticketStats || {};
-  const workflow = dashboard.workflowAnalytics || {};
   const charts = dashboard.charts || {};
-  const contacts = dashboard.contactsSummary || {};
   const crud = dashboard.crudSummary || {};
   const currentUser = dashboard.currentUser || {};
+  const detailSummary = analytics?.summary || {};
+  const detailKpis = [
+    { icon: Ticket, label: 'Tickets created', value: safeNumber(detailSummary.totalTickets), helper: analytics?.periodLabel || '', tone: 'primary' },
+    { icon: ShieldCheck, label: 'Resolved', value: safeNumber(detailSummary.resolvedTickets), helper: `${safeNumber(detailSummary.pendingTickets)} pending`, tone: 'success' },
+    { icon: AlertOctagon, label: 'Critical + Warning', value: safeNumber(detailSummary.criticalTickets) + safeNumber(detailSummary.warningTickets), helper: 'During selected period', tone: 'warning' },
+    { icon: GitBranch, label: 'Awaiting assignment', value: safeNumber(detailSummary.awaitingAssignment), helper: 'Excludes Level 1 SD', tone: 'warning' },
+    { icon: Users, label: 'Contacts created', value: safeNumber(detailSummary.contactsCreated), helper: `${safeNumber(detailSummary.organizationsCreated)} organizations`, tone: 'primary' },
+  ];
 
   return (
     <div className="dashboard manager-dynamic-dashboard">
@@ -286,9 +432,31 @@ export default function ManagerDashboard() {
             </div>
           </div>
         </div>
+        <div className="manager-view-tabs" role="tablist" aria-label="Manager dashboard views">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'general'}
+            className={`manager-view-tab ${activeTab === 'general' ? 'active' : ''}`}
+            onClick={() => setActiveTab('general')}
+          >
+            General
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'details'}
+            className={`manager-view-tab ${activeTab === 'details' ? 'active' : ''}`}
+            onClick={() => setActiveTab('details')}
+          >
+            Details
+          </button>
+        </div>
       </header>
 
       <div className="dashboard-content">
+        {activeTab === 'general' ? (
+        <>
         <section className="section">
           <span className="section-label">Dynamic KPI cards</span>
           <div className="kpi-grid">
@@ -307,21 +475,13 @@ export default function ManagerDashboard() {
           </GlassCard>
         </section>
 
-        <section className="section manager-grid manager-grid--three">
+        <section className="section manager-grid manager-grid--two">
           <GlassCard>
             <SectionHeader title="Assignment distribution" subtitle="IT, PKI and unassigned workload" icon={GitBranch} />
             <div className="manager-mini-metrics">
               <span><strong>{safeNumber(stats.assignedToIT)}</strong> IT</span>
               <span><strong>{safeNumber(stats.assignedToPKI)}</strong> PKI</span>
               <span><strong>{safeNumber(stats.notAssigned)}</strong> Unassigned</span>
-            </div>
-          </GlassCard>
-          <GlassCard>
-            <SectionHeader title="Workflow timing" subtitle="Average operational timing" icon={Clock} />
-            <div className="manager-mini-metrics">
-              <span><strong>{minutesToHours(workflow.avgCreationToAssignmentMinutes)}</strong> creation to assignment</span>
-              <span><strong>{minutesToHours(workflow.avgAssignmentToResolutionMinutes)}</strong> assignment to resolution</span>
-              <span><strong>{safeNumber(workflow.delayed48h)}</strong> delayed over 48h</span>
             </div>
           </GlassCard>
           <GlassCard>
@@ -334,62 +494,144 @@ export default function ManagerDashboard() {
             </div>
           </GlassCard>
         </section>
+        </>
+        ) : (
+        <>
+          <section className="section">
+            <GlassCard className="manager-filter-panel">
+              <SectionHeader title="Detailed analytics" subtitle="Time-scoped supervision metrics" icon={CalendarDays} />
+              <div className="manager-period-filter" role="group" aria-label="Analytics time filter">
+                {PERIOD_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={analyticsPeriod === option.value ? 'active' : ''}
+                    onClick={() => setAnalyticsPeriod(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <div className="manager-value-filter">
+                {analyticsPeriod === 'yearly' && (
+                  <label>
+                    Selected year
+                    <select
+                      value={analyticsSelection.year}
+                      onChange={(event) => setAnalyticsSelection((value) => ({ ...value, year: event.target.value }))}
+                    >
+                      {availableYears.map((year) => <option key={year} value={year}>{year}</option>)}
+                    </select>
+                  </label>
+                )}
+                {analyticsPeriod === 'monthly' && (
+                  <>
+                    <label>
+                      Month
+                      <select
+                        value={analyticsSelection.month}
+                        onChange={(event) => setAnalyticsSelection((value) => ({ ...value, month: event.target.value }))}
+                      >
+                        {MONTH_OPTIONS.map((month, index) => (
+                          <option key={month} value={index + 1}>{month}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Year
+                      <select
+                        value={analyticsSelection.year}
+                        onChange={(event) => setAnalyticsSelection((value) => ({ ...value, year: event.target.value }))}
+                      >
+                        {availableYears.map((year) => <option key={year} value={year}>{year}</option>)}
+                      </select>
+                    </label>
+                  </>
+                )}
+                {analyticsPeriod === 'weekly' && (
+                  <label>
+                    Selected week
+                    <input
+                      type="week"
+                      value={analyticsSelection.week}
+                      onChange={(event) => setAnalyticsSelection((value) => ({ ...value, week: event.target.value }))}
+                    />
+                  </label>
+                )}
+                {analyticsPeriod === 'daily' && (
+                  <label>
+                    Selected day
+                    <input
+                      type="date"
+                      value={analyticsSelection.date}
+                      onChange={(event) => setAnalyticsSelection((value) => ({ ...value, date: event.target.value }))}
+                    />
+                  </label>
+                )}
+              </div>
+            </GlassCard>
+          </section>
 
-        <section className="section">
-          <GlassCard>
-            <SectionHeader title="Recent activity feed" subtitle="CRUD and workflow activity" icon={Activity} />
-            <ActivityFeed items={dashboard.recentActivity || []} />
-          </GlassCard>
-        </section>
+          {analyticsLoading ? (
+            <section className="section">
+              <GlassCard className="manager-inline-state">Loading detailed analytics...</GlassCard>
+            </section>
+          ) : analyticsError ? (
+            <section className="section">
+              <GlassCard className="manager-inline-state manager-inline-state--error">
+                <p>{analyticsError}</p>
+                <button onClick={() => loadAnalytics(analyticsPeriod, analyticsSelection)}>Retry</button>
+              </GlassCard>
+            </section>
+          ) : analytics ? (
+            <>
+              <section className="section">
+                <span className="section-label">{analytics.periodLabel} summary</span>
+                <div className="kpi-grid">
+                  {detailKpis.map((kpi) => <KpiCard key={kpi.label} {...kpi} />)}
+                </div>
+              </section>
 
-        <section className="section manager-grid manager-grid--two">
-          <GlassCard>
-            <SectionHeader title="Read-only contacts overview" subtitle="Organizations and clients without CRUD actions" icon={Users} />
-            <div className="manager-mini-metrics">
-              <span><strong>{safeNumber(contacts.totalOrganizations)}</strong> total organizations</span>
-              <span><strong>{safeNumber(contacts.totalContacts)}</strong> total contacts</span>
-              <span><strong>{safeNumber(contacts.newOrganizationsThisWeek)}</strong> new organizations this week</span>
-              <span><strong>{safeNumber(contacts.contactsWithUnresolvedTickets)}</strong> contacts with unresolved tickets</span>
-            </div>
-            <div className="manager-readonly-list">
-              {(contacts.organizations || []).slice(0, 5).map((org) => (
-                <div key={org.id}>
-                  <strong>{org.name}</strong>
-                  <span>{safeNumber(org.contactsCount)} contacts · {safeNumber(org.ticketsCount)} tickets</span>
-                </div>
-              ))}
-              {!(contacts.organizations || []).length && <EmptyState>No organizations yet.</EmptyState>}
-            </div>
-          </GlassCard>
-          <GlassCard>
-            <SectionHeader title="Delayed tickets" subtitle="Open tickets requiring attention" icon={AlertOctagon} />
-            <div className="manager-readonly-list">
-              {(dashboard.delayedTickets || []).map((ticket) => (
-                <div key={ticket.id}>
-                  <strong>{ticket.request_code || `Ticket #${ticket.id}`} · {ticket.assignedService}</strong>
-                  <span>{ticket.issue_type} · {ticket.issue_level} · {safeNumber(ticket.ageHours)}h pending</span>
-                </div>
-              ))}
-              {!(dashboard.delayedTickets || []).length && <EmptyState>No delayed tickets.</EmptyState>}
-            </div>
-          </GlassCard>
-        </section>
+              <section className="section manager-grid manager-grid--charts">
+                <GlassCard>
+                  <SectionHeader title="Ticket volume" subtitle="Created versus resolved" icon={BarChart3} />
+                  <AnalyticsVolumeChart data={analytics.volume || []} period={analytics.period} />
+                </GlassCard>
+                <GlassCard>
+                  <SectionHeader title="Resolution time trend" subtitle="Average completion time in hours" icon={Clock} />
+                  <ResolutionTrendChart data={analytics.resolutionTrend || []} period={analytics.period} />
+                </GlassCard>
+              </section>
 
-        <section className="section">
-          <GlassCard>
-            <SectionHeader title="Employee activity summary" subtitle="Created tickets, comments and assignments" icon={Users} />
-            <div className="manager-employee-grid">
-              {(dashboard.employeeActivity || []).map((employee) => (
-                <div className="manager-employee-card" key={employee.id}>
-                  <strong>{employee.name}</strong>
-                  <span>{employee.service || 'No service'}</span>
-                  <small>{safeNumber(employee.ticketsCreated)} tickets · {safeNumber(employee.commentsCreated)} comments · {safeNumber(employee.assignmentsMade)} assignments</small>
-                </div>
-              ))}
-              {!(dashboard.employeeActivity || []).length && <EmptyState>No employee activity yet.</EmptyState>}
-            </div>
-          </GlassCard>
-        </section>
+              <section className="section manager-grid manager-grid--charts">
+                <GlassCard>
+                  <SectionHeader title="Category breakdown" subtitle="Request types created in period" icon={PieChartIcon} />
+                  <CategoryChart data={analytics.categories || []} />
+                </GlassCard>
+                <GlassCard>
+                  <SectionHeader title="Employee activity" subtitle="Tickets, comments and assignments" icon={Users} />
+                  <AgentPerformanceChart data={analytics.agents || []} />
+                </GlassCard>
+              </section>
+
+              <section className="section">
+                <GlassCard>
+                  <SectionHeader title="Handling distribution" subtitle="Service workload in selected period" icon={GitBranch} />
+                  <div className="manager-detail-distribution">
+                    {(analytics.services || []).map((service) => (
+                      <div key={service.name}>
+                        <strong>{service.value}</strong>
+                        <span>{service.name}</span>
+                      </div>
+                    ))}
+                    {!(analytics.services || []).length && <EmptyState>No assignment data for this period.</EmptyState>}
+                  </div>
+                </GlassCard>
+              </section>
+            </>
+          ) : null}
+        </>
+        )}
       </div>
     </div>
   );

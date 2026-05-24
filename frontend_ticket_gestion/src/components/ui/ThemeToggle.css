@@ -1,0 +1,78 @@
+.global-theme-toggle {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1200;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+.global-theme-toggle__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 68px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--muted-foreground);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.global-theme-toggle__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.global-theme-toggle__sun {
+  color: #f59e0b;
+}
+
+.global-theme-toggle__moon {
+  color: #818cf8;
+}
+
+.global-theme-toggle__thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #f59e0b;
+  background: var(--foreground);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
+  transition: transform var(--transition), color var(--transition);
+}
+
+.global-theme-toggle__track.is-dark .global-theme-toggle__thumb {
+  color: #818cf8;
+  transform: translateX(30px);
+}
+
+.global-theme-toggle:hover .global-theme-toggle__track,
+.global-theme-toggle:focus-visible .global-theme-toggle__track {
+  border-color: var(--primary);
+}
+
+.global-theme-toggle:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .global-theme-toggle {
+    right: 0.875rem;
+    bottom: 0.875rem;
+  }
+}

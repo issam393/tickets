@@ -3,6 +3,10 @@ const { canRoleAccessRoom, parseAllowedRoles } = require('../../utils/roomAccess
 
 const VALID_STATUSES = ['Pending', 'Accepted', 'Rejected'];
 
+function isManager(user) {
+    return String(user?.service || '').trim().toUpperCase() === 'MANAGER';
+}
+
 // Converts a datetime-local string ("YYYY-MM-DDTHH:MM" or "YYYY-MM-DDTHH:MM:SS")
 // into a MySQL-compatible DATETIME string ("YYYY-MM-DD HH:MM:SS").
 // We deliberately do NOT call new Date() on bare local strings — that would
@@ -38,7 +42,8 @@ function toMysqlDatetime(input) {
 
 function normalizeMeetingRecord(record, currentUser) {
     const canManage = currentUser.service === 'SD';
-    const canRespond = Number(record.invitee_id) === Number(currentUser.id);
+    const isAssignedToCurrentUser = Number(record.invitee_id) === Number(currentUser.id);
+    const canRespond = isAssignedToCurrentUser;
 
     return {
         id: record.id,
@@ -58,13 +63,14 @@ function normalizeMeetingRecord(record, currentUser) {
         createdAt: record.createdAt,
         updatedAt: record.updatedAt,
         canManage,
-        canRespond
+        canRespond,
+        isAssignedToCurrentUser
     };
 }
 
 function assertReadAccess(record, user) {
     const canRead = user.service === 'SD'
-        || user.service === 'Manager'
+        || isManager(user)
         || Number(record.organizer_id) === Number(user.id)
         || Number(record.invitee_id) === Number(user.id);
 
@@ -160,13 +166,16 @@ async function updateMeeting(meetingId, payload, user) {
         if (payload.description !== undefined) updateData.description = payload.description ? String(payload.description).trim() : null;
         if (payload.meetingRoomId !== undefined) updateData.meetingRoomId = payload.meetingRoomId ? Number(payload.meetingRoomId) : null;
     } else if (canRespond) {
+        if (existing.status !== 'Pending') {
+            throw new Error('Meeting decision has already been recorded');
+        }
         const keys = Object.keys(payload);
         const allowedKeys = ['status', 'rejectionReason'];
         const hasForbiddenKey = keys.some((key) => !allowedKeys.includes(key));
         if (hasForbiddenKey) {
             throw new Error('Access denied');
         }
-        if (payload.status && !['Accepted', 'Rejected'].includes(payload.status)) {
+        if (!['Accepted', 'Rejected'].includes(payload.status)) {
             throw new Error('Invalid status value');
         }
     } else {

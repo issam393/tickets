@@ -76,6 +76,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [ticket, setTicket] = useState(null);
+  const isLevelOneTicket = ticket?.issue_level === "Level 1 Assistance";
 
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -201,7 +202,6 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
       // Append the new comment (returned by backend with full user info)
       setCommentsList((previous) => [...previous, payload.data]);
       setNewComment("");
-      toast.success("Comment sent.");
     } catch (err) {
       toast.error(err.message);
     }
@@ -276,6 +276,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
 
   const getAssignedTeamName = () => {
     if (!ticket || !ticket.allowed_services) return "Unassigned";
+    if (ticket.issue_level === "Level 1 Assistance") return "Service Delivery";
     if (ticket.allowed_services.includes("IT")) return "IT Team";
     if (ticket.allowed_services.includes("PKI")) return "PKI Team";
     return "Unassigned";
@@ -537,7 +538,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                     )}
 
                     {/* Team Assignment Selector */}
-                    {canManageTicket && (
+                    {canManageTicket && !isLevelOneTicket && (
                     <div className="role-assignment-wrapper" ref={roleDropdownRef}>
                       <button
                         className="role-assignment-btn"

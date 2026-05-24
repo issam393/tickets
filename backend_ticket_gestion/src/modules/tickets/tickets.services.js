@@ -30,7 +30,13 @@ function normalizeTicketRow(ticket) {
     };
 }
 
-function getAssignedService(allowedServices = []) {
+function isServiceDeliveryTicket(ticket) {
+    return String(ticket?.issue_level || '').trim().toLowerCase() === 'level 1 assistance';
+}
+
+function getAssignedService(ticket) {
+    const allowedServices = ticket.allowed_services || [];
+    if (isServiceDeliveryTicket(ticket)) return 'SD';
     if (allowedServices.includes('IT')) return 'IT';
     if (allowedServices.includes('PKI')) return 'PKI';
     return null;
@@ -99,7 +105,7 @@ async function listTickets(service) {
         .map(normalizeTicketRow)
         .map((ticket) => ({
             ...ticket,
-            assigned_service: getAssignedService(ticket.allowed_services)
+            assigned_service: getAssignedService(ticket)
         }))
         .filter((ticket) => canRoleAccessRoom(service, ticket.allowed_services));
 }
@@ -121,7 +127,7 @@ async function getTicketById(ticketId, service) {
 
     return {
         ...ticket,
-        assigned_service: getAssignedService(ticket.allowed_services),
+        assigned_service: getAssignedService(ticket),
         ...(service === 'Manager' ? { assignment_history: normalizeAssignmentHistory(assignmentHistory) } : {})
     };
 }
@@ -135,11 +141,14 @@ async function assignTicket(ticketId, team, assignedBy) {
     if (!existing) {
         throw new Error('Ticket not found');
     }
+    if (isServiceDeliveryTicket(existing)) {
+        throw new Error('Level 1 Assistance tickets are handled by Service Delivery and cannot be assigned.');
+    }
     if (existing.status === 'Resolved') {
         throw new Error('Ticket already resolved. It is permanently locked.');
     }
 
-    const previousService = getAssignedService(existing.allowed_services);
+    const previousService = getAssignedService(existing);
     
     const allowedServices = ['SD', team];
     await db.execute(

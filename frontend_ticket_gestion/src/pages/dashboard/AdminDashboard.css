@@ -826,6 +826,36 @@
   box-shadow: var(--shadow-glow);
 }
 
+.ad-password-field {
+  position: relative;
+}
+
+.ad-password-field input {
+  padding-right: 2.8rem;
+}
+
+.ad-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-1);
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: color var(--transition-fast);
+}
+
+.ad-password-toggle:hover,
+.ad-password-toggle:focus-visible {
+  color: var(--accent-cyan);
+  outline: none;
+}
+
 .ad-field-hint {
   font-size: 0.7rem;
   color: var(--text-muted);

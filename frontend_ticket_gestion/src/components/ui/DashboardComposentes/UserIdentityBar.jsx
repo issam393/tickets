@@ -84,7 +84,7 @@ const handleLogout = async () => {
             }
         });
         
-        // Clear localStorage regardless of response
+        // Clear authentication only; preserve per-user interface preferences.
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('username');
@@ -95,7 +95,9 @@ const handleLogout = async () => {
         
         navigate('/');
     } catch (error) {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
         toast.error('Logout failed, but you have been redirected',error);
         navigate('/');
     }

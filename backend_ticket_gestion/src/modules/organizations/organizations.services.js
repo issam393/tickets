@@ -6,13 +6,22 @@ const VALID_INDUSTRIES = [
     'Legal Services', 'Technology', 'Healthcare', 'Retail', 'Manufacturing'
 ];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^\d{10}$/;
+
+function validatePhone(phone, required = false) {
+    const value = String(phone || '').trim();
+    if (!value && required) throw new Error('phone is required');
+    if (value && !PHONE_PATTERN.test(value)) {
+        throw new Error('Invalid phone format. Phone number must contain exactly 10 digits');
+    }
+}
 
 function validateOrganizationPayload(payload) {
     if (!payload.name     || !String(payload.name).trim())     throw new Error('name is required');
     if (!payload.industry || !String(payload.industry).trim()) throw new Error('industry is required');
     if (!payload.email    || !String(payload.email).trim())    throw new Error('email is required');
     if (!EMAIL_PATTERN.test(String(payload.email).trim()))      throw new Error('Invalid email format');
-    if (!payload.phone    || !String(payload.phone).trim())    throw new Error('phone is required');
+    validatePhone(payload.phone, true);
 }
 
 function validateStatus(status) {
@@ -76,7 +85,10 @@ async function updateOrganization(id, payload) {
         if (!EMAIL_PATTERN.test(email)) throw new Error('Invalid email format');
         updateData.email = email;
     }
-    if (payload.phone !== undefined)    updateData.phone    = payload.phone ? String(payload.phone).trim() : null;
+    if (payload.phone !== undefined) {
+        validatePhone(payload.phone, true);
+        updateData.phone = String(payload.phone).trim();
+    }
     if (payload.address !== undefined)  updateData.address  = payload.address ? String(payload.address).trim() : null;
     if (payload.status !== undefined)   updateData.status   = payload.status;
 

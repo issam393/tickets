@@ -35,19 +35,28 @@ function assertRoomAccess(room, service) {
     }
 }
 
-async function listRoomsForRole(service) {
-    const rooms = await roomRepository.getAccessibleRoomsByRole();
+async function listRoomsForRole(service, employeeId) {
+    const rooms = await roomRepository.getAccessibleRoomsByRole(employeeId);
     return rooms
         .map(normalizeRoom)
         .filter((room) => room.ticket_status !== 'Resolved')
         .filter((room) => canRoleAccessRoom(service, room.allowed_services));
 }
 
-async function getRoomHistory(roomId, service) {
+async function markRoomAsRead(roomId, service, employeeId) {
+    const room = await getRoomById(roomId);
+    assertRoomAccess(room, service);
+    await roomRepository.markRoomAsRead(roomId, employeeId);
+}
+
+async function getRoomHistory(roomId, service, employeeId) {
     const room = await getRoomById(roomId);
     assertRoomAccess(room, service);
 
     const history = await messageRepository.getRoomHistory(roomId);
+    if (employeeId) {
+        await roomRepository.markRoomAsRead(roomId, employeeId);
+    }
     return history.map((message) => ({
         id: message.id,
         roomId: message.room_id,
@@ -63,5 +72,6 @@ module.exports = {
     getRoomByTicketId,
     listRoomsForRole,
     getRoomHistory,
+    markRoomAsRead,
     assertRoomAccess
 };

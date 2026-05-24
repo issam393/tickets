@@ -77,8 +77,19 @@ export default function Dashboard({ role, onViewAllTickets }) {
           return allowed.includes(service);
         });
 
-        const critical = teamTickets.filter((t) => t.issue_level?.toLowerCase() === 'critical').length;
-        const warnings = teamTickets.filter((t) => t.issue_level?.toLowerCase() === 'warning').length;
+        const isCritical = (ticket) => {
+          const status = String(ticket.status || '').toLowerCase();
+          const level = String(ticket.issue_level || '').toLowerCase();
+          return status === 'critical' || level.includes('critical');
+        };
+        const isWarning = (ticket) => {
+          const status = String(ticket.status || '').toLowerCase();
+          const level = String(ticket.issue_level || '').toLowerCase();
+          return status === 'warning' || level.includes('warning');
+        };
+
+        const critical = teamTickets.filter(isCritical).length;
+        const warnings = teamTickets.filter(isWarning).length;
         const resolved = teamTickets.filter((t) => t.status === 'Resolved');
         const processing = teamTickets.filter((t) => t.status !== 'Resolved');
 

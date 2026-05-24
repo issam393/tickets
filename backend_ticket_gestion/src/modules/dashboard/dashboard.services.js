@@ -93,7 +93,12 @@ async function getSDDashboard(user) {
     };
 }
 
+async function getManagerAnalytics(period, filters) {
+    return dashboardRepository.getManagerAnalytics(period, filters);
+}
+
 module.exports = {
     getManagerDashboard,
-    getSDDashboard
+    getSDDashboard,
+    getManagerAnalytics
 };

@@ -10,6 +10,7 @@ function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ function Register() {
 
     if (!username.trim() || !password.trim()) {
       setShowError(true);
+      setErrorMessage("Username and password are required.");
       toast.error("Please fill in both Username and Password.");
       return;
     }
@@ -35,21 +37,24 @@ function Register() {
       const data = await response.json();
 
       if (response.ok) {
+        setShowError(false);
+        setErrorMessage("");
         toast.success(data.message || "Login successful!");
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('username', username);
         localStorage.setItem('token', data.token);
         navigate('/dashboard'); 
       } else {
-        toast.error(data.error || "Login failed");
+        const message = data.message || data.error || "Login failed";
+        toast.error(message);
+        setErrorMessage(message);
         setShowError(true);
       }
-    } catch (err) {
-      toast.error("Cannot connect to server", err);
+    } catch {
+      toast.error("Cannot connect to server");
+      setErrorMessage("Cannot connect to server.");
       setShowError(true);
     }
-
-    setShowError(false);
   };
 
   return (
@@ -81,7 +86,7 @@ function Register() {
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            Username and Password are required.
+            {errorMessage}
           </div>
         )}
 

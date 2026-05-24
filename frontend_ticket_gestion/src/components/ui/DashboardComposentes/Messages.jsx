@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiMessages } from "react-icons/ti";
 import { MessageSquare, Search, Send, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
@@ -43,13 +43,24 @@ function getUserId() {
 }
 
 function ConversationCard({ room, selected, onSelect }) {
+  const unreadCount = selected ? 0 : Number(room.unread_count || 0);
+
   return (
     <button
       type="button"
-      className={`conversation-card ${selected ? "conversation-card--selected" : ""}`}
+      className={`conversation-card ${selected ? "conversation-card--selected" : ""} ${
+        unreadCount > 0 ? "unread-conversation" : ""
+      }`}
       onClick={() => onSelect(room.id)}
     >
-      <h3 className="conversation-title">{room.name}</h3>
+      <div className="conversation-heading">
+        <h3 className={`conversation-title ${unreadCount > 0 ? "unread-title" : ""}`}>{room.name}</h3>
+        {unreadCount > 0 && (
+          <span className="conversation-unread-badge" aria-label={`${unreadCount} unread messages`}>
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        )}
+      </div>
       <div className="conversation-tag">
         <span className="tag tag--purple">{room.request_code}</span>
       </div>
@@ -63,6 +74,23 @@ function ConversationCard({ room, selected, onSelect }) {
 
 function ChatThread({ room, messages, onSend, currentUserId, isJoining, isReadOnly }) {
   const [inputText, setInputText] = useState("");
+  const messagesAreaRef = useRef(null);
+
+  useEffect(() => {
+    if (isJoining) return undefined;
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      const list = messagesAreaRef.current;
+      if (!list) return;
+
+      list.scrollTo({
+        top: list.scrollHeight,
+        behavior: messages.length ? "smooth" : "auto",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [isJoining, messages.length, room.id]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -72,7 +100,6 @@ function ChatThread({ room, messages, onSend, currentUserId, isJoining, isReadOn
     try {
       await onSend(text);
       setInputText("");
-      toast.success("Message sent.");
     } catch (error) {
       toast.error(error.message || "Message could not be sent.");
     }
@@ -90,7 +117,7 @@ function ChatThread({ room, messages, onSend, currentUserId, isJoining, isReadOn
         </div>
       </div>
 
-      <div className="messages-area">
+      <div className="messages-area" ref={messagesAreaRef}>
         {isJoining ? (
           <div className="empty-state">Joining room...</div>
         ) : messages.length === 0 ? (
@@ -133,8 +160,10 @@ function ChatThread({ room, messages, onSend, currentUserId, isJoining, isReadOn
             className="latest-btn"
             aria-label="Scroll to latest message"
             onClick={() => {
-              const list = document.querySelector(".messages-area");
-              if (list) list.scrollTop = list.scrollHeight;
+              const list = messagesAreaRef.current;
+              if (list) {
+                list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
+              }
             }}
           >
             <ChevronDown size={16} />
@@ -158,17 +187,16 @@ export default function Messages() {
   const [roomsLoading, setRoomsLoading] = useState(false);
   const [roomsError, setRoomsError] = useState("");
 
-  const { messages, sendMessage, isJoining, error: socketError } = useChatRoom(selectedRoomId);
+  const { messages, sendMessage, isJoining, roomsRevision, error: socketError } = useChatRoom(selectedRoomId);
 
-  useEffect(() => {
-    const loadRooms = async () => {
+  const loadRooms = useCallback(async (showLoading = false) => {
       if (!token) {
         setRoomsError("Please login first.");
         return;
       }
 
       try {
-        setRoomsLoading(true);
+        if (showLoading) setRoomsLoading(true);
         setRoomsError("");
 
         const response = await fetch(`${API_BASE}/api/rooms`, {
@@ -195,12 +223,24 @@ export default function Messages() {
       } catch (loadError) {
         setRoomsError(loadError.message);
       } finally {
-        setRoomsLoading(false);
+        if (showLoading) setRoomsLoading(false);
       }
-    };
+    }, [token]);
 
-    loadRooms();
-  }, [token]);
+  useEffect(() => {
+    loadRooms(true);
+  }, [loadRooms]);
+
+  useEffect(() => {
+    if (roomsRevision > 0) loadRooms();
+  }, [loadRooms, roomsRevision]);
+
+  const selectRoom = (roomId) => {
+    setSelectedRoomId(roomId);
+    setRooms((currentRooms) => currentRooms.map((room) => (
+      Number(room.id) === Number(roomId) ? { ...room, unread_count: 0 } : room
+    )));
+  };
 
   const filteredRooms = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -219,7 +259,10 @@ export default function Messages() {
     return rooms.find((room) => Number(room.id) === Number(selectedRoomId)) || null;
   }, [rooms, selectedRoomId]);
 
-  const totalUnread = 0;
+  const totalUnread = rooms.reduce((total, room) => {
+    if (Number(room.id) === Number(selectedRoomId)) return total;
+    return total + Number(room.unread_count || 0);
+  }, 0);
 
   return (
     <div className="messages-page">
@@ -270,7 +313,7 @@ export default function Messages() {
                       key={room.id}
                       room={room}
                       selected={Number(selectedRoomId) === Number(room.id)}
-                      onSelect={setSelectedRoomId}
+                      onSelect={selectRoom}
                     />
                   ))
                 )}

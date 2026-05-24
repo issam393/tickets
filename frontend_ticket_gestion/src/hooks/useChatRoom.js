@@ -21,6 +21,7 @@ export default function useChatRoom(activeRoomId) {
   const [messages, setMessages] = useState([]);
   const [isSocketReady, setIsSocketReady] = useState(false);
   const [joinedRoomId, setJoinedRoomId] = useState(null);
+  const [roomsRevision, setRoomsRevision] = useState(0);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -55,6 +56,13 @@ export default function useChatRoom(activeRoomId) {
       if (Number(activeRoomRef.current) !== normalized.roomId) return;
 
       setMessages((prev) => [...prev, normalized]);
+      socket.emit("mark_room_read", { roomId: normalized.roomId }, (response) => {
+        if (response?.success) setRoomsRevision((previous) => previous + 1);
+      });
+    });
+
+    socket.on("rooms_updated", () => {
+      setRoomsRevision((previous) => previous + 1);
     });
 
     socket.connect();
@@ -98,6 +106,7 @@ export default function useChatRoom(activeRoomId) {
         setError("");
         setMessages((result.history || []).map(normalizeMessage));
         setJoinedRoomId(Number(activeRoomId));
+        setRoomsRevision((previous) => previous + 1);
       })
       .catch((joinError) => {
         setMessages([]);
@@ -144,6 +153,7 @@ export default function useChatRoom(activeRoomId) {
     isSocketReady,
     isJoining,
     joinedRoomId,
+    roomsRevision,
     error: token ? error : "Please login first.",
   };
 }

@@ -59,6 +59,10 @@ const updateEmployeeValidation = (data) => {
     if (data.userName && !/^[A-Za-z][A-Za-z0-9_]*$/.test(data.userName)) {
         errors.push('Username must start with a letter and can contain letters, numbers, and underscores only');
     }
+
+    if (data.status !== undefined && !['Active', 'Inactive'].includes(data.status)) {
+        errors.push('Status must be Active or Inactive');
+    }
     
     if (data.password) {
         const checks = {

@@ -1,13 +1,15 @@
 const jwt = require('jsonwebtoken');
 const { isBlacklisted } = require('../utils/blacklist');
 const { sendError } = require('../utils/apiResponse');
+const authRepository = require('../modules/auth/auth.repository');
+const { INACTIVE_ACCOUNT_MESSAGE } = require('../modules/auth/auth.services');
 const dotenv = require("dotenv");
 
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET ;
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
    
@@ -20,14 +22,27 @@ const auth = (req, res, next) => {
         return sendError(res, 401, "Token invalidated. Please login again.");
     }
  
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    let user;
+    try {
+        user = jwt.verify(token, JWT_SECRET);
+    } catch {
+        return sendError(res, 403, "Invalid or expired token");
+    }
 
-        if (err) {
-            return sendError(res, 403, "Invalid or expired token");
+    try {
+        const employee = await authRepository.getUserAccessById(user.id);
+        if (!employee) {
+            return sendError(res, 401, "User account no longer exists. Please login again.");
         }
-        req.user = user;
+        if (String(employee.status || '').trim().toLowerCase() !== 'active') {
+            return sendError(res, 403, INACTIVE_ACCOUNT_MESSAGE);
+        }
+
+        req.user = { ...user, service: employee.service_name };
         next();
-    });
+    } catch (error) {
+        next(error);
+    }
 };
 
 module.exports = auth;

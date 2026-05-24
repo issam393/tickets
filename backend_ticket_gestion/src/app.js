@@ -11,6 +11,7 @@ const organizationRoutes = require("./modules/organizations/organizations.routes
 const commentRoutes      = require("./modules/comments/comments.routes");
 const dashboardRoutes    = require("./modules/dashboard/dashboard.routes");
 const activityRoutes     = require("./modules/activity/activity.routes");
+const clientEmailRoutes  = require("./modules/clientEmails/clientEmails.routes");
 
 
 const app = express();
@@ -31,5 +32,6 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api",               commentRoutes);
 app.use("/api/dashboard",     dashboardRoutes);
 app.use("/api/activity",      activityRoutes);
+app.use("/api/client-emails",  clientEmailRoutes);
 
 module.exports = app;

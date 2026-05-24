@@ -451,6 +451,7 @@
 .sd-sev-warning  { color: #f6ad55; }
 .sd-sev-medium   { color: #63b3ed; }
 .sd-sev-low      { color: #48bb78; }
+.sd-sev-badge.sd-sev-external { background: rgba(252,129,129,0.85); }
 .sd-sev-badge.sd-sev-critical { background: rgba(252,129,129,0.85); }
 .sd-sev-badge.sd-sev-high     { background: rgba(246,173,85,0.85); }
 .sd-sev-badge.sd-sev-warning  { background: rgba(246,173,85,0.85); }

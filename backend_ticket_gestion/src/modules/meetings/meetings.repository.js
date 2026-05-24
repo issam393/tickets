@@ -65,7 +65,7 @@ async function findMeetingById(meetingId) {
 }
 
 async function listMeetingsForUser(userId, service) {
-    if (service === 'SD' || service === 'Manager') {
+    if (service === 'SD' || String(service).trim().toUpperCase() === 'MANAGER') {
         const [rows] = await db.execute(
             `SELECT
                 m.*,

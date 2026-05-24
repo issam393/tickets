@@ -6,21 +6,23 @@ import ProfilePage from './components/ui/ProfileReview/ProfilePage';
 import { Toaster } from 'react-hot-toast';
 import RoleBasedRoute from './components/auth/RoleBasedRoute';
 import RoleRedirect from './components/auth/RoleRedirect';
+import ThemeToggle from './components/ui/ThemeToggle';
 
 
 function App() {
   return (
 
       <BrowserRouter>
+        <ThemeToggle />
         <Toaster
           position="top-right"
           toastOptions={{
             duration: 3500,
             style: {
-              background: 'rgba(15, 23, 42, 0.96)',
-              color: '#f8fafc',
-              border: '1px solid rgba(148, 163, 184, 0.24)',
-              boxShadow: '0 18px 50px rgba(0, 0, 0, 0.28)',
+              background: 'var(--surface-strong)',
+              color: 'var(--foreground)',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-md)',
             },
           }}
         />

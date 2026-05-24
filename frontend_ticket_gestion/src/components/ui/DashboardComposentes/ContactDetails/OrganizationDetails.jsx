@@ -19,6 +19,8 @@ import toast from 'react-hot-toast';
 import './OrganizationDetails.css';
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:2300/api";
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^\d{10}$/;
 
 function getToken() {
   return localStorage.getItem("token");
@@ -99,8 +101,8 @@ function OrganizationDetails({ organization, onBack, readOnly = false }) {
   const isFormValid = () => {
     return formData.firstName.trim() && 
            formData.lastName.trim() && 
-           formData.email.trim() && 
-           formData.phone.trim() &&
+           EMAIL_PATTERN.test(formData.email.trim()) &&
+           PHONE_PATTERN.test(formData.phone.trim()) &&
            (selectedRoles.applicant || selectedRoles.representative || selectedRoles.lrao);
   };
 
@@ -180,7 +182,18 @@ function OrganizationDetails({ organization, onBack, readOnly = false }) {
       toast.error('Action non autorisée.');
       return;
     }
-    if (!isFormValid()) return;
+    if (!EMAIL_PATTERN.test(formData.email.trim())) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+    if (!PHONE_PATTERN.test(formData.phone.trim())) {
+      toast.error('Phone number must contain exactly 10 digits.');
+      return;
+    }
+    if (!isFormValid()) {
+      toast.error('Please complete all required fields.');
+      return;
+    }
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
     const rolesList = [];
@@ -551,6 +564,7 @@ function OrganizationDetails({ organization, onBack, readOnly = false }) {
                     <input
                       type="email"
                       placeholder="Enter email address"
+                      pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       disabled={modalMode === 'view'}
@@ -559,10 +573,13 @@ function OrganizationDetails({ organization, onBack, readOnly = false }) {
                   <div className="form-group">
                     <label>Phone <span className="required">*</span></label>
                     <input
-                      type="text"
-                      placeholder="Enter phone number"
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
+                      pattern="\d{10}"
+                      placeholder="10 digits"
                       value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
                       disabled={modalMode === 'view'}
                     />
                   </div>

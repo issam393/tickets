@@ -1680,9 +1680,154 @@ body {
   cursor: pointer;
 }
 
+.manager-view-tabs {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.manager-dynamic-dashboard .manager-view-tab {
+  min-width: 106px;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+
+.manager-dynamic-dashboard .manager-view-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.manager-dynamic-dashboard .manager-view-tab.active {
+  color: var(--primary);
+  background: rgba(0, 217, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(0, 217, 255, 0.3);
+}
+
 .manager-grid {
   display: grid;
   gap: 22px;
+}
+
+.manager-filter-panel {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.manager-filter-panel .manager-section-header {
+  margin-bottom: 0;
+}
+
+.manager-period-filter {
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.manager-dynamic-dashboard .manager-period-filter button {
+  min-width: 68px;
+  padding: 8px 12px;
+  border-color: transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.manager-dynamic-dashboard .manager-period-filter button:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.manager-dynamic-dashboard .manager-period-filter button.active {
+  color: var(--primary);
+  border-color: rgba(0, 217, 255, 0.24);
+  background: rgba(0, 217, 255, 0.12);
+}
+
+.manager-value-filter {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
+.manager-value-filter label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.manager-value-filter select,
+.manager-value-filter input {
+  height: 40px;
+  min-width: 150px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+  color-scheme: dark;
+}
+
+.manager-value-filter select:focus,
+.manager-value-filter input:focus {
+  border-color: rgba(0, 217, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.12);
+  outline: none;
+}
+
+.manager-inline-state {
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.manager-inline-state--error {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  color: var(--danger);
+}
+
+.manager-detail-distribution {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.manager-detail-distribution > div:not(.manager-empty-state) {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 15px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.manager-detail-distribution strong {
+  color: var(--text-primary);
+  font-size: 25px;
+}
+
+.manager-detail-distribution span {
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .manager-grid--charts,
@@ -1854,5 +1999,35 @@ body {
   .manager-grid--two,
   .manager-grid--three {
     grid-template-columns: 1fr;
+  }
+
+  .manager-filter-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 580px) {
+  .manager-view-tabs,
+  .manager-period-filter,
+  .manager-value-filter {
+    width: 100%;
+  }
+
+  .manager-dynamic-dashboard .manager-view-tab,
+  .manager-dynamic-dashboard .manager-period-filter button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .manager-value-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manager-value-filter label,
+  .manager-value-filter select,
+  .manager-value-filter input {
+    width: 100%;
   }
 }

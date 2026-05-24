@@ -217,7 +217,7 @@ function ScheduleMeetingModal({ isOpen, onClose, onSubmit, invitees, tickets, me
   );
 }
 
-function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing, meetingRooms, isReadOnly, canRespondAllowed }) {
+function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject, onDelete, onEdit, isProcessing, meetingRooms, isReadOnly }) {
   const [mode, setMode] = useState("view");
   const [reason, setReason] = useState("");
 
@@ -241,6 +241,7 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
           <div className="status-row">
             <span className="status-label">Status:</span>
             <span className={`status-badge ${statusClass(meeting.status)}`}>{meeting.status}</span>
+            {meeting.isAssignedToCurrentUser && <span className="meeting-assignee-badge">Assigned to you</span>}
           </div>
 
           <div className="info-grid">
@@ -271,14 +272,14 @@ function MeetingDetailsDialog({ open, onOpenChange, meeting, onAccept, onReject,
         </div>
 
         <div className="dialog-footer">
-          {canRespondAllowed && meeting.canRespond && meeting.status === "Pending" && mode === "view" && (
+          {meeting.canRespond && meeting.status === "Pending" && mode === "view" && (
             <div className="action-group">
               <button className="btn-reject" onClick={() => setMode("rejecting")} disabled={isProcessing}><X size={14} /> Reject</button>
               <button className="btn-accept" onClick={() => onAccept(meeting)} disabled={isProcessing}><Check size={14} /> Accept</button>
             </div>
           )}
 
-          {canRespondAllowed && meeting.canRespond && meeting.status === "Pending" && mode === "rejecting" && (
+          {meeting.canRespond && meeting.status === "Pending" && mode === "rejecting" && (
             <div className="action-group">
               <button className="btn-secondary" onClick={() => { setMode("view"); setReason(""); }} disabled={isProcessing}>Cancel</button>
               <button className="btn-confirm-reject" disabled={!reason.trim() || isProcessing} onClick={() => onReject(meeting, reason)}><X size={14} /> Confirm Rejection</button>
@@ -303,8 +304,8 @@ const Meetings = () => {
   const token = localStorage.getItem("token");
   const role = getUserRole();
   const isSD = role === 'SD';
+  const isManager = role === 'Manager';
   const isReadOnly = !isSD;
-  const canRespondAllowed = role !== 'Manager';
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
@@ -444,7 +445,7 @@ const Meetings = () => {
   };
 
   const handleAccept = async (meeting) => {
-    if (!canRespondAllowed || !meeting.canRespond) { toast.error("Action non autorisée."); return; }
+    if (!meeting.canRespond) { toast.error("Action non autorisée."); return; }
     try {
       setIsProcessing(true);
       const response = await fetch(`${API_BASE}/api/meetings/${meeting.id}`, { method: "PUT", headers: authHeaders, body: JSON.stringify({ status: "Accepted", rejectionReason: null }) });
@@ -461,7 +462,7 @@ const Meetings = () => {
   };
 
   const handleReject = async (meeting, rejectionReason) => {
-    if (!canRespondAllowed || !meeting.canRespond) { toast.error("Action non autorisée."); return; }
+    if (!meeting.canRespond) { toast.error("Action non autorisée."); return; }
     if (!rejectionReason.trim()) { toast.error("Rejection reason is required."); return; }
     try {
       setIsProcessing(true);
@@ -512,7 +513,7 @@ const Meetings = () => {
             <header className="meetings-header">
               <div>
                 <div className="header-icon-title"><FaRegCalendarAlt className="page-icon" /><h1 className="meetings-title">Meetings</h1></div>
-                <p className="meetings-description">{isReadOnly ? "View team meetings" : "Schedule and manage team meetings"}</p>
+                <p className="meetings-description">{isManager ? "Review all meetings and respond only to your assigned requests" : isReadOnly ? "View team meetings" : "Schedule and manage team meetings"}</p>
               </div>
             </header>
             {!isReadOnly && isSD && (
@@ -524,6 +525,13 @@ const Meetings = () => {
 
           {error && (
             <div className="permission-banner"><AlertCircle size={18} /><div><p className="permission-title">Action required</p><p className="permission-text">{error}</p></div></div>
+          )}
+
+          {isManager && (
+            <div className="meeting-assignment-legend">
+              <span className="meeting-assignment-marker" />
+              <span><strong>Assigned to you</strong> meetings can be accepted or rejected. All other meetings are view-only.</span>
+            </div>
           )}
 
           <div className="stats-grid">
@@ -555,7 +563,7 @@ const Meetings = () => {
                     <div className={`calendar-day ${isOther ? "calendar-day--other" : ""}`}>{String(cell.day).padStart(2, "0")}</div>
                     <div className="calendar-events">
                       {events.slice(0, 2).map(meeting => (
-                        <div key={meeting.id} className={`event-tag event-tag--${getEventTone(meeting.status)}`} onClick={(event) => handleEventClick(meeting, event)} title={meeting.title}>
+                        <div key={meeting.id} className={`event-tag event-tag--${getEventTone(meeting.status)} ${meeting.isAssignedToCurrentUser ? "event-tag--assigned" : ""}`} onClick={(event) => handleEventClick(meeting, event)} title={meeting.isAssignedToCurrentUser ? `${meeting.title} - Assigned to you` : meeting.title}>
                           {meeting.title.length > 22 ? `${meeting.title.slice(0, 19)}…` : meeting.title}
                         </div>
                       ))}
@@ -578,7 +586,7 @@ const Meetings = () => {
             <div className="dialog-body">
               {selectedDateMeetings.map(meeting => (
                 <div key={meeting.id} className="date-meeting-item" onClick={() => { setSelectedMeeting(meeting); setDialogOpen(true); setShowDateModal(false); }}>
-                  <div className={`event-tag event-tag--${getEventTone(meeting.status)}`} style={{ display: "inline-block", width: "auto", marginBottom: "8px" }}>{meeting.status}</div>
+                  <div className={`event-tag event-tag--${getEventTone(meeting.status)} ${meeting.isAssignedToCurrentUser ? "event-tag--assigned" : ""}`} style={{ display: "inline-block", width: "auto", marginBottom: "8px" }}>{meeting.status}</div>
                   <p className="meeting-title">{meeting.title}</p>
                   <p className="meeting-time">{formatDateTimeRange(meeting)}</p>
                 </div>
@@ -599,7 +607,6 @@ const Meetings = () => {
         isProcessing={isProcessing}
         meetingRooms={meetingRooms}
         isReadOnly={isReadOnly}
-        canRespondAllowed={canRespondAllowed}
       />
 
       <ScheduleMeetingModal

@@ -127,6 +127,19 @@ async function initializeMessagingSchema() {
              ON messages (room_id, createdAt)`
         );
     }
+
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS room_message_reads (
+            room_id INT NOT NULL,
+            employee_id INT NOT NULL,
+            last_read_message_id BIGINT NULL,
+            read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (room_id, employee_id),
+            FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+            FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+        )`
+    );
+
     await db.execute(
         `CREATE TABLE IF NOT EXISTS comments (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -189,6 +202,105 @@ async function initializeMessagingSchema() {
     } catch (err) {
         console.warn("Could not check/add job_title column in contacts table:", err.message);
     }
+
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS client_emails (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            contact_id INT NOT NULL,
+            sender_email VARCHAR(255) NOT NULL,
+            recipient_service VARCHAR(50) NOT NULL DEFAULT 'SD',
+            source_message_id VARCHAR(255) NULL,
+            subject VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            received_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
+        )`
+    );
+
+    try {
+        const [serviceColumns] = await db.execute("SHOW COLUMNS FROM client_emails LIKE 'recipient_service'");
+        if (serviceColumns.length === 0) {
+            await db.execute(
+                "ALTER TABLE client_emails ADD COLUMN recipient_service VARCHAR(50) NOT NULL DEFAULT 'SD' AFTER sender_email"
+            );
+        }
+        const [sourceColumns] = await db.execute("SHOW COLUMNS FROM client_emails LIKE 'source_message_id'");
+        if (sourceColumns.length === 0) {
+            await db.execute(
+                "ALTER TABLE client_emails ADD COLUMN source_message_id VARCHAR(255) NULL AFTER recipient_service"
+            );
+        }
+        await db.execute("UPDATE client_emails SET recipient_service = 'SD' WHERE recipient_service IS NULL OR recipient_service <> 'SD'");
+
+        // Older drafts stored a personal destination. Keep the migration non-destructive
+        // structurally, but clear its value because email ownership is now team-based.
+        const [legacyRecipientColumns] = await db.execute("SHOW COLUMNS FROM client_emails LIKE 'recipient_email'");
+        if (legacyRecipientColumns.length > 0) {
+            await db.execute("ALTER TABLE client_emails MODIFY COLUMN recipient_email VARCHAR(255) NULL");
+            await db.execute("UPDATE client_emails SET recipient_email = NULL");
+        }
+    } catch (err) {
+        console.warn("Could not apply shared Service Delivery inbox migration:", err.message);
+    }
+
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS client_email_attachments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email_id INT NOT NULL,
+            file_name VARCHAR(255) NOT NULL,
+            mime_type VARCHAR(150) NULL,
+            file_url LONGTEXT NOT NULL,
+            size_bytes BIGINT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (email_id) REFERENCES client_emails(id) ON DELETE CASCADE
+        )`
+    );
+
+    const [emailIndexes] = await db.execute(
+        `SHOW INDEX FROM client_emails WHERE Key_name = 'idx_client_emails_received_at'`
+    );
+
+    if (!emailIndexes.length) {
+        await db.execute(
+            `CREATE INDEX idx_client_emails_received_at
+             ON client_emails (received_at)`
+        );
+    }
+
+    const [sourceMessageIndexes] = await db.execute(
+        `SHOW INDEX FROM client_emails WHERE Key_name = 'idx_client_emails_source_message'`
+    );
+
+    if (!sourceMessageIndexes.length) {
+        await db.execute(
+            `CREATE UNIQUE INDEX idx_client_emails_source_message
+             ON client_emails (source_message_id)`
+        );
+    }
+
+    const [attachmentIndexes] = await db.execute(
+        `SHOW INDEX FROM client_email_attachments WHERE Key_name = 'idx_email_attachments_email'`
+    );
+
+    if (!attachmentIndexes.length) {
+        await db.execute(
+            `CREATE INDEX idx_email_attachments_email
+             ON client_email_attachments (email_id)`
+        );
+    }
+
+    await db.execute(
+        `CREATE TABLE IF NOT EXISTS client_email_reads (
+            email_id INT NOT NULL,
+            employee_id INT NOT NULL,
+            read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (email_id, employee_id),
+            FOREIGN KEY (email_id) REFERENCES client_emails(id) ON DELETE CASCADE,
+            FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+        )`
+    );
 }
 
 module.exports = initializeMessagingSchema;
+

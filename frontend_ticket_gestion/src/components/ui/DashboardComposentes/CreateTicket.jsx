@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Mail,
   Paperclip,
@@ -6,6 +6,7 @@ import {
   Inbox,
   PencilLine,
   Send,
+  Download,
   Building2,
   User,
   Phone,
@@ -55,11 +56,11 @@ const ISSUE_TYPE_OPTIONS = [
 
 const ISSUE_LEVEL_OPTIONS = [
   'Level 1 Assistance',
-  'Aperçu',
   'Level 2 Resolution',
   'External Vendor Support',
   'Critical Issue Classification',
 ];
+const SUPPORT_INBOX_LABEL = 'Service Delivery Team';
 
 // --- Tab Button Component ---
 function TabButton({ active, onClick, children, badge, icon: Icon }) {
@@ -145,7 +146,7 @@ function CustomSelectField({ label, required, placeholder, options, value, onCha
             {options.map((opt, index) => (
               <div
                 key={index}
-                className={`custom-select-option ${value === opt ? 'selected' : ''}`}
+                className={`custom-select-option ${value === opt ? 'selected' : ''} ${opt === 'Critical Issue Classification' ? 'critical-issue-option' : ''}`}
                 onClick={() => handleSelect(opt)}
               >
                 {opt}
@@ -179,8 +180,19 @@ function TextAreaField({ label, required, placeholder, rows = 4, value, onChange
 
 // --- Email Ticket Card Component ---
 function EmailTicketCard({ ticket, expanded, onToggle }) {
+  const receivedDate = ticket.receivedAt
+    ? new Date(ticket.receivedAt).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+    : 'Date unavailable';
+
   return (
-    <div className={`email-card ${expanded ? 'expanded' : ''}`}>
+    <div className={`email-card ${expanded ? 'expanded' : ''} ${ticket.isRead ? '' : 'unread'}`}>
       <div 
         className="email-card-header"
         onClick={onToggle}
@@ -195,14 +207,14 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
               {ticket.subject}
             </h3>
             <span className="email-date">
-              {ticket.date}
+              {receivedDate}
             </span>
           </div>
           
           <div className="email-meta">
             <span className="email-sender">
               <Mail size={12} />
-              {ticket.sender}
+              {ticket.contactName} &lt;{ticket.senderEmail}&gt;
             </span>
             {ticket.attachments?.length > 0 && (
               <span className="email-attachments">
@@ -213,6 +225,7 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
           </div>
         </div>
 
+        {!ticket.isRead && <span className="email-unread-dot" title="Unread email" />}
         <div className={`email-chevron ${expanded ? 'expanded' : ''}`}>
           <ChevronDown size={20} />
         </div>
@@ -228,7 +241,7 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
               Original Content
             </h4>
             <div className="email-original-text">
-              {ticket.originalContent}
+              {ticket.content}
             </div>
           </div>
 
@@ -249,6 +262,42 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
               ))}
             </div>
           </div>
+
+          {ticket.attachments?.length > 0 && (
+            <div className="email-received-files">
+              <h4 className="section-title email">
+                <Paperclip size={12} />
+                Attachments
+              </h4>
+              <div className="email-attachment-grid">
+                {ticket.attachments.map((attachment) => (
+                  <div className="email-attachment-card" key={attachment.id || attachment.fileName}>
+                    {String(attachment.mimeType || '').startsWith('image/') && (
+                      <img
+                        className="email-attachment-preview"
+                        src={attachment.fileUrl}
+                        alt={attachment.fileName}
+                      />
+                    )}
+                    <div className="email-attachment-info">
+                      <span title={attachment.fileName}>{attachment.fileName}</span>
+                      <a
+                        className="email-download-button"
+                        href={attachment.fileUrl}
+                        download={attachment.fileName}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <Download size={14} />
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -486,11 +535,10 @@ export default function CreateTicket() {
 
   const [tab, setTab] = useState('manual');
   const [expandedId, setExpandedId] = useState(null);
-  const [readIds, setReadIds] = useState([]);
-  const [emailSearch, setEmailSearch] = useState('');
-  const [emailContacts, setEmailContacts] = useState([]);
+  const [emailTickets, setEmailTickets] = useState([]);
   const [emailsLoading, setEmailsLoading] = useState(false);
-  const [emailFiles, setEmailFiles] = useState([]);
+  const [emailsError, setEmailsError] = useState('');
+  const [emailSenderFilter, setEmailSenderFilter] = useState('');
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [selectedContact, setSelectedContact] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -542,68 +590,59 @@ export default function CreateTicket() {
     if (token && role === 'SD') fetchNextRequestCode();
   }, [token, role]);
 
-  useEffect(() => {
-    if (!token || role !== 'SD') return;
-
-    const fetchEmailContacts = async () => {
-      try {
+  const fetchClientEmails = async ({ silent = false } = {}) => {
+    try {
+      if (!silent) {
         setEmailsLoading(true);
-        const response = await fetch('http://localhost:2300/api/contacts', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || payload.message || 'Failed to load contact emails');
-        setEmailContacts((payload.data || []).filter((contact) => contact.email));
-      } catch (error) {
+        setEmailsError('');
+      }
+      const response = await fetch('http://localhost:2300/api/client-emails', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || payload.message || 'Failed to load client emails');
+      setEmailTickets(payload.data || []);
+    } catch (error) {
+      if (!silent) {
+        setEmailsError(error.message);
         toast.error(error.message);
-      } finally {
+      }
+    } finally {
+      if (!silent) {
         setEmailsLoading(false);
       }
-    };
-
-    fetchEmailContacts();
-  }, [token, role]);
-
-  const emailTickets = emailContacts.map((contact) => ({
-    id: String(contact.id),
-    contactId: contact.id,
-    contactName: contact.name,
-    organizationId: contact.organization_id || contact.organizationId,
-    organization: contact.organization,
-    phone: contact.phone,
-    subject: `Support request from ${contact.name}`,
-    sender: contact.email,
-    date: contact.updatedAt
-      ? new Date(contact.updatedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-      : 'Existing database contact',
-    attachments: emailFiles,
-    originalContent: `Email sender: ${contact.name}
-Email address: ${contact.email}
-Organization: ${contact.organization || 'Not linked'}
-Phone: ${contact.phone || 'Not provided'}
-
-Describe the request received from this verified database email before provisioning the ticket.`
-  }));
-
-  const filteredEmailTickets = emailTickets.filter((ticket) => {
-    const query = emailSearch.trim().toLowerCase();
-    if (!query) return true;
-    return `${ticket.sender} ${ticket.contactName} ${ticket.organization} ${ticket.subject}`.toLowerCase().includes(query);
-  });
-
-  const handleEmailFilesChange = (event) => {
-    const files = Array.from(event.target.files || []);
-    setEmailFiles(files);
-    if (files.length) {
-      toast.success(`${files.length} file${files.length > 1 ? 's' : ''} attached.`);
     }
   };
+
+  useEffect(() => {
+    if (!token || role !== 'SD') return undefined;
+
+    fetchClientEmails();
+    const emailRefreshTimer = window.setInterval(() => {
+      fetchClientEmails({ silent: true });
+    }, 30000);
+
+    return () => window.clearInterval(emailRefreshTimer);
+  }, [token, role]);
+
+  const senderEmailOptions = useMemo(() => (
+    [...new Set(emailTickets.map((ticket) => ticket.senderEmail).filter(Boolean))]
+      .sort((first, second) => first.localeCompare(second))
+  ), [emailTickets]);
+
+  const filteredEmailTickets = useMemo(() => (
+    emailSenderFilter.trim()
+      ? emailTickets.filter((ticket) => (
+        ticket.senderEmail?.toLowerCase().includes(emailSenderFilter.trim().toLowerCase())
+      ))
+      : emailTickets
+  ), [emailTickets, emailSenderFilter]);
 
   const hydrateFormFromEmail = (ticket) => {
     setSelectedContact({
       id: ticket.contactId,
       name: ticket.contactName,
-      email: ticket.sender,
+      email: ticket.senderEmail,
       phone: ticket.phone,
       organization: ticket.organization,
       organization_id: ticket.organizationId
@@ -619,9 +658,9 @@ Describe the request received from this verified database email before provision
       clientId: ticket.contactId,
       organization_id: ticket.organizationId || null,
       issueType: 'Undeliverable Email',
-      issueDescription: `${ticket.originalContent}
+      issueDescription: `${ticket.content}
 
-Attachments selected: ${ticket.attachments?.length ? ticket.attachments.map((file) => file.name).join(', ') : 'None'}`
+Received attachments: ${ticket.attachments?.length ? ticket.attachments.map((file) => file.fileName).join(', ') : 'None'}`
     }));
   };
 
@@ -684,22 +723,35 @@ Attachments selected: ${ticket.attachments?.length ? ticket.attachments.map((fil
     toast('Form has been reset');
   };
 
-  const handleEmailToggle = (ticketId) => {
-    setExpandedId((prevExpandedId) => {
-      const isOpening = prevExpandedId !== ticketId;
-      if (isOpening) {
-        const ticket = emailTickets.find((item) => item.id === ticketId);
-        if (ticket) hydrateFormFromEmail(ticket);
-        setReadIds((prevReadIds) => {
-          if (prevReadIds.includes(ticketId)) return prevReadIds;
-          return [...prevReadIds, ticketId];
-        });
-      }
-      return isOpening ? ticketId : null;
-    });
+  const handleEmailToggle = async (ticketId) => {
+    const isOpening = expandedId !== ticketId;
+    setExpandedId(isOpening ? ticketId : null);
+    if (!isOpening) return;
+
+    const ticket = emailTickets.find((item) => item.id === ticketId);
+    if (!ticket) return;
+    hydrateFormFromEmail(ticket);
+    if (ticket.isRead) return;
+
+    setEmailTickets((messages) => messages.map((message) => (
+      message.id === ticketId ? { ...message, isRead: true } : message
+    )));
+    try {
+      const response = await fetch(`http://localhost:2300/api/client-emails/${ticketId}/read`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || 'Unable to mark email as read');
+    } catch (error) {
+      setEmailTickets((messages) => messages.map((message) => (
+        message.id === ticketId ? { ...message, isRead: false } : message
+      )));
+      toast.error(error.message);
+    }
   };
 
-  const unreadCount = Math.max(0, emailTickets.length - new Set(readIds).size);
+  const unreadCount = emailTickets.filter((ticket) => !ticket.isRead).length;
 
   // Block rendering for non-SD roles
   if (role && role !== 'SD') {
@@ -818,42 +870,40 @@ Attachments selected: ${ticket.attachments?.length ? ticket.attachments.map((fil
               </div>
             ) : (
               <div className="create-ticket-email-container">
-                <div className="email-processing-toolbar">
-                  <div className="email-processing-search">
-                    <Mail size={16} />
-                    <input
-                      type="email"
-                      value={emailSearch}
-                      onChange={(event) => setEmailSearch(event.target.value)}
-                      placeholder="Filter by existing database email..."
-                    />
+                <div className="email-inbox-heading">
+                  <div>
+                    <h2>Service Delivery Inbox</h2>
+                    <p>Shared with <strong>{SUPPORT_INBOX_LABEL}</strong> employees - Live updates</p>
                   </div>
-                  <label className="email-upload-button">
-                    <Paperclip size={16} />
-                    Attach files/images
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.log,.zip"
-                      onChange={handleEmailFilesChange}
-                    />
-                  </label>
+                  <div className="email-inbox-actions">
+                    <label className="email-sender-filter">
+                      <Mail size={14} />
+                      <input
+                        type="email"
+                        list="received-email-senders"
+                        aria-label="Filter messages by sender email"
+                        value={emailSenderFilter}
+                        onChange={(event) => setEmailSenderFilter(event.target.value)}
+                        placeholder="All senders"
+                      />
+                      <datalist id="received-email-senders">
+                        {senderEmailOptions.map((email) => (
+                          <option value={email} key={email} />
+                        ))}
+                      </datalist>
+                    </label>
+                    <span className="email-inbox-counter">{unreadCount} unread</span>
+                  </div>
                 </div>
-                {emailFiles.length > 0 && (
-                  <div className="email-file-list email-file-list-toolbar">
-                    {emailFiles.map((file) => (
-                      <span key={`${file.name}-${file.size}`} className="email-file-pill">
-                        <Paperclip size={12} />
-                        {file.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
                 <div className="create-ticket-email-list">
                   {emailsLoading ? (
-                    <div className="email-empty-state">Loading database emails...</div>
+                    <div className="email-empty-state">Loading incoming emails...</div>
+                  ) : emailsError ? (
+                    <div className="email-empty-state">{emailsError}</div>
+                  ) : emailTickets.length === 0 ? (
+                    <div className="email-empty-state">No client emails received.</div>
                   ) : filteredEmailTickets.length === 0 ? (
-                    <div className="email-empty-state">No matching database emails found.</div>
+                    <div className="email-empty-state">No emails received from this sender.</div>
                   ) : filteredEmailTickets.map((ticket) => (
                     <div key={ticket.id}>
                       <EmailTicketCard

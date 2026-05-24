@@ -6,7 +6,8 @@ async function login(req, res) {
         const result = await authService.login(req.body);
         res.status(200).json({ success: true, ...result });
     } catch (error) {
-        sendError(res, 401, error.message);
+        const status = error.message === authService.INACTIVE_ACCOUNT_MESSAGE ? 403 : 401;
+        sendError(res, status, error.message);
     }
 }
 
