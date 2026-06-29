@@ -1,0 +1,797 @@
+AGCE CRM - Mémoire de fin d’études
+République Algérienne Démocratique et Populaire 
+Ministère de l’Enseignement Supérieur et de la Recherche Scientifique 
+Université Saad Dahleb Blida 1 
+Faculté des Sciences 
+Département d’Informatique 
+ 
+Mémoire de fin d’études 
+Présenté en vue de l’obtention du diplôme de Licence en Informatique 
+Option : Ingénierie des Systèmes d’Information et Logiciels (ISIL) 
+ 
+Conception et réalisation d’une application web sécurisée de gestion des 
+tickets et de la relation client pour l’AGCE 
+Présenté par : 
+M. Laceb Karim 
+M. Ouladsmane Issam 
+Encadré par : 
+Mme Arkam Meriem — Encadrante universitaire 
+                                    M. Lekhchine Sami — Encadrant au sein de l’AGCE 
+ 
+Année universitaire : 2025/2026 
+1
+AGCE CRM - Mémoire de fin d’études
+Dédicaces 
+Dédicace de Mr. Laceb Karim 
+Je dédie ce mémoire à mes très chers parents, qui ont toujours été pour moi une source de force, 
+de motivation et de confiance. Leur soutien permanent, leurs sacrifices silencieux, leurs encour-
+agements continus et leur amour inconditionnel ont constitué un véritable pilier tout au long de 
+mon parcours universitaire. 
+À travers ce travail, je souhaite leur exprimer ma profonde gratitude pour leur patience, leur 
+compréhension et leur présence constante dans les moments de doute comme dans les moments 
+de réussite. Aucun mot ne saurait réellement traduire toute la reconnaissance que je leur porte 
+pour tout ce qu’ils m’ont offert, moralement et humainement. 
+Je dédie également ce travail à ma famille, à mes proches et à mes amis, qui m’ont accompagné 
+avec bienveillance, encouragement et confiance. Leur présence, leurs conseils et leur soutien ont 
+contribué, chacun à leur manière, à l’aboutissement de ce mémoire. 
+Que ce travail soit le témoignage sincère de ma reconnaissance envers toutes les personnes qui 
+ont cru en moi, qui m’ont soutenu et qui ont participé, de près ou de loin, à la réalisation de ce 
+parcours. 
+— Karim Laceb 
+Dédicace de Mr. Ouladsmane Issam 
+Je dédie ce mémoire à ma chère famille, et plus particulièrement à mes parents, pour leur soutien 
+inestimable, leur patience, leurs sacrifices et leur confiance tout au long de mon parcours 
+académique. Leur présence, leurs encouragements et leur amour ont été une source essentielle de 
+motivation et de persévérance. 
+Je leur exprime, à travers ce travail, toute ma gratitude pour les efforts qu’ils ont fournis, pour les 
+valeurs qu’ils m’ont transmises et pour leur accompagnement constant dans chaque étape de mon 
+cheminement universitaire. Leur soutien m’a permis d’avancer avec détermination et de surmon-
+ter les différentes difficultés rencontrées. 
+2
+AGCE CRM - Mémoire de fin d’études
+Je dédie également ce mémoire à mes proches, à mes amis et à mes camarades d’études, qui ont 
+partagé avec moi les moments d’effort, de réflexion, d’apprentissage et de progression. Leurs 
+conseils, leur solidarité et leurs encouragements ont joué un rôle important dans la réussite de ce 
+travail. 
+Ce mémoire représente non seulement l’aboutissement d’un effort personnel, mais aussi le fruit 
+d’un soutien collectif précieux. Qu’il soit l’expression de ma reconnaissance envers toutes les 
+personnes qui m’ont accompagné, inspiré et encouragé durant cette expérience universitaire. 
+— Ouladsmane Issam 
+3
+AGCE CRM - Mémoire de fin d’études
+Remerciements 
+Nous tenons avant tout à exprimer notre profonde gratitude à Dieu le Tout-Puissant, qui nous a 
+accordé la force, la patience, la persévérance et la volonté nécessaires pour mener à bien ce tra-
+vail. 
+Nous adressons nos sincères remerciements à Mme Arkam Meriem, notre encadrante universi-
+taire, pour son accompagnement attentif, ses orientations méthodologiques, sa disponibilité ainsi 
+que pour la pertinence et la rigueur de ses remarques. Ses conseils précieux ont grandement con-
+tribué à l’amélioration et à l’aboutissement de ce mémoire. 
+Nous exprimons également notre profonde reconnaissance à M. Lekhchine Sami, notre encad-
+rant au sein de l’Autorité Gouvernementale de Certification Électronique, pour son accueil, 
+sa confiance, son accompagnement professionnel et ses conseils techniques. Son encadrement 
+nous a permis de mieux comprendre les exigences du contexte professionnel et d’enrichir notre 
+travail sur les plans pratique et technique. 
+Nos remerciements s’adressent aussi à l’ensemble du personnel de l’AGCE, pour leur accueil, 
+leur collaboration et les informations mises à notre disposition durant la réalisation de ce projet. 
+Leur contribution a été d’une grande importance pour la compréhension du fonctionnement de 
+l’organisme et pour la concrétisation de notre solution. 
+Enfin, nous remercions respectueusement les membres du jury pour l’honneur qu’ils nous font en 
+acceptant d’évaluer ce mémoire. Nous leur exprimons notre reconnaissance pour le temps con-
+sacré à l’examen de notre travail ainsi que pour l’intérêt porté à notre projet. 
+Que toutes les personnes ayant contribué, de près ou de loin, à la réalisation de ce mémoire trou-
+vent ici l’expression de notre sincère gratitude. 
+4
+AGCE CRM - Mémoire de fin d’études
+Résumé 
+Résumé en français 
+Ce mémoire présente la conception et la réalisation d’une application web sécurisée de gestion 
+des tickets et de la relation client destinée à l’Autorité Gouvernementale de Certification Élec-
+tronique (AGCE). Le projet répond à un besoin de centralisation des demandes clients, de suivi 
+des incidents techniques, de traçabilité des actions et de séparation claire des responsabilités en-
+tre les différents acteurs internes. La solution proposée permet de gérer les organisations, les con-
+tacts, les tickets, les commentaires, les messages en temps réel, les réunions de suivi et les 
+tableaux de bord analytiques. 
+L’application adopte une architecture client-serveur fondée sur React et Vite pour l’interface, 
+Express.js pour l’API REST, Socket.IO pour les échanges temps réel et MySQL pour la persis-
+tance des données. La sécurité est assurée par l’authentification JWT, le hachage des mots de 
+passe avec bcrypt, la vérification de l’état actif des comptes et le contrôle d’accès basé sur les 
+rôles. Le système vise ainsi à améliorer l’organisation du support, la visibilité managériale et la 
+conformité aux contraintes de souveraineté des données. 
+Mots-clés : AGCE, CRM, gestion de tickets, RBAC, React, Express.js, MySQL, Socket.IO, sécu-
+rité applicative. 
+Abstract 
+This thesis presents the design and implementation of a secure web-based ticket management 
+and customer relationship management application for the Governmental Electronic Certification 
+Authority (AGCE). The project addresses the need to centralize customer requests, monitor tech-
+nical incidents, ensure traceability of operations, and separate responsibilities between internal 
+roles. The proposed solution manages organizations, contacts, tickets, comments, real-time mes-
+sages, follow-up meetings and analytical dashboards. 
+The application follows a client-server architecture based on React and Vite for the frontend, Ex-
+press.js for the REST API, Socket.IO for real-time communication and MySQL for data persis-
+5
+AGCE CRM - Mémoire de fin d’études
+tence. Security is ensured through JWT authentication, password hashing with bcrypt, active ac-
+count verification and role-based access control. The system aims to improve support organiza-
+tion, managerial visibility and compliance with data sovereignty requirements. 
+Keywords: AGCE, CRM, ticket management, RBAC, React, Express.js, MySQL, Socket.IO, ap-
+plication security. 
+ اﻟﻤﻠﺨﺺ
+.ﯿﺔـﺤﻜﻮﻣـاﻟ ﻲـﻜﺘﺮوﻧـاﻹﻟ ﻖـﺘﺼﺪﯾـاﻟ ﻠﻄﺔـﺳ ﺪةـﻔﺎﺋـﻟ ﻌﻤﻼءـاﻟ ﺔـﻼﻗـوﻋ ﺮـﺘﺬاﻛـاﻟ ﻹدارة ﻦـآﻣ ﺐـوﯾ ﻄﺒﯿﻖـﺗ ﺠﺎزـوإﻧ ﺼﻤﯿﻢـﺗ ﺒﺤﺚـاﻟ ﺬاـھ ﻌﺮضـﯾ 
+ﺨﺘﻠﻒـﻣ ﯿﻦـﺑ ﯿﺎتـﺼﻼﺣـاﻟ ﻨﻈﯿﻢـوﺗ ﻌﻤﻠﯿﺎت،ـاﻟ ﺘﺒﻊـﺗ ﻤﺎنـﺿ ﺘﻘﻨﯿﺔ،ـاﻟ ﺤﻮادثـاﻟ ﻌﺔـﺘﺎﺑـﻣ ﻌﻤﻼء،ـاﻟ ﻠﺒﺎتـط ﺔـﺰﯾـﺮﻛـﻣ ﻰـإﻟ ﺮوعـاﻟﻤﺸ ﺪفـﯾﮭ 
+ﮭﺔـواﺟ ﻠﻰـﻋ ﻨﻈﺎمـاﻟ ﻌﺘﻤﺪـﯾ. ﺴﺔـﻤﺆﺳـاﻟ ﻞـداﺧ اﻷدوارReact وVite، ﺎدمـوﺧExpress.js، ﺎتـﯿﺎﻧـﺑ ﺪةـﺎﻋـوﻗMySQL، ﻊـﻣ 
+اﺳﺘﻌﻤﺎلSocket.IO اﻵﻧﻲ ﻟﻠﺘﻮاﺻﻞ. 
+ﻮزـرﻣ ﻠﻰـﻋ ﺔـﻤﺎﯾـاﻟﺤ ﻌﺘﻤﺪـﺗJWT، ﺘﻌﻤﺎلـﺎﺳـﺑ ﻤﺮورـاﻟ ﻠﻤﺎتـﻛ ﺸﻔﯿﺮـوﺗbcrypt، ﻲـﻓ ﺘﺤﻜﻢـاﻟ ﻄﺒﯿﻖـوﺗ ﺤﺴﺎب،ـاﻟ ﺔـﺎﻟـﺣ ﻦـﻣ ﺘﺤﻘﻖـواﻟ 
+ﯿﺎدةـوﺳ ﻦـأﻣ ﺘﻄﻠﺒﺎتـﻣ ﺘﺮامـاﺣ ﺰـﻌﺰﯾـوﺗ ﺮ،ـﻠﻤﺪﯾـﻟ ﻠﯿﻠﯿﺔـﺗﺤ ﺔـرؤﯾ ﯿﺮـﻮﻓـوﺗ ﻢ،ـﺪﻋـاﻟ ﻨﻈﯿﻢـﺗ ﯿﻦـﺗﺤﺴ ﻲـﻓ ﻨﻈﺎمـاﻟ ﻢـﺴﺎھـﯾ. ﺪورـاﻟ ﺐـﺣﺴ ﻮلـﻮﺻـاﻟ 
+اﻟﺒﯿﺎﻧﺎت. 
+المفتاحية الكلماتAGCE، التذاكر إدارة،CRM،RBAC،React،Express.js،MySQL،Socket.IO. 
+6
+AGCE CRM - Mémoire de fin d’études
+Table des matières 
+  
+7
+AGCE CRM - Mémoire de fin d’études
+Liste des figures 
+Figure 1.1 - Architecture générale du système AGCE CRM 
+Figure 2.1 - Diagramme de cas d’utilisation du système 
+Figure 2.2 - Modèle conceptuel simplifié des classes 
+Figure 3.1 - Diagramme de séquence : création et affectation d’un ticket 
+Figure 3.2 - Diagramme de séquence : messagerie temps réel autour d’un ticket 
+8
+AGCE CRM - Mémoire de fin d’études
+Liste des tableaux 
+Tableau 1.1 - Comparaison des solutions existantes 
+Tableau 2.1 - Besoins fonctionnels du système 
+Tableau 2.2 - Besoins non fonctionnels 
+Tableau 2.3 - Matrice d’habilitation RBAC 
+Tableau 3.1 - Environnement de développement 
+Tableau 3.2 - Jeux de tests fonctionnels 
+Tableau 3.3 - Synthèse des résultats de validation 
+9
+AGCE CRM - Mémoire de fin d’études
+Liste des abréviations 
+Abréviation Signification
+AGCE Autorité Gouvernementale de Certification Électronique
+API Application Programming Interface
+CRM Customer Relationship Management
+CRUD Create, Read, Update, Delete
+IMAP Internet Message Access Protocol
+ISIL Ingénierie des Systèmes d’Information et Logiciels
+IT Information Technology
+JWT JSON Web Token
+LRAO Local Registration Authority Officer
+MFA Multi-Factor Authentication
+MVC Model-View-Controller
+PKI Public Key Infrastructure
+RBAC Role-Based Access Control
+REST Representational State Transfer
+SD Service Delivery
+SQL Structured Query Language
+UML Unified Modeling Language
+10
+AGCE CRM - Mémoire de fin d’études
+Introduction générale 
+La transformation numérique des organisations publiques impose la mise en place de systèmes 
+d’information capables d’assurer simultanément l’efficacité opérationnelle, la sécurité des don-
+nées, la traçabilité des échanges et la maîtrise des responsabilités. Dans un contexte institutionnel 
+lié à la confiance numérique, ces exigences deviennent encore plus importantes, car la qualité du 
+traitement des demandes internes et externes influence directement la continuité du service et la 
+fiabilité des opérations. [14], [15] 
+L’Autorité Gouvernementale de Certification Électronique occupe une position stratégique dans 
+l’écosystème numérique algérien. Elle intervient dans un domaine où la certification électron-
+ique, la signature numérique, l’authentification et la sécurisation des échanges nécessitent une 
+organisation rigoureuse. Les demandes clients, les incidents techniques, les échanges internes et 
+les décisions de suivi doivent être traités dans un cadre cohérent, sécurisé et suffisamment 
+traçable pour permettre une supervision efficace. [2], [4] 
+Le problème étudié dans ce mémoire concerne la gestion des tickets et de la relation client au 
+sein de l’AGCE. Les méthodes traditionnelles ou dispersées de suivi des demandes peuvent en-
+traîner une perte d’information, une difficulté de priorisation, des retards d’affectation, une 
+traçabilité insuffisante et une visibilité limitée pour le responsable de supervision. Le besoin dé-
+passe donc la simple création d’un formulaire de ticket : il s’agit de concevoir un système com-
+plet permettant de structurer le cycle de vie d’une demande depuis sa réception jusqu’à sa résolu-
+tion. [16], [15] 
+La problématique centrale peut être formulée ainsi : comment concevoir et réaliser une applica-
+tion web sécurisée permettant à l’AGCE de centraliser la gestion des organisations, des contacts, 
+des tickets, des messages, des réunions et des indicateurs de supervision, tout en garantissant une 
+séparation stricte des rôles, une traçabilité des actions et un contrôle d’accès fiable ? [5]-[7] 
+Pour répondre à cette problématique, ce projet vise plusieurs objectifs. Il s’agit d’abord 
+d’analyser le contexte organisationnel et les besoins métier. Il s’agit ensuite de modéliser les ac-
+teurs, les fonctionnalités, les flux et les données du système. Le troisième objectif est de réaliser 
+11
+AGCE CRM - Mémoire de fin d’études
+une application web exploitable, fondée sur une architecture moderne articulant un frontend Re-
+act, un backend Express.js, une base MySQL et une communication temps réel avec Socket.IO. 
+Enfin, le projet vise à valider la solution par des scénarios fonctionnels et des tests de sécurité 
+applicative. [8], [10]-[13], [16], [24] 
+Le présent mémoire est organisé en trois chapitres. Le premier chapitre présente le contexte 
+général, l’organisme d’accueil, la problématique et l’étude critique de l’existant. Le deuxième 
+chapitre expose l’analyse des besoins et la conception du système à travers les acteurs, les exi-
+gences, les diagrammes UML, l’architecture et le modèle de données. Le troisième chapitre 
+décrit l’environnement de réalisation, les choix d’implémentation, les principaux modules 
+développés, les tests effectués et l’évaluation de la solution. La conclusion générale synthétise les 
+apports du travail, ses limites et les perspectives d’amélioration. [17] 
+12
+AGCE CRM - Mémoire de fin d’études
+Chapitre 1 : Contexte général et revue de la littérature 
+1.1 Introduction 
+Ce chapitre a pour objectif de situer le projet dans son environnement institutionnel, réglemen-
+taire et technologique. Il présente d’abord l’AGCE comme organisme d’accueil, puis décrit le 
+problème métier auquel répond l’application. Il propose ensuite une étude critique de l’existant 
+afin de justifier le choix d’une solution spécifique, sécurisée et adaptée au contexte local. [17] 
+L’étude de contexte est essentielle, car un système de gestion de tickets ne peut pas être évalué 
+uniquement selon ses fonctionnalités visibles. Dans un organisme chargé de la confiance 
+numérique, les critères de sécurité, de traçabilité, de séparation des responsabilités et de sou -
+veraineté des données doivent être pris en compte dès la définition du besoin. [1]-[3], [6], [14] 
+1.2 Présentation de l’organisme d’accueil : l’AGCE 
+L’Autorité Gouvernementale de Certification Électronique est un organisme public algérien 
+chargé de fournir et d’encadrer des services liés à la certification électronique dans le secteur 
+gouvernemental. Son rôle s’inscrit dans la modernisation des administrations publiques, la 
+sécurisation des échanges électroniques et le développement de la confiance numérique. [2], [4] 
+Les activités de l’AGCE reposent sur des infrastructures à clés publiques, des politiques de certi-
+fication, des procédures de sécurité et des services de confiance. Dans ce type d’environnement, 
+les demandes provenant d’organisations clientes peuvent concerner des comptes, des certificats, 
+des applications de signature, des accès, des difficultés techniques ou des incidents opérationnels. 
+Ces demandes nécessitent un suivi rigoureux et une affectation correcte aux services compétents. 
+[1], [4] 
+Le projet AGCE CRM s’inscrit dans ce contexte. Il ne se limite pas à un outil de support 
+générique, mais vise à organiser un circuit interne de traitement impliquant plusieurs rôles : 
+l’administrateur, le Service Delivery, le manager, le service PKI et le service IT. [16] 
+13
+AGCE CRM - Mémoire de fin d’études
+1.3 Cadre réglementaire et contraintes de souveraineté 
+La certification électronique et la signature électronique sont encadrées en Algérie par des textes 
+juridiques qui donnent une valeur institutionnelle aux échanges numériques. Dans un tel con -
+texte, les données traitées par une application interne de support peuvent inclure des informations 
+relatives aux organisations, aux contacts, aux employés, aux incidents, aux échanges et aux 
+pièces jointes. Ces informations doivent être protégées et conservées dans un environnement 
+sécurisé. [1], [3] 
+La souveraineté des données constitue donc une contrainte importante. Une solution externe en 
+mode SaaS peut offrir de nombreuses fonctionnalités, mais elle peut aussi poser des difficultés 
+liées à l’hébergement des données, au contrôle des accès, à la localisation des journaux et à la 
+confidentialité des informations techniques. Pour cette raison, une solution déployée localement 
+présente un intérêt particulier pour l’AGCE. [3], [6], [15] 
+La solution proposée adopte ainsi une logique on-premise ou locale : les données restent dans 
+une base MySQL contrôlée par l’organisation, les secrets sont placés dans des variables d’envi-
+ronnement, et les rôles sont vérifiés au niveau du backend avant toute opération sensible. [6], [7], 
+[13] 
+1.4 Problématique métier 
+La gestion des demandes clients et des incidents techniques peut devenir complexe lorsque les 
+informations sont réparties entre plusieurs canaux : e-mails, discussions informelles, fichiers, ap-
+pels ou notes séparées. Cette dispersion rend difficile la reconstitution de l’historique d’un prob-
+lème, la mesure du temps de traitement et la compréhension de la responsabilité de chaque ac-
+teur. [15], [20]-[23] 
+Dans le cas de l’AGCE, le problème principal réside dans la nécessité de centraliser les deman-
+des tout en conservant une séparation stricte des rôles. Le Service Delivery doit pouvoir créer les 
+organisations, contacts et tickets, puis affecter les incidents aux services compétents. Les services 
+PKI et IT doivent traiter uniquement les tickets qui leur sont accessibles. Le manager doit super-
+14
+AGCE CRM - Mémoire de fin d’études
+viser l’activité sans réaliser d’opérations de modification métier. L’administrateur doit gérer les 
+comptes employés sans interférer avec le traitement opérationnel des tickets. [5], [6], [16] 
+Le système doit donc répondre à quatre enjeux : centralisation de l’information, traçabilité du 
+workflow, sécurisation des accès et visibilité analytique. Ces enjeux structurent l’ensemble de la 
+conception proposée. [5], [6], [14], [15] 
+1.5 Étude de l’existant 
+Plusieurs solutions de ticketing existent sur le marché. Les solutions comme Jira Service Man-
+agement ou Zendesk proposent des plateformes puissantes de gestion du support, souvent en 
+mode cloud. D’autres solutions comme GLPI ou osTicket peuvent être déployées localement et 
+répondent partiellement au besoin de support et de suivi des tickets. [20]-[23] 
+Cependant, l’adoption directe d’une solution existante présente des limites. Les solutions SaaS 
+peuvent être difficiles à aligner avec les exigences de souveraineté et de confidentialité propres à 
+une autorité de certification. Les solutions open source déployables localement sont plus favor-
+ables au contrôle des données, mais elles restent généralement génériques et nécessitent des 
+adaptations importantes pour représenter précisément les rôles, les règles métier, les affectations 
+spécifiques, la messagerie de rooms, les meetings et les tableaux de bord adaptés à l’AGCE. [3], 
+[20]-[23] 
+Cette analyse conduit à privilégier une solution dédiée, conçue autour des besoins exacts de l’or-
+ganisme et de la logique de séparation des responsabilités. [16] 
+Tableau 1.1 - Comparaison critique des solutions existantes 
+Solution Type Avantages Limites dans le contexte AGCE
+Jira Service Management SaaS / Data Center Solution mature, workflows avancés, Coût, configuration lourde, 
+Zendesk SaaS Interface complète, automatisations, Logique cloud dominante, personnali-
+GLPI Open source / On-premise Déploiement local, gestion ITSM, Orienté ITSM généraliste, adaptation 
+osTicket Open source / On-premise Simple, efficace pour le support par e-Fonctions CRM, reporting et sépara-
+AGCE CRM Application dédiée locale Adaptée aux rôles AGCE, tickets, Prototype à consolider par tests utili-
+15
+AGCE CRM - Mémoire de fin d’études
+1.6 Solution proposée 
+La solution proposée est une application web centralisée appelée AGCE CRM. Elle combine les 
+fonctions d’un système CRM, d’un outil de gestion de tickets, d’un espace de collaboration et 
+d’un tableau de bord de supervision. Elle permet au Service Delivery de créer et gérer les organi-
+sations, les contacts et les tickets, d’importer certaines demandes reçues par e-mail, d’affecter les 
+tickets aux services IT ou PKI, de suivre les commentaires et de programmer des meetings. [16] 
+Les services IT et PKI disposent d’un accès limité aux tickets qui leur sont attribués. Ils peuvent 
+consulter les informations utiles, échanger dans des rooms de discussion et faire évoluer le 
+traitement selon les règles autorisées. Le manager dispose d’une vision globale en lecture seule, 
+ce qui permet de suivre l’activité sans risquer de modifier les données opérationnelles. L’admin-
+istrateur gère les comptes employés, leurs rôles et leur statut actif ou inactif. [5], [6], [16] 
+La valeur ajoutée du projet réside dans son adaptation au contexte de l’AGCE. Contrairement à 
+un outil générique, l’application impose les règles métier dans le code backend, structure la base 
+de données selon les entités réelles de l’organisation et fournit une interface orientée vers les 
+rôles internes. [5], [6], [13], [16] 
+1.7 Synthèse du chapitre 
+Ce premier chapitre a montré que le projet répond à un besoin concret de centralisation et de 
+sécurisation du traitement des demandes. L’étude de l’existant démontre que les solutions 
+disponibles peuvent répondre partiellement au besoin, mais qu’une solution dédiée reste perti-
+nente pour respecter les contraintes spécifiques de l’AGCE. Le chapitre suivant présente l’an-
+alyse détaillée et la conception du système. [16], [17] 
+16
+AGCE CRM - Mémoire de fin d’études
+Chapitre 2 : Analyse des besoins et conception 
+2.1 Introduction 
+La phase d’analyse et de conception vise à formaliser les besoins du système à travers l’identifi-
+cation des exigences, des acteurs, des règles métier et des contraintes techniques. Elle permet de 
+structurer la solution avant son implémentation, en s’appuyant sur des modèles conceptuels, 
+fonctionnels et architecturaux. [8], [14], [17] 
+Ce chapitre présente les spécifications fonctionnelles et non fonctionnelles, la matrice d’habilita-
+tion, les diagrammes UML, l’architecture applicative, le modèle relationnel, ainsi que les mécan-
+ismes de sécurité retenus pour assurer la cohérence, la fiabilité et la maintenabilité du système. 
+[8], [14], [17] 
+2.2 Méthodologie de développement 
+Le projet suit une démarche inspirée des principes agiles. Les fonctionnalités ont été organisées 
+par modules : authentification, employés, organisations, contacts, tickets, commentaires, rooms, 
+meetings, dashboards et e-mails clients. Cette approche permet de développer progressivement le 
+système, de tester chaque module et d’ajuster les interfaces selon les besoins métier. [9], [16] 
+La modélisation utilise UML pour représenter les acteurs, les cas d’utilisation, les séquences 
+d’interaction et le modèle conceptuel. L’architecture logicielle suit une séparation en couches : 
+interface utilisateur, API backend, services métier, repositories SQL et base de données. Cette 
+séparation améliore la maintenance et facilite la compréhension du système. [8], [11], [13] 
+2.3 Identification des acteurs 
+Tableau 2.1 - Acteurs du système 
+Acteur Rôle principal Responsabilités
+ADMIN Administration des employés Gérer les comptes des employés de l’autorité 
+SD - Service Delivery Pilotage opérationnel Gérer les organisations, les contacts, les 
+Manager Supervision Consulter les dashboards, les tickets, les 
+PKI Traitement spécialisé Traiter les tickets affectés au service PKI et 
+IT Traitement technique Traiter les tickets affectés au service IT et les 
+17
+AGCE CRM - Mémoire de fin d’études
+2.4 Besoins fonctionnels 
+Tableau 2.2 - Besoins fonctionnels du système 
+2.5 Besoins non fonctionnels 
+Tableau 2.3 - Besoins non fonctionnels 
+2.6 Matrice d’habilitation RBAC 
+La matrice d’habilitation formalise les droits de chaque rôle. Elle constitue un élément important 
+de la conception, car elle montre que la séparation des responsabilités est pensée dès l’analyse et 
+non ajoutée uniquement dans l’interface. [5], [6] 
+Code Besoin fonctionnel Acteurs concernés
+BF01 Authentifier un employé à partir d’un nom d’utilisa-Tous
+BF02 Vérifier l’état actif du compte avant d’autoriser ADMIN
+BF03 Créer, modifier et désactiver des employés ADMIN
+BF04 Créer et gérer des organisations clientes SD
+BF05 Créer et gérer les contacts liés aux organisations SD
+BF06 Créer un ticket avec statut initial Pending SD
+BF07 Affecter un ticket à IT ou PKI et historiser l’affecta-SD
+BF08 Ajouter des commentaires tant que le ticket n’est SD, IT, PKI selon l’accès
+BF09 Interdire la réouverture ou la modification d’un Aucun
+BF10 Échanger des messages dans une room liée à un SD, IT, PKI selon l’accès
+BF11 Créer et suivre des meetings autour des tickets SD, Manager selon les règles
+BF12 Importer et consulter les e-mails clients admis dans SD
+BF13 Consulter des indicateurs analytiques et des ta- Manager, SD
+Catégorie Exigence Justification
+Sécurité Authentification JWT et hachage bcrypt des mots de Éviter l’accès non autorisé et la conservation de 
+Autorisation Contrôle RBAC côté frontend et backend Empêcher le contournement des interfaces par 
+Traçabilité Historiser les affectations, messages, commentaires Permettre le suivi des responsabilités et décisions
+Maintenabilité Séparation routes, controllers, services et reposito- Rendre le code lisible et évolutif
+Performance Limiter les recalculs inutiles côté interface Améliorer la fluidité des dashboards et listes
+Disponibilité Centraliser les données dans MySQL Garantir une source unique de vérité
+Ergonomie Interfaces par rôle, messages d’erreur et toasts Réduire les erreurs utilisateur
+Souveraineté Déploiement local et secrets hors du code Mieux maîtriser les données sensibles
+Module / Action ADMIN SD Manager PKI IT
+Gestion employés CRUD Non Non Non Non
+Organisations Non CRUD Lecture Non Non
+Contacts Non CRUD Lecture Non Non
+Création ticket Non Oui Non Non Non
+Affectation IT/PKI Non Oui Lecture Non Non
+Consultation tickets Non Tous Tous lecture Tickets PKI Tickets IT
+18
+AGCE CRM - Mémoire de fin d’études
+Tableau 2.4 - Matrice d’habilitation RBAC 
+2.7 Diagramme de cas d’utilisation 
+Le diagramme de cas d’utilisation met en évidence les interactions principales entre les acteurs et 
+le système. Il montre notamment que le Service Delivery occupe un rôle central dans l’organisa-
+tion des demandes, tandis que le manager supervise sans effectuer d’opérations destructives. [8], 
+[16] 
+ 
+Figure 2.1 - Diagramme de cas d’utilisation du système AGCE CRM 
+Modification ticket Non Non Non Non Non
+Commentaires Non Oui si non résolu Lecture Oui si accès Oui si accès
+Messages rooms Non Oui Lecture Oui si accès Oui si accès
+Meetings Non Créer / gérer Lecture + réponse Lecture selon accès Lecture selon accès
+Dashboard analytique Non SD Manager Service Service
+19
+AGCE CRM - Mémoire de fin d’études
+2.8 Description textuelle de cas d’utilisation 
+Tableau 2.5 - Description synthétique de cas d’utilisation 
+2.9 Architecture générale 
+L’architecture du système repose sur une séparation claire entre le client, l’API, les services 
+métier, le serveur temps réel et la base de données. Cette séparation permet de limiter les respon-
+sabilités de chaque couche et de centraliser les règles critiques dans le backend. [11]-[13], [16] 
+ 
+Figure 2.2 - Architecture générale du système AGCE CRM 
+2.10 Modèle conceptuel des classes 
+Le modèle conceptuel simplifié présente les principales entités du domaine : Employee, Organi-
+zation, Contact, Ticket, Room, Message, Meeting et ClientEmail. Ces entités reflètent les tables 
+centrales de la base de données et les objets manipulés par l’application. [8], [13] 
+Cas d’utilisation Acteur principal Préconditions Scénario nominal Postconditions
+Créer un ticket SD Employé SD authentifié et actif Le SD sélectionne une organisa-
+tion, renseigne les informations et 
+Ticket créé en statut Pending et 
+room associée crééeAffecter un ticket SD Ticket existant non résolu Le SD choisit IT ou PKI ; le 
+système enregistre l’affectation
+Historique d’affectation mis à jour
+Traiter un ticket IT ou PKI Ticket affecté au service Le service consulte, commente et 
+fait évoluer le traitement
+Suivi enrichi et statut modifié 
+selon règlesSuperviser activité Manager Manager authentifié Le manager consulte les indica-
+teurs et les listes en lecture seule
+Aucune modification métier 
+effectuéeImporter e-mail client Système / SD Boîte Gmail configurée Le système synchronise les mes-
+sages et rattache les e-mails admis
+E-mail disponible dans l’inbox SD
+20
+AGCE CRM - Mémoire de fin d’études
+ 
+Figure 2.3 - Modèle conceptuel simplifié des classes 
+2.11 Modèle relationnel de la base de données 
+La base MySQL est organisée autour de tables relationnelles permettant de représenter les em-
+ployés, les organisations, les contacts, les tickets, les messages, les commentaires, les meetings, 
+les e-mails clients et les historiques. Les relations assurent la cohérence du cycle de vie d’un 
+ticket et facilitent la traçabilité. [13], [16] 
+Table Rôle Relations principales
+employees Comptes et rôles des employés Créateur de tickets, auteur de messages et commen-
+organizations Organisations clientes Possède plusieurs contacts et tickets
+contacts Personnes de contact Appartient à une organisation
+tickets Demandes de support Lié à organisation, créateur, room, commentaires et 
+rooms Conversation associée au ticket Une room par ticket
+messages Messages temps réel Lié à room et employee
+comments Commentaires historisés Lié à ticket et employee
+ticket_assignment_history Historique des affectations Lié à ticket et acteur SD
+meetings Réunions de suivi Lié à ticket, organisateur et invité
+client_emails E-mails clients importés Lié à contact et éventuellement ticket
+activity_logs Journal d’activité Trace les actions importantes
+21
+AGCE CRM - Mémoire de fin d’études
+Tableau 2.6 - Synthèse du modèle relationnel 
+2.12 Conception de la sécurité 
+La sécurité du système est conçue selon deux niveaux complémentaires : authentification et au-
+torisation. L’authentification vérifie l’identité de l’employé à travers un identifiant, un mot de 
+passe crypté et un token JWT. L’autorisation vérifie ensuite si cet employé possède le rôle néces-
+saire pour accéder à la ressource ou réaliser l’action demandée. [5]-[7], [18], [19], [27] 
+Le frontend protège les routes et adapte l’interface selon le rôle, mais cette protection n’est pas 
+suffisante. Le backend vérifie systématiquement le token, l’état actif du compte, le rôle et l’accès 
+à la ressource. Cette double vérification évite qu’un utilisateur puisse contourner l’interface par 
+une URL ou une requête API manuelle. [6], [7], [18] 
+Les tickets résolus sont également protégés. Une règle métier empêche l’ajout de nouveaux 
+commentaires ou la réouverture d’un ticket clôturé. Ce choix garantit que la résolution représente 
+un état final et traçable. [15], [16] 
+2.13 Synthèse du chapitre 
+Ce chapitre a présenté l’analyse des acteurs, les besoins, la matrice d’habilitation, les dia -
+grammes et l’architecture du système. La conception met en évidence une solution modulaire, 
+sécurisée et alignée sur les responsabilités internes de l’AGCE. Le chapitre suivant décrit la réal-
+isation technique et la validation de cette conception. [8], [14], [17] 
+22
+AGCE CRM - Mémoire de fin d’études
+Chapitre 3 : Réalisation, implémentation et validation 
+3.1 Introduction 
+Ce chapitre présente la mise en œuvre technique de l’application AGCE CRM. Il décrit l’envi-
+ronnement de développement, les technologies utilisées, l’organisation du code, les principaux 
+modules implémentés, les flux applicatifs et les tests effectués. L’objectif est de montrer com-
+ment la conception présentée précédemment a été traduite en une solution fonctionnelle. [10]-
+[13], [16], [24] 
+La réalisation s’appuie sur une architecture web moderne composée d’un frontend React, d’un 
+backend Express.js, d’un serveur Socket.IO et d’une base de données MySQL. Cette combinai-
+son permet de répondre aux exigences d’interactivité, de sécurité, de persistance et de communi-
+cation en temps réel. [10]-[13], [24] 
+3.2 Environnement de développement 
+Tableau 3.1 - Environnement logiciel du projet 
+3.3 Organisation du frontend 
+Le frontend est organisé autour de composants React réutilisables et de pages adaptées aux rôles. 
+Le fichier principal configure les routes et le toaster global. Les composants de protection de 
+route vérifient le token, le rôle et l’état du compte. Les dashboards, les pages de tickets, les con-
+tacts, les messages et les meetings sont séparés afin de faciliter la maintenance. [10], [24], [16] 
+Plusieurs hooks React sont utilisés tel que useState qui permet de gérer les états locaux comme 
+les formulaires, les listes chargées, l’onglet actif, les erreurs ou les états de chargement. Aussi, 
+Élément Technologie / Outil Rôle dans le projet
+Frontend React 19 + Vite Construction de l’interface et compilation rapide
+Backend Node.js + Express.js API REST et middlewares de sécurité
+Base de données MySQL + mysql2 Persistance relationnelle
+Temps réel Socket.IO Rooms de discussion et notifications
+Authentification JWT + bcrypt Session applicative et protection des mots de passe
+E-mails ImapFlow + mailparser Import des e-mails clients
+UI CSS, Tailwind utilitaire, lucide-react, Recharts Design, icônes et visualisation des données
+Tests manuels Navigateur, Postman, scénarios métier Validation fonctionnelle et sécurité
+23
+AGCE CRM - Mémoire de fin d’études
+useEffect permet de charger les données depuis l’API, vérifier périodiquement le compte actif, 
+rejoindre une room ou appliquer le thème. Pour ce qui est de useRef, celui-ci conserve des 
+références techniques comme la zone de messages, les menus déroulants ou la connexion Sock-
+et.IO. Puis, useMemo optimise les calculs de filtrage et les indicateurs des dashboards. Enfin, 
+useCallback stabilise certaines fonctions utilisées dans les effets ou passées aux composants en-
+fants. [10] 
+L’interface adopte un style dashboard moderne avec navigation latérale, cartes analytiques, 
+tableaux, formulaires, messages d’erreur et notifications. Les éléments visibles sont adaptés au 
+rôle afin de réduire les risques d’action interdite. [6], [10] 
+3.4 Organisation du backend 
+Le backend suit une organisation par modules. Chaque module contient généralement des routes, 
+un controller, un service et un repository. Les routes définissent les endpoints et appliquent les 
+middlewares. Les controllers reçoivent les requêtes et renvoient les réponses. Les services conti-
+ennent les règles métier. Les repositories exécutent les requêtes SQL. [11], [13], [16] 
+Cette architecture sépare les responsabilités et rend le code plus lisible. Par exemple, la règle qui 
+interdit la modification d’un ticket résolu ne doit pas être dispersée dans l’interface. En effet, elle 
+doit être centralisée dans le backend afin d’être appliquée même en cas de requête manuelle. [6], 
+[11], [16] 
+3.5 Authentification et contrôle d’accès 
+Le processus de connexion commence par la saisie du nom d’utilisateur et du mot de passe. Le 
+backend recherche l’employé en base, vérifie le mot de passe avec bcrypt, contrôle que le 
+compte est actif, puis génère un JWT contenant les informations nécessaires à la session. Le 
+frontend conserve le token et l’envoie dans l’en-tête Authorization de chaque requête protégée. 
+[7], [18], [19], [27] 
+Le middleware d’authentification refuse les requêtes sans token, avec token expiré, avec token 
+invalidé ou avec compte inactif. Les middlewares de rôle vérifient ensuite si l’utilisateur possède 
+24
+AGCE CRM - Mémoire de fin d’études
+le niveau d’accès requis. Cette approche applique le principe selon lequel l’authentification ne 
+suffit pas. En effet, un utilisateur connecté doit encore être autorisé pour chaque action sensible. 
+[5]-[7], [18], [27] 
+La page Access Denied est utilisée lorsque l’utilisateur tente d’accéder à une section interdite. 
+Elle affiche un message clair et redirige l’utilisateur vers la section correspondant à son rôle. [6], 
+[16] 
+3.6 Module de gestion des tickets 
+Le ticket constitue l’entité centrale du système. Un ticket représente une demande ou un incident 
+rattaché à une organisation et éventuellement à un contact. Lorsqu’il est créé, son statut initial est 
+Pending. Le statut Open n’est pas conservé comme état de travail, car la création du ticket suffit 
+à établir son existence. Les statuts utilisés sont Pending, In Progress, Warning, Critical et Re -
+solved. [16] 
+Le Service Delivery peut créer un ticket, le consulter, l’affecter à IT ou PKI et suivre son évolu-
+tion. L’affectation est historisée afin de conserver une trace de la décision et de l’acteur qui l’a 
+effectuée. Les services IT et PKI ne voient que les tickets qui relèvent de leur périmètre. Le man-
+ager consulte l’ensemble des tickets en lecture afin de superviser l’activité. [5], [6], [16] 
+Lorsqu’un ticket passe à l’état Resolved, certaines actions deviennent interdites tels que l’ajout 
+de nouveaux commentaires, la réouverture et la modification métier. Cette règle renforce la co-
+hérence du workflow et évite que l’historique soit modifié après clôture. [15], [16] 
+3.7 Module de commentaires et de messagerie temps réel 
+Les commentaires permettent de conserver des notes structurées dans l’historique d’un ticket 
+tandis que la messagerie de room permet une communication plus fluide et dynamique entre les 
+membres autorisés autour d’un ticket. [16] 
+Socket.IO est utilisé pour la communication temps réel. Lorsqu’un utilisateur ouvre une conver-
+sation, le frontend rejoint la room correspondant au ticket. Les messages envoyés sont traités 
+25
+AGCE CRM - Mémoire de fin d’études
+puis diffusés aux membres autorisés. Les tables de lecture permettent de distinguer les messages 
+lus et non lus par l’employé. [12], [16] 
+Ce choix améliore la collaboration, car les échanges restent associés au ticket concerné au lieu 
+d’être dispersés dans des outils externes. Il facilite également la supervision, car le manager peut 
+consulter l’historique sans modifier les données. [12], [16] 
+ 
+Figure 3.1 - Séquence de création et d’affectation d’un ticket 
+26
+AGCE CRM - Mémoire de fin d’études
+ 
+Figure 3.2 - Séquence de messagerie temps réel 
+3.8 Modules organisations et contacts 
+Les modules organisations et contacts permettent de représenter les clients institutionnels et leurs 
+interlocuteurs. Le Service Delivery peut créer et modifier les organisations et les contacts, tandis 
+que le manager dispose d’un accès en lecture. Cette séparation correspond à la logique métier, le 
+SD prépare et maintient les informations opérationnelles alors que le manager les supervise. [5], 
+[16] 
+L’association entre organisation, contact et ticket permet de retrouver rapidement le contexte 
+d’une demande : organisme concerné, personne de contact, historique des tickets et e-mails 
+éventuellement associés. Cette centralisation constitue une valeur importante du système CRM. 
+[16] 
+3.9 Module e-mails clients 
+Le projet intègre un service d’import d’e-mails destiné à la boîte du Service Delivery. La syn-
+chronisation IMAP permet de récupérer les messages reçus, puis mailparser extrait les informa-
+27
+AGCE CRM - Mémoire de fin d’études
+tions utiles comme le sujet, le corps et les pièces jointes. Les e-mails admis sont enregistrés dans 
+la base de données et peuvent être consultés par le SD. [25], [26], [16] 
+Cette fonctionnalité rapproche le système d’une logique Email-to-Ticket. Elle réduit le risque de 
+perte de demandes importantes et permet de transformer un échange reçu par e-mail en informa-
+tion exploitable dans le circuit interne de traitement. [25], [26], [16] 
+3.10 Module meetings 
+Les meetings représentent les réunions de suivi liées à des tickets ou à des décisions opéra -
+tionnelles. Le Service Delivery peut organiser une réunion, désigner des participants et conserver 
+les informations utiles. Le manager peut consulter les meetings et répondre lorsqu’un meeting lui 
+est personnellement affecté, selon les règles prévues. [16] 
+L’intérêt de ce module est de relier les décisions de suivi aux tickets et aux acteurs concernés. Il 
+évite de séparer la discussion de la demande initiale et contribue à la traçabilité globale du 
+traitement. [15], [16] 
+3.11 Dashboards et indicateurs analytiques 
+Les dashboards fournissent une synthèse visuelle de l’activité. Ils peuvent afficher le nombre de 
+tickets par statut, les tickets critiques ou en alerte, les tendances de création et de résolution, les 
+délais moyens, l’activité des employés, les messages et les meetings. Le manager bénéficie d’une 
+vision globale en lecture seule, tandis que les autres rôles disposent d’indicateurs adaptés à leur 
+périmètre. [14], [16] 
+L’objectif d’un dashboard n’est pas seulement esthétique. Il doit aider à comprendre rapidement 
+la charge, les retards, les priorités et les zones de blocage. Dans le contexte de l’AGCE, cette vis-
+ibilité contribue à mieux piloter l’activité de support et à identifier les incidents nécessitant une 
+attention particulière. [14], [15] 
+3.12 Tests et validation 
+La validation du système repose sur des scénarios fonctionnels et des tests de sécurité. Les tests 
+fonctionnels vérifient que chaque module réalise correctement les opérations attendues. Les tests 
+28
+AGCE CRM - Mémoire de fin d’études
+de sécurité vérifient que les rôles, les comptes inactifs, les URL interdites et les tickets résolus 
+sont correctement protégés. [6], [7], [15], [16] 
+Tableau 3.2 - Jeux de tests fonctionnels et sécurité 
+3.13 Résultats obtenus 
+Les résultats obtenus montrent que l’application permet de centraliser les informations relatives 
+aux organisations, contacts, tickets, commentaires, messages et meetings. Le workflow principal 
+allant de la création d’un ticket à son affectation puis à son traitement est opérationnel. Le con-
+trôle d’accès par rôle limite les actions visibles et les actions réellement autorisées côté serveur. 
+[16] 
+Le système améliore également la traçabilité par la conservation des messages, commentaires, 
+affectations et activités. Les dashboards fournissent une lecture synthétique de l’activité et per-
+mettent au manager de superviser les opérations sans effectuer de CRUD métier. Les tests d’ac-
+cès montrent que les tentatives d’accès à une section interdite sont bloquées ou redirigées. [5], 
+[6], [14], [16] 
+Ces résultats confirment l’adéquation générale entre la solution réalisée et les besoins identifiés. 
+Toutefois, ils doivent être consolidés par une phase de test utilisateur plus large et par des 
+mesures quantitatives en conditions réelles. [15] 
+Scénario Acteur Résultat attendu Statut
+Connexion avec compte actif Tous Accès à la section du rôle Validé
+Connexion avec compte inactif Tous Refus et redirection Validé
+Accès manuel à une URL interdite PKI / IT / Manager Page Access Denied ou redirection Validé
+Création d’organisation SD Organisation enregistrée Validé
+Création de contact SD Contact rattaché à une organisation Validé
+Création de ticket SD Ticket Pending créé Validé
+Affectation à IT ou PKI SD Historique d’affectation enregistré Validé
+Ajout de commentaire sur ticket Acteur autorisé Action refusée Validé
+Envoi de message dans une room Acteur autorisé Message diffusé en temps réel Validé
+Consultation dashboard manager Manager Lecture sans CRUD Validé
+29
+AGCE CRM - Mémoire de fin d’études
+Tableau 3.3 - Synthèse des résultats par objectif 
+3.14 Limites du travail 
+Même si le système répond aux objectifs principaux définis dans le cadre du projet, certaines 
+limites doivent être signalées afin d’identifier les améliorations possibles dans une perspective 
+d’évolution. [17] 
+La première limite concerne l’absence de mesures en environnement de production sur une 
+longue durée. Les gains en matière de temps de traitement, de productivité et d’efficacité opéra-
+tionnelle devront être évalués à partir d’un volume réel de tickets, avec des utilisateurs représen-
+tatifs et des scénarios d’usage proches du contexte métier réel. [15] 
+La deuxième limite concerne l’industrialisation de la solution. Pour garantir un déploiement 
+durable et fiable, il serait nécessaire de renforcer certains aspects techniques tels que les sauveg-
+ardes, les tests automatisés, le monitoring, la gestion distribuée des sessions, ainsi que l’authen-
+tification multifactorielle. De plus, la blacklist des tokens stockée en mémoire peut convenir à 
+une version prototype, mais une version de production devrait reposer sur un stockage persistant 
+ou sur une stratégie de révocation plus robuste. [6], [7], [15], [18], [27] 
+La troisième limite concerne la traçabilité des actions utilisateurs. Le système ne permet pas en-
+core de suivre de manière détaillée l’ensemble des opérations effectuées par chaque employé, 
+telles que le clic sur un bouton, l’envoi d’un message, la modification d’un ticket ou toute autre 
+interaction significative avec l’application. De même, aucun mécanisme complet d’enreg -
+istrement des logs n’est encore mis en place, ce qui limite les possibilités d’audit, de supervision, 
+de diagnostic et d’analyse des incidents. [15] 
+La quatrième limite concerne la gestion initiale des mots de passe. Lorsqu’un administrateur crée 
+un mot de passe pour un employé, le système ne propose pas encore de page obligeant l’utilisa-
+teur à modifier ce mot de passe lors de sa première connexion. Cette fonctionnalité serait impor-
+Objectif initial Niveau d’atteinte Observation
+Centraliser les demandes et tickets Atteint Tickets, organisations, contacts et e-mails sont 
+Séparer les responsabilités Atteint RBAC appliqué frontend et backend
+Assurer la traçabilité Partiellement à fortement atteint Commentaires, messages, meetings et affectations 
+Faciliter la collaboration Atteint Rooms Socket.IO associées aux tickets
+Superviser l’activité Atteint Dashboard manager en lecture seule
+Renforcer la sécurité Atteint avec perspectives JWT, bcrypt, comptes actifs, blocage des routes
+Industrialiser complètement la solution À poursuivre Tests automatisés, MFA, monitoring et sauvegardes 
+30
+AGCE CRM - Mémoire de fin d’études
+tante afin de renforcer la confidentialité des comptes et d’améliorer la sécurité du processus d’au-
+thentification. [7], [27] 
+Enfin, la cinquième limite concerne l’évolution fonctionnelle du système. Les règles métier peu-
+vent évoluer selon les décisions internes de l’AGCE. Il sera donc nécessaire de maintenir une 
+conception flexible et évolutive permettant l’ajout de nouveaux statuts, de types de tickets, de 
+SLA, de notifications avancées, de rapports détaillés ou d’autres fonctionnalités adaptées aux 
+besoins futurs de l’organisme. [14], [16] 
+3.15 Synthèse du chapitre 
+Ce chapitre a présenté la réalisation technique du système AGCE CRM, ses modules principaux 
+et sa validation. L’application concrétise la conception proposée en fournissant une interface par 
+rôle, une API sécurisée, une base relationnelle, une messagerie temps réel et des dashboards ana-
+lytiques. [16] 
+31
+AGCE CRM - Mémoire de fin d’études
+Conclusion générale et perspectives 
+Ce mémoire a présenté la conception et la réalisation d’une application web sécurisée de gestion 
+des tickets et de la relation client pour l’Autorité Gouvernementale de Certification Électronique. 
+Le projet répond à une problématique concrète qui consiste à centraliser les demandes, structurer 
+le suivi des incidents, organiser les responsabilités entre les rôles internes et offrir une visibilité 
+claire sur l’activité de support. [16] 
+L’analyse du contexte a montré que l’AGCE évolue dans un environnement où la sécurité, la 
+traçabilité et la souveraineté des données occupent une place centrale. L’étude de l’existant a 
+permis de constater que les solutions de ticketing disponibles peuvent être puissantes, mais 
+qu’elles ne répondent pas toujours directement aux exigences spécifiques d’un organisme public 
+chargé de la confiance numérique. Cette analyse justifie la réalisation d’une solution dédiée, 
+adaptée aux rôles et aux flux propres à l’AGCE. [1]-[4], [20]-[23] 
+La phase de conception a permis de formaliser les acteurs, les besoins fonctionnels et non fonc-
+tionnels, les règles d’habilitation, l’architecture applicative, le modèle de données et les principes 
+de sécurité. La matrice RBAC constitue un élément central du projet, car elle traduit la sépara-
+tion des responsabilités entre ADMIN, SD, Manager, PKI et IT. Les diagrammes UML et le 
+modèle relationnel montrent que la solution a été conçue de manière structurée avant sa mise en 
+œuvre. [5], [6], [8], [13] 
+La réalisation technique a abouti à une application web fondée sur React, Vite, Express.js, Sock-
+et.IO et MySQL. Le système prend en charge l’authentification JWT, le cryptage des mots de 
+passe, la vérification des comptes actifs, la protection des routes, la gestion des organisations et 
+contacts, la création et l’affectation des tickets, les commentaires, les rooms de messages, les 
+meetings, l’import des e-mails et les tableaux de bord. Ces modules permettent de couvrir le cy-
+cle de vie d’une demande depuis sa réception jusqu’à sa résolution. [10]-[13], [16], [18], [19], 
+[24] 
+Les tests réalisés montrent que les fonctionnalités principales sont opérationnelles et que les rè-
+gles de sécurité essentielles sont prises en compte. Le système bloque les accès interdits, refuse 
+32
+AGCE CRM - Mémoire de fin d’études
+les comptes inactifs, limite les actions selon le rôle et empêche les modifications non autorisées 
+sur les tickets résolus. Il améliore ainsi la cohérence du workflow, la traçabilité des opérations et 
+la visibilité managériale. [5]-[7], [15] 
+Même si le système répond aux objectifs principaux du projet, certaines limites restent à 
+améliorer. Il nécessite notamment une évaluation en environnement réel afin de mesurer ses per-
+formances et ses gains opérationnels. Son industrialisation pourrait aussi être renforcée par des 
+tests automatisés, des sauvegardes, un monitoring, une meilleure gestion des sessions et une 
+traçabilité plus complète des actions utilisateurs. Enfin, des évolutions futures peuvent être en-
+visagées, comme le changement obligatoire du mot de passe à la première connexion, l’ajout de 
+SLA, de notifications avancées et de rapports détaillés. [7], [15], [18], [27] 
+Les perspectives d’amélioration concernent également l’ajout de SLA, la génération automatique 
+de rapports, l’export des statistiques, l’intégration de filtres analytiques plus avancés et la mise 
+en place d’un journal d’audit plus détaillé. À terme, AGCE CRM peut évoluer vers une plate -
+forme interne complète de pilotage du support et de la relation client, adaptée aux exigences d’un 
+organisme public stratégique. [14]-[16] 
+En définitive, ce travail démontre la pertinence d’une solution web locale, modulaire et sécurisée 
+pour la gestion des tickets et de la relation client au sein de l’AGCE. Sa valeur ajoutée réside 
+dans l’alignement entre le besoin métier, la conception logicielle, la sécurité applicative et la su-
+pervision opérationnelle. [16] 
+33
+AGCE CRM - Mémoire de fin d’études
+Bibliographie 
+[1] Journal officiel de la République algérienne démocratique et populaire, Loi n° 15-04 du 11 Rabie Ethani 1436 correspondant 
+au 1er février 2015 fixant les règles générales relatives à la signature et à la certification électroniques, Journal officiel n° 06, 10 
+février 2015. Disponible : https://www.joradp.dz/FTP/jo-francais/2015/F2015006.pdf 
+[2] Journal officiel de la République algérienne démocratique et populaire, Décret exécutif n° 16-135 du 17 Rajab 1437 corre -
+spondant au 25 avril 2016 fixant la nature, la composition, l’organisation et le fonctionnement de l’Autorité Gouvernementale de 
+Certification Électronique, Journal officiel n° 26, 28 avril 2016. Disponible : https://www.joradp.dz/FTP/jo-francais/2016/
+F2016026.pdf 
+[3] Journal officiel de la République algérienne démocratique et populaire, Loi n° 18-07 du 25 Ramadhan 1439 correspondant au 
+10 juin 2018 relative à la protection des personnes physiques dans le traitement des données à caractère personnel, Journal offi-
+ciel n° 34, 10 juin 2018. Disponible : https://www.joradp.dz/FTP/jo-francais/2018/F2018034.pdf 
+[4] Autorité Gouvernementale de Certification Électronique, Présentation de l’AGCE. Disponible : https://www.agce.dz/presenta-
+tion-de-lagce/ 
+[5] R. S. Sandhu, E. J. Coyne, H. L. Feinstein et C. E. Youman, "Role-Based Access Control Models," Computer, vol. 29, n° 2, 
+pp. 38-47, 1996. doi: 10.1109/2.485845. 
+[6] OWASP Foundation, Authorization Cheat Sheet, OWASP Cheat Sheet Series. Disponible : https://cheatsheetseries.owasp.org/
+cheatsheets/Authorization_Cheat_Sheet.html 
+[7] OWASP Foundation, Authentication Cheat Sheet, OWASP Cheat Sheet Series. Disponible : https://cheatsheet -
+series.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html 
+[8] Object Management Group, OMG Unified Modeling Language Specification, version 2.5.1, 2017. Disponible : https://
+www.omg.org/spec/UML/2.5.1/ 
+[9] K. Beck et al., Manifesto for Agile Software Development, Agile Alliance, 2001. Disponible : https://agilemanifesto.org/ 
+[10] Meta Open Source, React Documentation: Hooks and API Reference. Disponible : https://react.dev/reference/react 
+[11] Express.js, Express - Node.js Web Application Framework Documentation. Disponible : https://expressjs.com/ 
+34
+AGCE CRM - Mémoire de fin d’études
+[12] Socket.IO, Socket.IO Documentation, version 4. Disponible : https://socket.io/docs/v4/ 
+[13] Oracle, MySQL 8.4 Reference Manual. Disponible : https://dev.mysql.com/doc/refman/8.4/en/ 
+[14] International Organization for Standardization, ISO/IEC 25010:2023 - Systems and software engineering - Systems and 
+software Quality Requirements and Evaluation (SQuaRE) - Product quality model, 2023. Disponible : https://www.iso.org/stan-
+dard/78176.html 
+[15] J. Task Force, Security and Privacy Controls for Information Systems and Organizations, NIST Special Publication 800-53 
+Revision 5, National Institute of Standards and Technology, 2020. doi: 10.6028/NIST.SP.800-53r5. 
+[16] Documentation technique interne du projet AGCE CRM, description fonctionnelle, architecture, règles métier, modules et 
+scénarios de validation, document de projet, 2025/2026. 
+[17] Mme MEZZI, Guide complet : Règles et principes de la rédaction scientifique - Mémoire de fin d’études et présentation 
+PowerPoint, Département d’Informatique, Université Saad Dahleb Blida 1, 2024/2025. 
+[18] OWASP Foundation, JSON Web Token Cheat Sheet for Java, OWASP Cheat Sheet Series. Disponible : https://cheatsheet-
+series.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html 
+[19] N. Provos et D. Mazières, "A Future-Adaptable Password Scheme," dans Proceedings of the 1999 USENIX Annual Techni-
+cal Conference, 1999. Disponible : https://www.usenix.org/legacy/event/usenix99/provos/provos.pdf 
+[20] Atlassian, Jira Service Management Cloud Documentation. Disponible : https://support.atlassian.com/jira-service-manage-
+ment-cloud/resources/ 
+[21] Zendesk, Zendesk Documentation and Administrator Guide. Disponible : https://support.zendesk.com/hc/en-us 
+[22] GLPI Project, GLPI Documentation and IT Service Desk Features. Disponible : https://help.glpi-project.org/ 
+[23] osTicket, osTicket Documentation, version 1.17.7. Disponible : https://docs.osticket.com/ 
+[24] Vite Team, Vite Documentation. Disponible : https://vite.dev/guide/ 
+35
+AGCE CRM - Mémoire de fin d’études
+[25] M. Crispin, Internet Message Access Protocol - Version 4rev1, RFC 3501, Internet Engineering Task Force, 2003. doi: 
+10.17487/RFC3501. 
+[26] Nodemailer Project, Mailparser Documentation. Disponible : https://nodemailer.com/extras/mailparser/ 
+[27] P. A. Grassi et al., Digital Identity Guidelines: Authentication and Lifecycle Management, NIST Special Publication 
+800-63B, National Institute of Standards and Technology, 2017. doi: 10.6028/NIST.SP.800-63b.
+36

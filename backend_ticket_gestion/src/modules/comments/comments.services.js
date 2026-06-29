@@ -12,7 +12,7 @@ async function listComments(ticketId, user) {
     }
     return commentsRepository.getCommentsByTicketId(ticketId);
 }
-async function addComment(ticketId, userId, text, user) {
+async function addComment(ticketId, userId, text, user, isResolutionProposal = false) {
     const ticket = await ticketRepository.getTicketById(ticketId);
     if (!ticket) {
         throw new Error('Ticket not found');
@@ -31,7 +31,10 @@ async function addComment(ticketId, userId, text, user) {
             throw new Error('Unauthorized: You do not belong to the assigned service or have Service Delivery authorization.');
         }
     }
-    const commentId = await commentsRepository.createComment(ticketId, userId, text);
+    if (isResolutionProposal && !['IT', 'PKI'].includes(user.service)) {
+        throw new Error('Only assigned technical services can submit a resolution proposal.');
+    }
+    const commentId = await commentsRepository.createComment(ticketId, userId, text, isResolutionProposal);
     return commentsRepository.getCommentById(commentId);
 }
 module.exports = {

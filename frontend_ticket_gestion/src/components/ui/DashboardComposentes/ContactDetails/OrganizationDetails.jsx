@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ArrowLeft, 
   Building2, 
@@ -30,6 +31,9 @@ function OrganizationDetails({ organization, onBack, readOnly = false }) {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const renderViewportModal = (content) => (
+    typeof document === 'undefined' ? content : createPortal(content, document.body)
+  );
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
@@ -510,7 +514,7 @@ function OrganizationDetails({ organization, onBack, readOnly = false }) {
       </div>
 
       {/* Create / Edit / View Contact Modal */}
-      {isModalOpen && (
+      {isModalOpen && renderViewportModal(
         <>
           <div className="modal-overlay" onClick={() => setIsModalOpen(false)} />
           <div className="modal">

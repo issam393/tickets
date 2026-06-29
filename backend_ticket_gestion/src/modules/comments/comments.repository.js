@@ -1,8 +1,8 @@
 const db = require('../../config/db');
-async function createComment(ticketId, userId, text) {
+async function createComment(ticketId, userId, text, isResolutionProposal = false) {
     const [result] = await db.execute(
-        `INSERT INTO comments (ticket_id, user_id, text) VALUES (?, ?, ?)`,
-        [ticketId, userId, text]
+        `INSERT INTO comments (ticket_id, user_id, text, is_resolution_proposal) VALUES (?, ?, ?, ?)`,
+        [ticketId, userId, text, Boolean(isResolutionProposal)]
     );
     return result.insertId;
 }

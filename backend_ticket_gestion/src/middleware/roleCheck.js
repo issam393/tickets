@@ -38,7 +38,7 @@ const requireAdmin = roleCheck(['ADMIN']);
 const requireServiceDeliveryOrManager = roleCheck(['SD', 'Manager']);
 const requireServiceDeliveryOrManagerOrSupport = roleCheck(['SD', 'Manager', 'PKI', 'IT']);
 
-// Ticket access guard – checks role + resolved status
+
 const requireTicketAccess = (ticketRepository) => {
     return async (req, res, next) => {
         try {

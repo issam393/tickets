@@ -11,6 +11,8 @@ async function initializeMessagingSchema() {
             issue_type VARCHAR(255) NOT NULL,
             issue_level VARCHAR(255) NOT NULL,
             issue_description TEXT NOT NULL,
+            resolution TEXT NULL,
+            resolution_comment_id INT NULL,
             status ENUM('Pending', 'In Progress', 'Warning', 'Critical', 'Resolved') DEFAULT 'Pending',
             created_by INT NOT NULL,
             createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -26,6 +28,19 @@ async function initializeMessagingSchema() {
         await db.execute("ALTER TABLE tickets MODIFY COLUMN status ENUM('Pending', 'In Progress', 'Warning', 'Critical', 'Resolved') DEFAULT 'Pending'");
     } catch (err) {
         console.warn("Could not normalize ticket status column:", err.message);
+    }
+
+    try {
+        const [resolutionColumns] = await db.execute("SHOW COLUMNS FROM tickets LIKE 'resolution'");
+        if (resolutionColumns.length === 0) {
+            await db.execute("ALTER TABLE tickets ADD COLUMN resolution TEXT NULL AFTER issue_description");
+        }
+        const [resolutionCommentColumns] = await db.execute("SHOW COLUMNS FROM tickets LIKE 'resolution_comment_id'");
+        if (resolutionCommentColumns.length === 0) {
+            await db.execute("ALTER TABLE tickets ADD COLUMN resolution_comment_id INT NULL AFTER resolution");
+        }
+    } catch (err) {
+        console.warn("Could not add ticket resolution column:", err.message);
     }
 
     await db.execute(
@@ -80,32 +95,6 @@ async function initializeMessagingSchema() {
     }
 
     await db.execute(
-        `CREATE TABLE IF NOT EXISTS activity_logs (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            actor_employee_id INT NULL,
-            actor_role VARCHAR(50) NULL,
-            action_type VARCHAR(80) NOT NULL,
-            entity_type VARCHAR(80) NOT NULL,
-            entity_id INT NULL,
-            description TEXT NOT NULL,
-            metadata JSON NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (actor_employee_id) REFERENCES employees(id) ON DELETE SET NULL
-        )`
-    );
-
-    const [activityIndexes] = await db.execute(
-        `SHOW INDEX FROM activity_logs WHERE Key_name = 'idx_activity_logs_created_at'`
-    );
-
-    if (!activityIndexes.length) {
-        await db.execute(
-            `CREATE INDEX idx_activity_logs_created_at
-             ON activity_logs (created_at)`
-        );
-    }
-
-    await db.execute(
         `CREATE TABLE IF NOT EXISTS messages (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
             room_id INT NOT NULL,
@@ -146,11 +135,21 @@ async function initializeMessagingSchema() {
             ticket_id INT NOT NULL,
             user_id INT NOT NULL,
             text TEXT NOT NULL,
+            is_resolution_proposal BOOLEAN NOT NULL DEFAULT FALSE,
             createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
             FOREIGN KEY (user_id) REFERENCES employees(id) ON DELETE CASCADE
         )`
     );
+
+    try {
+        const [proposalColumns] = await db.execute("SHOW COLUMNS FROM comments LIKE 'is_resolution_proposal'");
+        if (proposalColumns.length === 0) {
+            await db.execute("ALTER TABLE comments ADD COLUMN is_resolution_proposal BOOLEAN NOT NULL DEFAULT FALSE AFTER text");
+        }
+    } catch (err) {
+        console.warn("Could not add resolution proposal column to comments:", err.message);
+    }
 
     await db.execute(
         `CREATE TABLE IF NOT EXISTS meetings (
@@ -303,4 +302,3 @@ async function initializeMessagingSchema() {
 }
 
 module.exports = initializeMessagingSchema;
-

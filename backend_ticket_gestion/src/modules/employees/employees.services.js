@@ -1,6 +1,6 @@
 const employeeRepository = require('./employees.repository');
 const bcrypt = require('bcrypt');
-const { createEmployeeValidation, updateEmployeeValidation } = require('./employees.validation');
+const { createEmployeeValidation, updateEmployeeValidation, passwordValidation } = require('./employees.validation');
 const { disconnectEmployee } = require('../../socket');
 
 const createEmployee = async (employeeData) => {
@@ -39,9 +39,19 @@ const getEmployeeById = async (id) => {
     return employee;
 };
 
+const changeEmployeePassword = async (id, password) => {
+    await passwordValidation(password);
+    const employee = await employeeRepository.findById(id);
+    if (!employee) {
+        throw new Error('Employee not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return await employeeRepository.updatePassword(id, hashedPassword);
+};
 
 const deleteEmployee = async (id) => {
     return await employeeRepository.Delete(id);
 };
 
-module.exports = { createEmployee, editEmployee, getAllEmployees, getEmployeeById, deleteEmployee };
+module.exports = { createEmployee, editEmployee, getAllEmployees, getEmployeeById, changeEmployeePassword, deleteEmployee };

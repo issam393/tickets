@@ -87,4 +87,32 @@ const updateEmployeeValidation = (data) => {
     return true;
 };
 
-module.exports = { createEmployeeValidation, updateEmployeeValidation };
+const passwordValidation = (password) => {
+    const errors = [];
+
+    if (!password) {
+        errors.push('Password is required');
+    } else {
+        const checks = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[@$!%*?&+=-_]/.test(password)
+        };
+
+        if (!checks.length) errors.push('Password must be at least 8 characters');
+        if (!checks.uppercase) errors.push('Password must contain at least one uppercase letter');
+        if (!checks.lowercase) errors.push('Password must contain at least one lowercase letter');
+        if (!checks.number) errors.push('Password must contain at least one number');
+        if (!checks.special) errors.push('Password must contain at least one special character (@$!%*?&+=-_)');
+    }
+
+    if (errors.length > 0) {
+        throw new Error(errors.join('. '));
+    }
+
+    return true;
+};
+
+module.exports = { createEmployeeValidation, updateEmployeeValidation, passwordValidation };

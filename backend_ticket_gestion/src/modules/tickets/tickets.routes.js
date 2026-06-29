@@ -2,7 +2,6 @@ const express = require('express');
 const auth = require('../../middleware/auth');
 const {
     requireServiceDelivery,
-    requireServiceDeliveryOrManager,
     requireTicketAccess,
     blockResolvedTicket,
 } = require('../../middleware/roleCheck');
@@ -53,6 +52,16 @@ router.put(
     requireTicketAccess(ticketRepository),
     blockResolvedTicket(),
     ticketController.updateTicketStatus
+);
+
+// Select the final resolution comment and close the ticket - Service Delivery only.
+router.put(
+    '/:ticketId/resolve',
+    auth,
+    requireServiceDelivery,
+    requireTicketAccess(ticketRepository),
+    blockResolvedTicket(),
+    ticketController.resolveTicket
 );
 
 

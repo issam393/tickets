@@ -61,6 +61,13 @@ async function importGmailInbox() {
         },
         logger: false
     });
+    let connectionError = null;
+
+    // IMAP connections may be reset by Gmail or the network. Handle the event so
+    // a mail synchronization failure cannot terminate the whole API process.
+    client.on('error', (error) => {
+        connectionError = error;
+    });
 
     const result = { imported: 0, ignoredUnknownSender: 0, skippedDuplicates: 0, skippedInvalid: 0 };
     try {
@@ -111,6 +118,11 @@ async function importGmailInbox() {
     } finally {
         await client.logout().catch(() => {});
     }
+
+    if (connectionError) {
+        throw connectionError;
+    }
+
     return result;
 }
 

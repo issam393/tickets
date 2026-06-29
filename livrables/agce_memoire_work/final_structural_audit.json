@@ -1,0 +1,27 @@
+{
+  "file_exists": true,
+  "size_kb": 499.6,
+  "paragraphs": 220,
+  "tables": 15,
+  "embedded_media": 12,
+  "headings": 45,
+  "main_sections": [
+    "Dédicaces",
+    "Remerciements",
+    "Résumé",
+    "ملخص",
+    "Abstract",
+    "Table des matières",
+    "Liste des figures",
+    "Liste des tableaux",
+    "Liste des abréviations",
+    "Introduction générale",
+    "Chapitre I - Contexte général et état de l'art",
+    "Chapitre II - Analyse et conception du système",
+    "Chapitre III - Réalisation, validation et résultats",
+    "Conclusion générale",
+    "Perspectives futures",
+    "Bibliographie",
+    "Annexes"
+  ]
+}

@@ -783,6 +783,33 @@ html[data-theme='light'] .ticket-detail-page .comment-resolved-notice {
   border-color: rgba(16, 185, 129, 0.2);
 }
 
+html[data-theme='light'] .ticket-detail-page .resolution-comment-mode,
+html[data-theme='light'] .ticket-detail-page .resolution-mode-notice,
+html[data-theme='light'] .ticket-detail-page .resolution-comment-btn {
+  color: #047857;
+  background: #ecfdf5;
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
+html[data-theme='light'] .ticket-detail-page .resolution-comment-textarea {
+  color: var(--text-primary);
+  background: #ffffff;
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+html[data-theme='light'] .ticket-detail-page .resolution-proposal-message,
+html[data-theme='light'] .ticket-detail-page .selected-resolution-message {
+  background: #f0fdf4;
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
+html[data-theme='light'] .ticket-detail-page .resolution-proposal-badge,
+html[data-theme='light'] .ticket-detail-page .select-resolution-btn {
+  color: #047857;
+  background: #ecfdf5;
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
 /* Profile uses clean white surfaces in light mode, without tinted panels. */
 html[data-theme='light'] .profile-page-main-container {
   color: var(--text-primary);

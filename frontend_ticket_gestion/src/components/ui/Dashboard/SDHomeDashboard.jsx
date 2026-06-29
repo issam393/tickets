@@ -49,6 +49,10 @@ function getStatusClass(status = 'Pending') {
   return status.toLowerCase().replace(/\s+/g, '-');
 }
 
+function getSeverityClass(level = 'Normal') {
+  return String(level || 'normal').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function EmptyRow({ colSpan, children }) {
   return (
     <tr>
@@ -323,7 +327,7 @@ export default function SDHomeDashboard({
           </div>
         </section>
 
-        <section className="sd-panel sd-tickets-panel">
+        <section className="sd-panel sd-tickets-panel sd-assignment-queue-panel">
           <div className="sd-panel-header">
             <div>
               <h2 className="sd-panel-title">Tickets Waiting For Assignment</h2>
@@ -355,7 +359,9 @@ export default function SDHomeDashboard({
                       <td className="sd-ticket-id">{ticket.request_code || `TKT-${ticket.id}`}</td>
                       <td>{ticket.issue_type || ticket.application}</td>
                       <td className="sd-muted">{ticket.organization || 'Not linked'}</td>
-                      <td><span className={`sd-sev-badge sd-sev-${String(ticket.issue_level || '').toLowerCase()}`}>{ticket.issue_level || 'Normal'}</span></td>
+                      <td>
+                        <span className={`sd-sev-badge sd-assignment-severity-text sd-sev-${getSeverityClass(ticket.issue_level)}`}>{ticket.issue_level || 'Normal'}</span>
+                      </td>
                       <td><span className={`sd-status-badge sd-status-${getStatusClass(ticket.status)}`}>{ticket.status}</span></td>
                       <td className="sd-muted">{safeNumber(ticket.pendingHours)}h</td>
                       <td>
@@ -409,8 +415,7 @@ export default function SDHomeDashboard({
           </div>
         </section>
 
-        <section className="sd-row">
-          <div className="sd-panel sd-alert-card">
+        <section className="sd-panel sd-tickets-panel sd-delayed-tickets-panel">
             <div className="sd-panel-header">
               <div>
                 <h2 className="sd-panel-title">Delayed Tickets</h2>
@@ -418,23 +423,36 @@ export default function SDHomeDashboard({
               </div>
               <AlertTriangle size={16} className="sd-panel-icon" />
             </div>
-            <ul className="sd-alert-list">
-              {delayedTickets.length === 0 ? (
-                <li className="sd-alert-item sd-sev-medium">No delayed tickets right now.</li>
-              ) : delayedTickets.map((ticket) => (
-                <li key={ticket.id} className={`sd-alert-item sd-sev-${String(ticket.issue_level || 'medium').toLowerCase()}`}>
-                  <div className="sd-alert-icon"><AlertTriangle size={14} /></div>
-                  <div className="sd-alert-body">
-                    <p className="sd-alert-msg">{ticket.request_code || `Ticket #${ticket.id}`} · {ticket.issue_type}</p>
-                    <div className="sd-alert-meta">
-                      <span className={`sd-sev-badge sd-sev-${String(ticket.issue_level || 'medium').toLowerCase()}`}>{ticket.issue_level || 'Medium'}</span>
-                      <span className="sd-muted">{ticket.assignedService} · {safeNumber(ticket.ageHours)}h</span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <div className="sd-table-wrap">
+              <table className="sd-ticket-table">
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Issue</th>
+                    <th>Severity</th>
+                    <th>Team</th>
+                    <th>Delayed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {delayedTickets.length === 0 ? (
+                    <EmptyRow colSpan={5}>No delayed tickets right now.</EmptyRow>
+                  ) : delayedTickets.map((ticket) => (
+                    <tr key={ticket.id} className="sd-ticket-row">
+                      <td className="sd-ticket-id">{ticket.request_code || `Ticket #${ticket.id}`}</td>
+                      <td>{ticket.issue_type || ticket.application}</td>
+                      <td>
+                        <span className={`sd-sev-badge sd-sev-${getSeverityClass(ticket.issue_level || 'medium')}`}>{ticket.issue_level || 'Medium'}</span>
+                      </td>
+                      <td>
+                        <span className={`sd-team-badge sd-team-${String(ticket.assignedService || 'unassigned').toLowerCase()}`}>{ticket.assignedService || 'Unassigned'}</span>
+                      </td>
+                      <td className="sd-muted">{safeNumber(ticket.ageHours)}h</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
         </section>
 
       </div>

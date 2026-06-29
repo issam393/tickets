@@ -446,17 +446,153 @@
   color: #fff !important;
   opacity: 0.95;
 }
-.sd-sev-critical { color: #fc8181; }
+.sd-sev-critical,
+.sd-sev-critical-issue-classification { color: #fc8181; }
+.sd-sev-urgent   { color: #f59e0b; }
+.sd-sev-important { color: #eab308; }
 .sd-sev-high     { color: #f6ad55; }
 .sd-sev-warning  { color: #f6ad55; }
 .sd-sev-medium   { color: #63b3ed; }
+.sd-sev-level-1-assistance { color: #60a5fa; }
+.sd-sev-level-1-assistance-urgent { color: #fb7185; }
+.sd-sev-level-1-assistance-important { color: #f6ad55; }
+.sd-sev-level-2-resolution { color: #818cf8; }
 .sd-sev-low      { color: #48bb78; }
 .sd-sev-badge.sd-sev-external { background: rgba(252,129,129,0.85); }
-.sd-sev-badge.sd-sev-critical { background: rgba(252,129,129,0.85); }
+.sd-sev-badge.sd-sev-critical,
+.sd-sev-badge.sd-sev-critical-issue-classification { background: rgba(252,129,129,0.85); }
+.sd-sev-badge.sd-sev-urgent   { background:  rgba(246,173,85,0.12); color: #1f1300 !important; }
+.sd-sev-badge.sd-sev-important { background:  rgba(246,173,85,0.12); color: #1f1300 !important; }
 .sd-sev-badge.sd-sev-high     { background: rgba(246,173,85,0.85); }
 .sd-sev-badge.sd-sev-warning  { background: rgba(246,173,85,0.85); }
 .sd-sev-badge.sd-sev-medium   { background: rgba(99,179,237,0.85); }
+.sd-sev-badge.sd-sev-level-1-assistance { background: rgba(37,99,235,0.9); }
+.sd-sev-badge.sd-sev-level-1-assistance-urgent { background: rgba(251,113,133,0.88); }
+.sd-sev-badge.sd-sev-level-1-assistance-important { background: rgba(246,173,85,0.88); color: #1f1300 !important; }
+.sd-sev-badge.sd-sev-level-2-resolution { background: rgba(129,140,248,0.9); }
 .sd-sev-badge.sd-sev-low      { background: rgba(72,187,120,0.85); }
+
+.sd-assignment-queue-panel .sd-ticket-table,
+.sd-delayed-tickets-panel .sd-ticket-table {
+  table-layout: fixed;
+}
+
+.sd-assignment-queue-panel .sd-ticket-table td,
+.sd-delayed-tickets-panel .sd-ticket-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sd-assignment-queue-panel .sd-ticket-table th:nth-child(1),
+.sd-assignment-queue-panel .sd-ticket-table td:nth-child(1),
+.sd-delayed-tickets-panel .sd-ticket-table th:nth-child(1),
+.sd-delayed-tickets-panel .sd-ticket-table td:nth-child(1) {
+  width: 160px;
+}
+
+.sd-assignment-queue-panel .sd-ticket-table th:nth-child(4),
+.sd-assignment-queue-panel .sd-ticket-table td:nth-child(4),
+.sd-delayed-tickets-panel .sd-ticket-table th:nth-child(3),
+.sd-delayed-tickets-panel .sd-ticket-table td:nth-child(3) {
+  width: 210px;
+}
+
+.sd-assignment-queue-panel .sd-ticket-table th:nth-child(7),
+.sd-assignment-queue-panel .sd-ticket-table td:nth-child(7) {
+  width: 116px;
+}
+
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-critical,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-critical-issue-classification {
+  background: rgba(252,129,129,0.85);
+  color: #fff !important;
+}
+
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-urgent,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-level-1-assistance-urgent,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-high,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-warning {
+  background: rgba(245,158,11,0.7);
+  color: #1f1300 !important;
+}
+
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-important,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-level-1-assistance-important {
+  background: rgba(234,179,8,0.8);
+  color: #1f1300 !important;
+}
+
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-level-1-assistance,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-medium {
+  background: rgba(37,99,235,0.9);
+  color: #fff !important;
+}
+
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-level-2-resolution,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-external,
+.sd-delayed-tickets-panel .sd-sev-badge.sd-sev-external-vendor-support {
+  background: rgba(79,70,229,0.9);
+  color: #fff !important;
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text {
+  display: inline-flex;
+  align-items: center;
+  min-width: 88px;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  opacity: 1;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-external,
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-external-vendor-support,
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-critical,
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-critical-issue-classification {
+  background: rgba(252,129,129,0.85);
+  border-color: rgba(254,202,202,0.45);
+  color: #fff !important;
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-urgent {
+  background: rgba(252,129,129,0.85);
+  border-color: rgba(254,205,211,0.45);
+  color: #fff !important;
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-important,
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-high,
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-warning {
+  background: #f59e0b;
+  border-color: rgba(253,230,138,0.5);
+  color: #1f1300 !important;
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-level-1-assistance,
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-medium {
+  background: #2563eb;
+  border-color: rgba(191,219,254,0.45);
+  color: #fff !important;
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-level-2-resolution {
+  background: #4f46e5;
+  border-color: rgba(199,210,254,0.45);
+  color: #fff !important;
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-low {
+  background: #16a34a;
+  border-color: rgba(187,247,208,0.45);
+  color: #fff !important;
+}
+
+.sd-assignment-queue-panel .sd-assignment-severity-text.sd-sev-normal {
+  background: #475569;
+  border-color: rgba(203,213,225,0.35);
+  color: #f8fafc !important;
+}
 
 /* ========= MESSAGES ========= */
 .sd-msg-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }

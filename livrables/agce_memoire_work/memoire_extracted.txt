@@ -1,0 +1,298 @@
+République algérienne démocratique et populaire Ministère de l’Enseignement supérieur et de la Recherche scientifique
+Université Saad Dahleb – Blida 1
+Faculté des Sciences Département d’Informatique
+Mémoire de fin d’études
+Présenté en vue de l’obtention du diplôme de
+Informatique
+Option : Systèmes d’information et ingénierie logicielle (ISIL)
+Conception et réalisation d’une application de
+gestion des incidents et des tickets des services de l’AGCE
+Préparé par :
+Mr. Laceb Karim Mr. Ouladsmane Issam
+Encadrants: Mrs. Arkam Meriem Mr. Lekhchine Sami
+Année universitaire : 2025/2026
+Dédicaces Dédicace de Mr. Laceb Karim
+Je dédie ce travail à mes parents, pour leur soutien constant, leurs sacrifices et la confiance qu’ils m’ont accordée tout au long de mes études. À mes frères et sœurs, ainsi qu’à mes proches et amis, pour leurs encouragements, leur bienveillance et leur présence dans les moments décisifs.
+– Karim Laceb
+Dédicace de Mr. Ouladsmane Issam
+Je dédie ce mémoire à ma famille, et en particulier à mes parents, pour leur patience, leurs sacrifices et leur soutien indéfectible. À mes proches, mes amis et mes camarades d’études, pour leur solidarité et leur encouragement qui ont accompagné ce parcours.
+– Ouladsmane Issam
+Remerciements
+Nous tenons avant tout à exprimer notre profonde gratitude à Dieu le Tout-Puissant, qui nous a accordé la force, la patience, la persévérance et la volonté nécessaires pour mener à bien ce travail. Nous adressons nos sincères remerciements à Mme Arkam Meriem, notre encadrante universitaire, pour son accompagnement attentif, ses orien-tations méthodologiques, sa disponibilité ainsi que pour la pertinence et la rigueur de ses remarques. Ses conseils précieux ont grandement contribué à l’amélioration et à l’aboutissement de ce mémoire. Nous exprimons également notre profonde reconnais-sance à M. Lekhchine Sami, notre encadrant au sein de l’Autorité Gouvernementale de Certification Électronique, pour son accueil, sa confiance, son accompagnement pro-fessionnel et ses conseils techniques. Son encadrement nous a permis de mieux com-prendre les exigences du contexte professionnel et d’enrichir notre travail sur les plans pratique et technique. Nos remerciements s’adressent aussi à l’ensemble du person-nel de l’AGCE, pour leur accueil, leur collaboration et les informations mises à notre disposition durant la réalisation de ce projet. Leur contribution a été d’une grande importance pour la compréhension du fonctionnement de l’organisme et pour la con-crétisation de notre solution. Enfin, nous remercions respectueusement les membres du jury pour l’honneur qu’ils nous font en acceptant d’évaluer ce mémoire. Nous leur exprimons notre reconnaissance pour le temps consacré à l’examen de notre travail ainsi que pour l’intérêt porté à notre projet. Que toutes les personnes ayant contribué, de près ou de loin, à la réalisation de ce mémoire trouvent ici l’expression de notre sincère gratitude.
+– Karim Laceb, Issam Ouladsmane
+Résumé
+Ce mémoire présente la conception et la réalisation d’une application web sécurisée de gestion des tickets et de la relation client destinée à l’Autorité Gouvernementale de Certification Électronique (AGCE). Le projet répond à un besoin de centralisation des demandes clients, de suivi des incidents techniques, de traçabilité des actions et de séparation claire des responsabilités entre les différents acteurs internes. La solution proposée permet de gérer les organisations, les contacts, les tickets, les commentaires, les messages en temps réel, les réunions de suivi et les tableaux de bord analytiques. L’application adopte une architecture client-serveur fondée sur React et Vite pour l’interface, Express.js pour l’API REST, Socket.IO pour les échanges temps réel et MySQL pour la persistance des données. La sécurité est assurée par l’authentification JWT, le hachage des mots de passe avec bcrypt, la vérification de l’état actif des comptes et le contrôle d’accès basé sur les rôles. Le système vise ainsi à améliorer l’organisation du support, la visibilité managériale et la conformité aux contraintes de souveraineté des données. Mots-clés : AGCE, CRM, gestion de tickets, RBAC, React, Express.js, MySQL, Socket.IO, sécurité applicative.
+ﻣﻠﺨﺺ
+يعرﺽ هذﺍ ﺍلبحث تصميم ﻭﺇنجاﺯ تطبيق ﻭيب ﺁمن لإﻝﺩﺍﺭﺓ ﺍلتذﺍكر ﻭعلاقة ﺍلعماﻝء لفائدﺓ سلطة ﺍلتصديق ﺍﺇللكترﻭني ﺍلحكومية.
+يهدﻑ ﺍلمشرﻭﻉ ﺇلى مركزية طلباﺕ ﺍلعماﻝء، متابعة ﺍلحوﺍﺩﺙ ﺍلتقنية، ضماﻥ تتبع ﺍلعملياﺕ، ﻭتنظيم ﺍلصالحياﺕ بين مختلف ﺍﺃﻝﺩﻭﺍﺭ ﺩﺍخل ﺍلمؤسسة.
+يعتمد ﺍلنظاﻡ على ﻭﺍجهة React ﻭ Vite، ﻭخاﺩﻡ Express.js، ﻭقاعدﺓ بياناﺕ MySQL، مع ﺍستعماﻝ Socket.IO للتوﺍصل ﺍﺁلني.
+تعتمد ﺍلحماية على ﺭموﺯ JWT، ﻭتشفير كلماﺕ ﺍلمرﻭﺭ باستعماﻝ bcrypt، ﻭﺍلتحقق من حالة ﺍلحساﺏ، ﻭتطبيق ﺍلتحكم في ﺍلوصوﻝ حسب ﺍلدﻭﺭ.
+يساهم ﺍلنظاﻡ في تحسين تنظيم ﺍلدعم، ﻭتوفير ﺭﺅية تحليلية للمدير، ﻭتعزيز ﺍحترﺍﻡ متطلباﺕ ﺃمن ﻭسياﺩﺓ ﺍلبياناﺕ.
+.Socket.IO ،MySQL ،Express.js ،React ،RBAC ،CRM ﺍلتذﺍكر، ﺇﺩﺍﺭﺓ ،AGCE :ﺍلمفتاحية ﺍلكلماﺕ
+Abstract
+This thesis presents the design and implementation of a secure web-based ticket man-agement and customer relationship management application for the Governmental Electronic Certification Authority (AGCE). The project addresses the need to central-ize customer requests, monitor technical incidents, ensure traceability of operations, and separate responsibilities between internal roles. The proposed solution manages organizations, contacts, tickets, comments, real-time messages, follow-up meetings and analytical dashboards. The application follows a client-server architecture based on React and Vite for the frontend, Express.js for the REST API, Socket.IO for real-time communication and MySQL for data persistence. Security is ensured through JWT au-thentication, password hashing with bcrypt, active account verification and role-based access control. The system aims to improve support organization, managerial visibility and compliance with data sovereignty requirements. Keywords: AGCE, CRM, ticket management, RBAC, React, Express.js, MySQL, Socket.IO, application security.
+Contents
+Dédicaces i
+List of Figures
+Organigramme du département des infrastructures de gestion de clés au sein de l’AGCE. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+Cycle Agile et découpage en sprints. . . . . . . . . . . . . . . . . . . . 8
+Prototype UI/UX sous Figma. . . . . . . . . . . . . . . . . . . . . . . . 9
+Schéma de gestion du code avec Git Flow sur GitHub. . . . . . . . . . 9
+Diagramme des cas d’utilisation 12
+Diagramme des cas d’utilisation 15
+Diagramme de classes 15
+Diagramme de séquence : Processus d’authentification sécurisée 16
+Diagramme de séquence : Création et assignation d’un ticket 16
+Contrats d’API et intégration système. 18
+Organigramme hiérarchique de l’Autorité Gouvernementale de Certifi-cation Électronique (AGCE). 25
+List of Tables
+Comparaison des approches SaaS et On-Premise . . . . . . . . . . . . . 6
+Synthèse de la solution proposée (1.7) . . . . . . . . . . . . . . . . . . 7
+Liste detaillee des cas d’utilisation du systeme 13
+Matrice détaillée du contrôle d’accès basé sur les rôles (RBAC) 14
+Répartition des cas d’utilisation par acteur 15
+Comparaison entre bases relationnelles et non relationnelles 17
+Environnement matériel comparatif de développement 19
+Synthese des outils et dependances du projet (Partie 1 : Serveur) 20
+Synthese des outils et dependances du projet (Partie 2 : Client) 21
+Synthèse des produits, solutions et services de l’AGCE 26
+Liste des abréviations
+AGCE Autorité Gouvernementale de Certification Électronique
+CRM Customer Relationship Management
+CRL Certificate Revocation List
+ISIL Ingénierie des Systèmes d’Informations et Logiciels
+LRAO Local Registration Authority Officer
+MFA Multi-Factor Authentication OCSP Online Certificate Status Protocol PFE Projet de Fin d’Études
+PKI Public Key Infrastructure RBAC Role-Based Access Control SSO Single Sign-On
+TLS/SSL Transport Layer Security / Secure Sockets Layer
+VPN Virtual Private Network
+Introduction générale
+La transformation numérique des organisations publiques impose la mise en place de systèmes d’information capables d’assurer simultanément l’efficacité opérationnelle, la sécurité des données, la traçabilité des échanges et la maîtrise des responsabilités. Dans un contexte institutionnel lié à la confiance numérique, ces exigences deviennent encore plus importantes, car la qualité du traitement des demandes internes et externes influence directement la continuité du service et la fiabilité des opérations.
+L’Autorité Gouvernementale de Certification Électronique occupe une position stratégique dans l’écosystème numérique algérien. Elle intervient dans un domaine où la certification électronique, la signature numérique, l’authentification et la sécurisation des échanges nécessitent une organisation rigoureuse. Les demandes clients, les inci-dents techniques, les échanges internes et les décisions de suivi doivent être traités dans un cadre cohérent, sécurisé et suffisamment traçable pour permettre une supervision efficace.
+Le problème étudié dans ce mémoire concerne la gestion des tickets et de la re-lation client au sein de l’AGCE. Les méthodes traditionnelles ou dispersées de suivi des demandes peuvent entraîner une perte d’information, une difficulté de priorisation, des retards d’affectation, une traçabilité insuffisante et une visibilité limitée pour le responsable de supervision. Le besoin dépasse donc la simple création d’un formulaire de ticket : il s’agit de concevoir un système complet permettant de structurer le cycle de vie d’une demande depuis sa réception jusqu’à sa résolution.
+La problématique centrale peut être formulée ainsi : comment concevoir et réaliser une application web sécurisée permettant à l’AGCE de centraliser la gestion des or-ganisations, des contacts, des tickets, des messages, des réunions et des indicateurs de supervision, tout en garantissant une séparation stricte des rôles, une traçabilité des actions et un contrôle d’accès fiable ?
+Pour répondre à cette problématique, ce projet vise plusieurs objectifs. Il s’agit d’abord d’analyser le contexte organisationnel et les besoins métier. Il s’agit ensuite de modéliser les acteurs, les fonctionnalités, les flux et les données du système. Le troisième objectif est de réaliser une application web exploitable, fondée sur une architecture moderne articulant un frontend React, un backend Express.js, une base MySQL et une communication temps réel avec Socket.IO. Enfin, le projet vise à valider la solution par des scénarios fonctionnels et des tests de sécurité applicative.
+Le présent mémoire est organisé en trois sections. La première section présente le contexte général, l’organisme d’accueil, la problématique et l’étude critique de l’ex-istant. La deuxième section expose l’analyse des besoins et la conception du système
+à travers les acteurs, les exigences, les diagrammes UML, l’architecture et le modèle de données. La troisième section décrit l’environnement de réalisation, les choix d’im-plémentation, les principaux modules développés, les tests effectués et l’évaluation de la solution. La conclusion générale synthétise les apports du travail, ses limites et les perspectives d’amélioration.
+SECTION I
+Contexte Général et Revue de la Littérature
+SECTION II
+Organisme d’Accueil : L’AGCE
+L’Autorité Gouvernementale de Certification Électronique (AGCE) est un organisme public algérien chargé de la gestion de la certification et de la signature électroniques dans le secteur gouvernemental. Créée dans le cadre de la loi 15-04 relative à la signature et à la certification électroniques et placée sous la tutelle du ministère de la Poste et des Télécommunications, l’AGCE joue un rôle central dans le développement de la confiance numérique en Algérie.
+Grâce à l’utilisation des technologies cryptographiques et des infrastructures à clés publiques (PKI), elle assure l’authentification des utilisateurs, la sécurisation des échanges électroniques et la protection de l’intégrité des documents numériques. Dans un contexte marqué par l’accélération de la transformation numérique, l’AGCE con-tribue à la dématérialisation des services administratifs, à la modernisation des insti-tutions publiques et au renforcement de la cybersécurité nationale. Aujourd’hui, elle constitue l’un principal acteurs de la transition numérique en Algérie en favorisant la mise en place d’un environnement numérique sécurisé, fiable et juridiquement reconnu.
+SECTION III
+Historique
+Contexte mondial
+Avec l’essor du commerce électronique et la digitalisation des services dans les années 2000-2010, de nombreux pays ont mis en place des infrastructures à clés publiques (PKI) ainsi que des autorités de certification. Ces structures ont été créées afin de
+garantir la confiance numérique, sécuriser les transactions électroniques et encadrer juridiquement les signatures électroniques.
+2015, Fondation du cadre légal
+La loi n◦ 15-04 du 1er février 2015 relative à la signature et à la certification électron-iques établit le cadre juridique de la confiance numérique en Algérie. Elle reconnaît la valeur légale de la signature électronique au même titre que la signature manuscrite et définit les règles générales de son utilisation.
+2016, Création de l’AGCE
+Le décret exécutif n◦ 16-135 du 25 avril 2016 porte création de l’Autorité Gouverne-mentale de Certification Électronique (AGCE). Cette autorité est chargée de fournir les services de certification électronique au profit des administrations publiques et des organismes gouvernementaux, dans un cadre sécurisé et conforme aux normes interna-tionales.
+2018-2020, Mise en place de l’infrastructure nationale
+Durant cette période, l’AGCE met en place son schéma national de certification élec-tronique ainsi que son infrastructure PKI conforme aux standards internationaux. Elle définit également les procédures techniques et organisationnelles nécessaires à la con-formité et à la préparation des certifications internationales.
+2021, Reconnaissance internationale — Certification Web-Trust
+En mai 2021, l’AGCE obtient les certifications internationales WebTrust for CA, Web-Trust BR SSL et WebTrust for Code Signing. Cette reconnaissance confirme la confor-mité de ses services aux standards internationaux et permet son intégration progressive dans les écosystèmes mondiaux de confiance numérique tels que ceux de Microsoft, Google et Mozilla.
+2022-2026, Modernisation et expansion des services
+Le décret exécutif n◦ 22-110 de 2022 définit les principes de tarification des services de certification électronique et renforce la régulation du secteur. En 2026, la loi n◦ 26-02 élargit le champ d’action de l’AGCE aux services de confiance pour les transactions
+électroniques et à l’identification électronique, marquant une évolution majeure vers un écosystème numérique plus complet et aligné sur les standards internationaux.
+SECTION IV
+Services concernés par le projet
+Direction des infrastructures de gestion de clés
+Cette direction veille à l’application des politiques de certification électronique au sein de la branche gouvernementale. Elle enregistre et traite les demandes de certificats électroniques destinés aux tiers de confiance et aux différents intervenants concernés. Elle fournit les services de certification électronique et assure la gestion complète du cycle de vie des certificats qu’elle émet. Elle assure le service de publication des cer-tificats électroniques, notamment ceux de l’Autorité nationale, et fournit un service d’horodatage garantissant la validité et la traçabilité des opérations électroniques.
+Elle est structurée en deux sous-directions complémentaires :
+Sous-direction de l’enregistrement (Service Delivery) :
+réception, validation et enregistrement des demandes de certificats ;
+remise aux utilisateurs finaux de la branche gouvernementale, ne dépendant pas d’un tiers de confiance, des dispositifs de création ou de vérification des signatures électroniques ainsi que des informations utiles à leur exploitation
+;
+support et assistance technique aux utilisateurs de la branche gouvernemen-tale ;
+réception, validation et enregistrement des demandes de révocation des cer-tificats ;
+mise à disposition des outils de signature et d’authentification pour les util-isateurs concernés.
+Sous-direction d’exploitation des infrastructures de gestion de clés (PKI) :
+génération des certificats électroniques destinés aux tiers de confiance et aux intervenants de la branche gouvernementale ;
+gestion complète du cycle de vie des certificats électroniques émis ;
+publication des certificats électroniques officiels, des listes de révocation et des certificats révoqués pour garantir la sécurité et la transparence du système ;
+vérification de la validité des certificats électroniques et service d’horodatage
+;
+personnalisation des dispositifs de création et de vérification des signatures électroniques pour certains utilisateurs de la branche gouvernementale.
+Figure 1: Organigramme du département des infrastructures de gestion de clés au sein de l’AGCE.
+SECTION V
+La Problèmatique
+Le défi rencontré au sein de l’AGCE, en tant qu’unique prestataire de services de certi-fication électronique en Algérie gérant une volumétrie colossale d’organisations clientes, réside dans l’optimisation de la gestion des incidents techniques et des ressources hu-maines. Actuellement, l’utilisation d’outils traditionnels et de canaux manuels limite l’efficacité opérationnelle, restreint le suivi et la traçabilité des demandes, et complexifie le suivi global du support technique.
+En effet, la gestion des demandes clients et des incidents techniques peut devenir complexe lorsque les informations sont réparties entre plusieurs canaux : e-mails, dis-cussions informelles, fichiers, appels ou notes séparées. Cette dispersion rend difficile la reconstitution de l’historique d’un problème, la mesure du temps de traitement et la compréhension de la responsabilité de chaque acteur.
+Dans le cas de l’AGCE, le problème principal réside dans la nécessité de centraliser les demandes tout en conservant une séparation stricte des rôles. Le Service Delivery doit pouvoir créer les organisations, contacts et tickets, puis affecter les incidents aux services compétents. Les services PKI et IT doivent traiter uniquement les tickets qui leur sont accessibles. Le manager doit superviser l’activité sans réaliser d’opérations de
+modification métier. L’administrateur doit gérer les comptes employés sans interférer avec le traitement opérationnel des tickets.
+Le système doit donc répondre à quatre enjeux : centralisation de l’information, traçabilité du workflow, sécurisation des accès et visibilité analytique. Ces enjeux structurent l’ensemble de la conception proposée.
+SECTION VI
+Étude de l’existant et Justification Technologique
+Le marché actuel regorge de solutions logicielles dédiées à la gestion des services infor-matiques (ITSM) et au ticketing. Cependant, leur adoption brute par une autorité de certification soulève des contraintes majeures. Les plateformes leaders fonctionnant en mode SaaS (Software as a Service), telles que Jira Service Management1 ou Zendesk2, imposent un hébergement des données sur des serveurs Cloud internationaux. Pour l’AGCE, institution garante de la confiance numérique de l’État algérien, le transfert hors du territoire national de journaux d’erreurs d’infrastructures PKI ou d’informa-tions sur les agents publics vers des serveurs tiers constitue une violation directe des exigences de souveraineté et des dispositions de la loi n◦ 18-07 relative à la protection des personnes physiques dans le traitement des données à caractère personnel.
+D’un autre côté, les solutions Open Source déployables localement (On-Premise), telles que GLPI3 ou osTicket4, répondent au critère de localisation des données mais s’avèrent trop génériques. Elles ne permettent pas d’intégrer nativement les règles de cloisonnement hiérarchique ultra-spécifiques de la cryptographie, ni de cartographier la complexité des profils légaux (comme les rôles de LRAO ou de Représentants légaux) propres à l’écosystème de la certification.
+1https://www.atlassian.com/software/jira/service-management 2https://www.zendesk.fr/
+3https://glpi-project.org/ 4https://osticket.com/
+Table 1: Comparaison des approches SaaS et On-Premise
+Cependant, l’adoption directe d’une solution existante présente des limites. Les solutions SaaS peuvent être difficiles à aligner avec les exigences de souveraineté et de confidentialité propres à une autorité de certification. Les solutions open source déployables localement sont plus favorables au contrôle des données, mais elles restent généralement génériques et nécessitent des adaptations importantes pour représenter précisément les rôles, les règles métier, les affectations spécifiques, la messagerie de rooms, les meetings et les tableaux de bord adaptés à l’AGCE. Cette analyse conduit à privilégier une solution dédiée, conçue autour des besoins exacts de l’organisme et de la logique de séparation des responsabilités.
+SECTION VII
+La Solution Proposée
+Pour répondre à ces problématiques, ce projet propose la conception et le développe-ment d’une application web centralisée de CRM et de gestion de tickets, installée localement. Cette plateforme permettra de stocker et d’ordonner efficacement les inci-dents soumis, de centraliser les flux de communication et d’offrir une visibilité globale sur les performances de l’activité à travers des indicateurs calculés à partir du système.
+Table 2: Synthèse de la solution proposée (1.7)
+La valeur ajoutée du projet réside dans son adaptation au contexte de l’AGCE. Contrairement à un outil générique, l’application impose les règles métier dans le code backend, structure la base de données selon les entités réelles de l’organisation et fournit une interface orientée vers les rôles internes.
+SECTION VIII
+Analyse et Conception
+SECTION IX
+Méthodologie Utilisée
+Afin de mener à bien ce projet, nous avons adopté des approches et des outils modernes garantissant une gestion efficace du cycle de vie du développement logiciel.
+Méthodologie de développement (Agile)
+Le développement a été conduit selon une approche Agile, structurée en sprints de deux semaines, accompagnés de suivis réguliers et de livraisons progressives. L’approche Agile est une méthode de gestion de projet et de développement logiciel basée sur des cycles courts et itératifs appelés sprints, permettant de livrer progressivement des fonctionnalités fonctionnelles et de s’adapter rapidement aux changements.
+Figure 2: Cycle Agile et découpage en sprints.
+Prototypage et validation UI/UX (Figma)
+Le développement a commencé par la réalisation d’un prototype fonctionnel sous Figma5, permettant d’identifier les fonctionnalités clés, de valider les interfaces et de s’accorder sur les parcours utilisateurs. Figma est une plateforme de conception UI/UX qui permet de créer des maquettes, des prototypes interactifs et des systèmes de design directement depuis un navigateur, facilitant la collaboration en temps réel.
+5https://www.figma.com/
+Figure 3: Prototype UI/UX sous Figma.
+Gestion de code et collaboration (GitHub)
+L’équipe a utilisé GitHub6 comme plateforme principale de gestion du code source et de collaboration, reposant sur le système de contrôle de version Git7. Une stratégie de branchement structurée (Git Flow) a été adoptée.
+Figure 4: Schéma de gestion du code avec Git Flow sur GitHub.
+SECTION X
+Analyse des Besoins
+L’analyse des besoins définit ce que le système doit accomplir pour résoudre les prob-lèmes soulevés par la gestion manuelle au sein de l’AGCE, tout en respectant les exi-gences techniques.
+Besoins Fonctionnels
+Les besoins fonctionnels décrivent les actions spécifiques que le système doit exécuter :
+Gestion des Utilisateurs : Tableaux de bord personnalisés par rôle (Admin, PKI, Support, Manager).
+Gestion des Tickets : Création, classification (Niveau 1/2, type d’application) et cycle de vie.
+Email-to-Ticket : Analyse et conversion automatique des e-mails entrants.
+6https://github.com/ 7https://git-scm.com/
+CRM intégré : Gestion des organisations et profils légaux (LRAO, Représen-tants).
+Communication : Messagerie interne par fils de discussion et pièces jointes.
+Gestion des Rendez-vous : Planification et suivi des réunions d’assistance.
+Suivi d’activité : Monitoring de l’activité des agents et indicateurs de perfor-mance.
+Besoins Non Fonctionnels
+Les besoins non fonctionnels définissent les critères de qualité, de performance et de sécurité :
+Sécurité et Contrôle d’Accès : Restriction des données sensibles via un sys-tème RBAC.
+Traçabilité et Auditabilité : Historique complet des échanges et des change-ments d’états.
+Ergonomie (UI/UX) : Interface moderne, responsive et incluant un mode sombre.
+Maintenabilité : Architecture modulaire basée sur des composants React.
+Souveraineté des Données : Déploiement obligatoirement local (On-Premise).
+Identification des acteurs
+Afin de clarifier les habilitations et les prérogatives de chaque utilisateur au sein de la plateforme, nous avons défini cinq catégories d’acteurs principaux. Chaque profil dispose d’un périmètre d’action et de responsabilités bien spécifiques :
+ADMIN (Administration des employés) : Cet acteur est le garant de la gestion des accès au système. Sa responsabilité unique et principale consiste à créer, modifier, désactiver et gérer les comptes des employés de l’application.
+SD – Service Delivery (Pilotage opérationnel) : Il s’agit de l’acteur central du traitement de niveau 1. Il est chargé de piloter l’activité opérationnelle au quotidien. Ses responsabilités englobent la gestion complète des organisations clientes et de leurs contacts, la création et le suivi des tickets, ainsi que leurs affectations. De plus, il gère la planification des réunions (meetings), les flux de messages internes et la réception des e-mails entrants.
+Manager (Supervision) : Ce profil possède un rôle de supervision et de suivi des performances. Afin de ne pas interférer avec le traitement technique, ses responsabilités se limitent à la consultation en lecture seule des tableaux de bord (dashboards) analytiques, de l’état des tickets, de l’annuaire des contacts, ainsi que de l’historique des messages et des réunions.
+PKI (Traitement spécialisé) : Représentant le support de niveau 2 expert, ce profil technique est dédié aux incidents cryptographiques. Sa responsabilité est de traiter exclusivement les tickets d’incidents qui sont affectés au service PKI. Il interagit avec les autres équipes uniquement via les espaces de discussion (rooms) pour lesquels il possède une autorisation.
+IT (Traitement technique) : Intervenant également en tant que support de niveau 2, ce profil est dédié aux incidents informatiques, systèmes ou réseaux. Sa responsabilité consiste à analyser et résoudre les tickets explicitement affectés au service IT, et à participer aux échanges techniques dans les espaces de discussion (rooms) autorisés.
+N.B. : En ingénierie logicielle classique, les acteurs d’un système modélisent générale-ment des profils d’utilisateurs individuels plutôt que des départements ou des services entiers. Toutefois, compte tenu de la nature extrêmement sensible des activités de l’Autorité (infrastructures à clés publiques, cryptographie) et des exigences strictes en matière de confidentialité imposées par l’organisme d’accueil, il nous a été impossible de cartographier publiquement la granularité exacte des rôles individuels internes. Par conséquent, une abstraction au niveau du département (ex. équipe PKI, équipe IT) a été adoptée de manière assumée pour modéliser nos acteurs. Cette démarche garan-tit la sécurité organisationnelle en masquant la chaîne de traitement humaine interne, tout en permettant de définir efficacement les logiques de contrôle d’accès (RBAC) de l’application.
+Cas d’utilisation
+Diagramme des cas d’utilisation
+Figure 5: Diagramme des cas d’utilisation
+Identification des usecase
+Table 3: Liste detaillee des cas d’utilisation du systeme
+Definition des habilitations RBAC
+Afin de formaliser les niveaux d’acces et les droits d’action par profil, une matrice d’habilitation a ete etablie pour les principaux modules du systeme.
+Table 4: Matrice détaillée du contrôle d’accès basé sur les rôles (RBAC)
+Cette matrice clôture la section Analyse des Besoins et prépare la transition vers la section suivante consacrée à la conception et aux diagrammes.
+SECTION XI
+Conception et Diagrammes
+Modélisation UML
+Pour formaliser la conception, nous avons utilisé UML8 (Unified Modeling Language), le standard de modélisation visuelle pour concevoir et documenter les systèmes logiciels.
+Diagramme des Cas d’Utilisation
+Le tableau ci-dessous résume les différents acteurs du système et les cas d’utilisation qui leur sont associés.
+8https://www.uml.org/
+Table 5: Répartition des cas d’utilisation par acteur La figure suivante illustre graphiquement ces interactions :
+Figure 6: Diagramme des cas d’utilisation
+Diagramme de Classes
+La structure statique de notre système et les entités manipulées sont représentées par le diagramme de classes suivant : Image manquante
+Figure 7: Diagramme de classes
+Diagrammes de Séquence
+Les diagrammes de séquence modélisent les interactions dynamiques entre le client (Frontend), le serveur (API) et la base de données, illustrant le cycle de vie d’une transaction.
+Flux d’Authentification
+La sécurité étant critique pour l’AGCE, le processus d’authentification s’appuie sur le hachage des mots de passe (Bcrypt) et l’émission d’un jeton d’accès chiffré (JWT) qui
+accompagnera toutes les futures requêtes du client.
+POST /api/auth/login
+SELECT utilisateur
+Retour (hash + statut)
+6. HTTP 200 (Token JWT)
+Figure 8: Diagramme de séquence : Processus d’authentification sécurisée
+Flux de Création de Ticket
+Ce diagramme illustre le parcours de la requête HTTP soumise par un agent. Le flux traverse les middlewares de sécurité avant de déclencher des transactions en base de données.
+Soumis-sion formulaire
++ Envoi du Token JWT
+8. HTTP 201 (Created)
+6. INSERT (Ticket, Room, Logs)
+7. Succès des transactions
+Figure 9: Diagramme de séquence : Création et assignation d’un ticket
+Schéma relationnel (Base de données)
+Cette section introduit le modèle relationnel retenu pour l’application. L’implémenta-tion physique s’appuiera sur le SGBD MySQL9.
+Table 6: Comparaison entre bases relationnelles et non relationnelles
+Synthèse : Le choix d’une base relationnelle s’impose dans ce projet car les données sont fortement structurées (employés, rôles, tickets, messages, rendez-vous) et nécessi-tent des relations explicites, des contraintes d’intégrité et des transactions fiables. Le modèle SQL facilite également le reporting indispensable aux indicateurs de l’AGCE.
+À partir du diagramme de classes, nous avons dérivé le modèle logique de données.
+Voici le schéma relationnel (PK soulignée, #FK préfixée) :
+SERVICES ( id, name )
+EMPLOYEES ( id, firstName, lastName, email, userName, password, status, createdAt, updatedAt, #service_id )
+ORGANIZATIONS ( id, name, createdAt, updatedAt )
+TICKETS ( id, request_code, organization_id, client_id, application, issue_type, issue_level, issue_description, status, created_by, createdAt, updatedAt, #or-ganization_id, #created_by )
+ROOMS ( id, ticket_id, name, room_type, severity, allowed_services, create-dAt, #ticket_id )
+MESSAGES ( id, room_id, sender_id, text, createdAt, #room_id, #sender_id
+)
+9https://www.mysql.com/
+MEETINGS ( id, title, start_time_utc, end_time_utc, organizer_id, invi-tee_id, ticket_id, meeting_room_id, location, description, status, rejection_rea-son, createdAt, updatedAt, #organizer_id, #invitee_id, #ticket_id, #meet-ing_room_id )
+MEETING_ROOMS ( id, meeting_id, meeting_date, createdAt, #meet-ing_id )
+Contrats d’API et intégration système
+Enfin, afin d’assurer la cohérence des échanges entre le frontend et le backend du système, des contrats d’API (schémas et endpoints) ont été définis en fin de conception.
+Figure 10: Contrats d’API et intégration système.
+SECTION XII
+Réalisation, Implémentation et Tests
+SECTION XIII
+Introduction
+Dans ce chapitre, la réalisation du système présenté au chapitre précédent est discutée. Les outils utilisés pour la création de l’application sont détaillés, ainsi que l’environ-nement de développement.
+SECTION XIV
+Environnement de developpement
+Environnement matériel
+Table 7: Environnement matériel comparatif de développement
+Environnement logiciel
+Système d’exploitation : macOS et Windows.
+SECTION XV
+Outils de developpement
+Le tableau suivant regroupe l’ensemble des outils et dependances mentionnes, avec leur role et leur version officielle.
+Table 8: Synthese des outils et dependances du projet (Partie 1 : Serveur)
+References
+République Algérienne, Loi n◦ 15-04 du 1er février 2015 fixant les règles générales relatives à la signature et à la certification électroniques.
+République Algérienne, Décret exécutif n◦ 16-135 du 25 avril 2016 fixant l’organ-isation et le fonctionnement de l’AGCE.
+Annexes
+SECTION I
+Hiérarchie et Structure Interne de l’AGCE
+Structure Organisationnelle et Hiérarchie
+Au sommet de l’AGCE se trouve la Direction Générale. Le Directeur général est nommé par décret présidentiel et assure la gestion générale de l’Autorité conformément aux lois et règlements en vigueur. Ses responsabilités couvrent notamment la supervision des activités de certification électronique, l’application des politiques de certification, le suivi et l’audit des tiers de confiance, la conservation des certificats expirés et la publication des certificats électroniques officiels.
+Il prépare et exécute le programme d’activités et le budget de l’Autorité, gère les dépenses, recettes, contrats et marchés, et représente l’Autorité en justice et dans les actes administratifs. Il exerce l’autorité hiérarchique sur le personnel, veille aux procé-dures d’habilitation et élabore le règlement intérieur soumis au Conseil d’orientation.
+Le Directeur général est assisté par :
+Une cellule d’audit chargée du contrôle interne et du suivi des audits ;
+Un secrétariat technique en charge de l’organisation des réunions, de la com-munication, de l’information et de la traduction des documents.
+La structure des départements de l’Autorité Gouvernementale est organisée comme suit :
+Direction des infrastructures de gestion de clés : gestion des certificats électroniques et des services de certification au sein de la branche gouvernemen-tale.
+Sous-direction de l’enregistrement : réception, validation et enreg-istrement des demandes de certificats, assistance technique et gestion des révocations.
+Sous-direction d’exploitation des infrastructures de gestion de clés
+: génération, publication et vérification des certificats électroniques, gestion des listes de révocation et service d’horodatage.
+Direction des études, de la recherche et du développement : élabora-tion des politiques, études et solutions liées à la signature et à la certification électroniques.
+Sous-direction des études : élaboration des politiques de certification, analyse des rapports et réalisation d’études techniques.
+Sous-direction recherche et développement : développement d’outils de signature électronique, veille technologique et partenariats de recherche.
+Direction de la sécurité des infrastructures : garantie de la sécurité physique, organisationnelle et informatique des infrastructures de l’Autorité.
+Sous-direction de la sécurité physique : gestion des accès physiques, surveillance des zones sécurisées et exploitation des équipements de sécurité.
+Sous-direction de la sécurité informatique : mise en œuvre de la politique de sécurité informatique, administration des systèmes de sécurité et gestion de la reprise d’activité en cas d’incident.
+Direction des systèmes informatiques : administration des systèmes, réseaux et archives numériques de l’Autorité gouvernementale.
+Sous-direction d’administration et d’exploitation des systèmes in-formatiques : gestion des systèmes, réseaux, maintenance informatique et assistance technique.
+Sous-direction des archives : conservation des certificats électroniques et gestion électronique des documents et archives.
+Direction de l’administration générale : gestion administrative, financière et des ressources humaines de l’Autorité gouvernementale.
+Service du personnel et de la réglementation : gestion des ressources humaines, formation du personnel et suivi des aspects juridiques et régle-mentaires.
+Service des finances et des moyens : préparation des budgets, gestion des équipements, du patrimoine et des moyens matériels.
+Le fonctionnement du personnel est encadré par un règlement intérieur qui pré-cise les conditions de recrutement, les droits et obligations du personnel, les règles
+disciplinaires et le fonctionnement interne. Le personnel est soumis à une enquête d’habilitation, au secret professionnel et à l’obligation de réserve. Le système de ré-munération comprend une partie fixe et une partie variable basée sur les résultats et prestations réalisées par l’Autorité.
+Figure 11: Organigramme hiérarchique de l’Autorité Gouvernementale de Certification Électronique (AGCE).
+SECTION II
+Produits, Solutions et Services de l’AGCE
+En ce qui concerne les produits, l’AGCE propose des certificats électroniques cou-vrant la signature de documents (certificat de signature qualifiée, certificats eseal), l’authentification (certificats d’authentification), les communications sécurisées (certi-ficats tls/ssl, certificats vpn) ainsi que les certificats hybrides (certificats dual, certificats eseal+). Pour la signature électronique, elle met à disposition la signature à distance et la signature locale.
+Pour les solutions et les services, le catalogue comprend Virtual ID, Web RA, le service de signature à distance, e-tawki3, AGCE authorization app, le service d’horo-datage de confiance, le service de validation et le service de vérification des signatures.
+SECTION III
+Cadre réglementaire et souveraineté des données
+La certification électronique et la signature électronique sont encadrées en Algérie par des textes juridiques qui donnent une valeur institutionnelle aux échanges numériques.
+Table 10: Synthèse des produits, solutions et services de l’AGCE
+Dans un tel contexte, les données traitées par une application interne de support peu-vent inclure des informations relatives aux organisations, aux contacts, aux employés, aux incidents, aux échanges et aux pièces jointes. Ces informations doivent être pro-tégées et conservées dans un environnement sécurisé.
+La souveraineté des données constitue donc une contrainte importante. Une so-lution externe en mode SaaS peut offrir de nombreuses fonctionnalités, mais elle peut aussi poser des difficultés liées à l’hébergement des données, au contrôle des accès, à la localisation des journaux et à la confidentialité des informations techniques. Pour cette raison, une solution déployée localement présente un intérêt particulier pour l’AGCE.
+La solution proposée adopte ainsi une logique on-premise ou locale : les données restent dans une base MySQL contrôlée par l’organisation, les secrets sont placés dans des variables d’environnement, et les rôles sont vérifiés au niveau du backend avant toute opération sensible.
+[Espace optionnel réservé aux documents volumineux, extraits de configurations systèmes ou codes de référence spécifiques]

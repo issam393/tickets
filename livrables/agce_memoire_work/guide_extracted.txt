@@ -1,0 +1,124 @@
+GUIDE COMPLET
+Règles et Principes de la Rédaction Scientifique
+Mémoire de Fin d'Études • Présentation PowerPoint
+Basé sur les 6 Chapitres du Module Scientific Writing
+Mme. MEZZI — Université Saad Dahlab, Blida 1
+Département d'Informatique | L3 Informatique | 2024/2025
+PARTIE 1 : RÉDACTION DU MÉMOIRE
+1. Structure Obligatoire du Mémoire
+Tout mémoire de fin d'études doit impérativement contenir les éléments suivants, dans l'ordre indiqué :
+1.1 Page de couverture (Cover Page)
+⚠ Le titre doit décrire brièvement et clairement le contenu du mémoire. Éviter les titres vagues qui correspondent à un thème général plutôt qu'à un sujet précis.
+1.2 Résumé (Abstract)
+1.3 Remerciements et Dédicaces
+1.4 Éléments de navigation obligatoires
+1.5 Corps principal du mémoire
+Le cœur du rapport est structuré selon l'ordre suivant :
+1.6 Annexes et Références bibliographiques
+2. Contenu Détaillé de Chaque Section
+2.1 Introduction Générale — Structure obligatoire
+🔑 Règle d'or : Après la lecture de l'introduction, le lecteur doit comprendre clairement la question de recherche, la portée de l'étude, ses limites, et l'organisation du reste du mémoire.
+2.2 État de l'Art — Règles strictes
+Sélection des ressources : Priorité aux articles scientifiques des 5 dernières années. Pas plus de 10 sources par section (qualité > quantité). Bases : Google Scholar, IEEE Xplore, Scopus, ScienceDirect, HAL.
+2.3 Conception / Modélisation
+2.4 Implémentation
+2.5 Conclusion Générale
+3. Règles de Style d'Écriture Académique
+3.1 Ton et registre
+3.2 Le contenu de remplissage (Filler) — À ÉVITER absolument
+3.3 Le plagiat — Règles absolues
+4. Erreurs Courantes à Éviter
+4.1 Erreurs de structure et de fond
+✗ Absence d'argumentation claire et cohérente
+✗ Preuves insuffisantes pour soutenir les affirmations
+✗ Organisation logique faible
+✗ Introduction et/ou conclusion inadéquates
+✗ Présentation et style d'écriture médiocres
+✗ Problématique trop large ou mal contextualisée
+✗ Confusion entre sujet, objectif et hypothèse
+✗ Écrire sans plan validé préalablement par l'encadrant
+4.2 Erreurs de forme et de mise en page
+✗ Fautes d'orthographe et de grammaire
+✗ Figures sans légende, sans numérotation, sans référence dans le texte
+✗ Redondances (utiliser plutôt les références : 'voir section X', 'voir figure Y')
+✗ Pages non numérotées
+✗ Styles d'écriture incohérents pour des éléments similaires
+✗ Police, marges, interligne ou pagination incorrects
+✗ Non-respect de la structure documentaire requise
+5. Méthodes de Recherche (Chapitre 3)
+5.1 Les trois approches de recherche
+5.2 Formulation de la problématique — Séquence obligatoire
+1. Le problème général
+2. Le problème spécifique
+3. La question de recherche spécifique (reformulation en question)
+4. Décomposition en sous-questions (problématisation)
+5. Transformation des sous-questions en hypothèses à tester
+5.3 Méthode des 5WP pour délimiter le sujet
+6. Références Bibliographiques — Format APA (Chapitre 4)
+6.1 Formats par type de source
+PARTIE 2 : PRÉSENTATION POWERPOINT (SOUTENANCE)
+7. Règles Générales de la Présentation
+7.1 Durée et structure de la soutenance (Licence)
+⚠ L'encadrant peut intervenir APRÈS la démonstration, mais PAS pendant la session de questions.
+7.2 Structure obligatoire de la présentation
+🔑 Règle d'or de la présentation : Dites au public ce que vous allez dire → Dites-le → Dites ce que vous avez dit.
+8. Règles des Diapositives PowerPoint
+8.1 Règles fondamentales des slides
+8.2 Equilibre du temps — Répartition correcte
+⚠ Ne jamais consacrer 10 min à l'intro et 2 min à la conclusion — c'est l'erreur la plus fréquente !
+8.3 Contenu de l'Introduction (slides)
+8.4 Contenu du Corps principal (slides)
+8.5 Contenu de la Conclusion (slides)
+9. Comportement et Communication Orale
+9.1 Préparation avant la soutenance — Calendrier recommandé
+9.2 Règles de communication pendant la présentation
+9.3 Réponse aux questions du jury
+10. Récapitulatif — Liste de Contrôle Finale
+10.1 Checklist Mémoire
+✓ Page de couverture complète (pays, institution, noms, titre, jury)
+✓ Résumé en 3 langues (FR/EN/AR) avec 3–5 mots-clés
+✓ 1 page de remerciements communs + 1 page de dédicace par étudiant
+✓ Table des matières générée automatiquement
+✓ Liste des figures générée automatiquement
+✓ Liste des tableaux générée automatiquement
+✓ Liste des acronymes classée alphabétiquement
+✓ Introduction générale (2–3 pages) avec problématique et plan
+✓ État de l'art avec tableau comparatif obligatoire
+✓ Section conception avec diagrammes UML
+✓ Section implémentation avec captures d'écran et résultats
+✓ Conclusion générale avec perspectives
+✓ Toutes les sources citées (pas de plagiat)
+✓ Références bibliographiques au format IEEE/APA
+✓ Annexes (si applicable) référencées dans le texte
+✓ Pages numérotées
+✓ Style d'écriture formel, impersonnel, 'nous'
+✓ Aucune figure sans légende et sans référence dans le texte
+✓ Aucun filler / contenu hors-sujet
+✓ Orthographe et grammaire vérifiées
+10.2 Checklist Présentation PowerPoint
+✓ Diapositives numérotées
+✓ Plan de la présentation en diapositive 2
+✓ Introduction : contexte + problématique + objectifs
+✓ État de l'art résumé et critique
+✓ Solution proposée avec justification des choix
+✓ Résultats avec graphes et tableaux lisibles
+✓ Conclusion et perspectives
+✓ Slides non surchargées (pas de copier-coller du mémoire)
+✓ Figures adaptées à la présentation (pas copier-collées du mémoire)
+✓ Rythme : 1–2 minutes par diapositive
+✓ Équilibre du temps respecté (intro ≈ déve ≈ conclusion)
+✓ Plusieurs copies de la présentation (USB + cloud + email)
+✓ Démonstration de l'application préparée
+✓ Tenue vestimentaire appropriée prévue
+✓ Répétition effectuée (avec simulation des questions)
+10.3 Checklist Erreurs à ne PAS faire
+✗ NE PAS copier-coller depuis le mémoire dans les slides
+✗ NE PAS lire les slides pendant la présentation
+✗ NE PAS avoir un seul membre qui répond à toutes les questions
+✗ NE PAS utiliser des animations distrayantes
+✗ NE PAS mentir sur une information inconnue
+✗ NE PAS rédiger avec 'Je' (utiliser 'Nous')
+✗ NE PAS inclure du contenu de remplissage (filler)
+✗ NE PAS citer sans référencer (plagiat)
+✗ NE PAS laisser des figures sans légende
+✗ NE PAS oublier de numéroter les pages

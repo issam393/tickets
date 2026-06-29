@@ -10,13 +10,14 @@ DROP TABLE IF EXISTS emails;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS meetings;
 DROP TABLE IF EXISTS meeting_rooms;
+DROP TABLE IF EXISTS ticket_assignment_history;
+DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS rooms;
 DROP TABLE IF EXISTS contacts;
 DROP TABLE IF EXISTS tickets;
 DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS employees;
 DROP TABLE IF EXISTS services;
-DROP TABLE IF EXISTS comments;
 
 -- ============================================
 -- 1. SERVICES
@@ -83,6 +84,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     issue_type VARCHAR(255) NOT NULL,
     issue_level VARCHAR(255) NOT NULL,
     issue_description TEXT NOT NULL,
+    resolution TEXT NULL,
+    resolution_comment_id INT NULL,
     status ENUM('Pending', 'Resolved', 'Critical', 'Warning') DEFAULT 'Pending',
     created_by INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -92,7 +95,26 @@ CREATE TABLE IF NOT EXISTS tickets (
 );
 
 -- ============================================
--- 5. ROOMS
+-- 5. TICKET ASSIGNMENT HISTORY
+-- ============================================
+CREATE TABLE IF NOT EXISTS ticket_assignment_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    previous_service VARCHAR(50) NULL,
+    new_service VARCHAR(50) NOT NULL,
+    assigned_by INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    action_type VARCHAR(50) DEFAULT 'assigned',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (assigned_by) REFERENCES employees(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_ticket_assignment_history_ticket
+    ON ticket_assignment_history (ticket_id, assigned_at);
+
+-- ============================================
+-- 6. ROOMS
 -- ============================================
 CREATE TABLE IF NOT EXISTS rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -105,7 +127,7 @@ CREATE TABLE IF NOT EXISTS rooms (
 );
 
 -- ============================================
--- 6. MEETING ROOMS (no FK to meetings)
+-- 7. MEETING ROOMS (no FK to meetings)
 -- ============================================
 CREATE TABLE IF NOT EXISTS meeting_rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -116,7 +138,7 @@ CREATE TABLE IF NOT EXISTS meeting_rooms (
 );
 
 -- ============================================
--- 7. MEETINGS (references meeting_rooms)
+-- 8. MEETINGS (references meeting_rooms)
 -- ============================================
 CREATE TABLE IF NOT EXISTS meetings (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -140,7 +162,7 @@ CREATE TABLE IF NOT EXISTS meetings (
 );
 
 -- ============================================
--- 8. MESSAGES
+-- 9. MESSAGES
 -- ============================================
 CREATE TABLE IF NOT EXISTS messages (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -183,6 +205,7 @@ CREATE TABLE IF NOT EXISTS comments (
             ticket_id INT NOT NULL,
             user_id INT NOT NULL,
             text TEXT NOT NULL,
+            is_resolution_proposal BOOLEAN NOT NULL DEFAULT FALSE,
             createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
             FOREIGN KEY (user_id) REFERENCES employees(id) ON DELETE CASCADE

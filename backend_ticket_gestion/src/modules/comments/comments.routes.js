@@ -1,6 +1,11 @@
 const express = require('express');
 const auth = require('../../middleware/auth');
-const { requireTicketAccess, blockResolvedTicket } = require('../../middleware/roleCheck');
+const {
+    requireTicketAccess,
+    blockResolvedTicket,
+    roleCheck,
+    requireServiceDeliveryOrManagerOrSupport,
+} = require('../../middleware/roleCheck');
 const ticketRepository = require('../tickets/tickets.repository');
 const commentsController = require('./comments.controllers');
 
@@ -10,6 +15,7 @@ const router = express.Router({ mergeParams: true });
 router.get(
     '/tickets/:ticketId/comments',
     auth,
+    requireServiceDeliveryOrManagerOrSupport,
     requireTicketAccess(ticketRepository),
     commentsController.listComments
 );
@@ -18,6 +24,7 @@ router.get(
 router.post(
     '/tickets/:ticketId/comments',
     auth,
+    roleCheck(['SD', 'PKI', 'IT']),
     requireTicketAccess(ticketRepository),
     blockResolvedTicket(),
     commentsController.addComment
@@ -27,6 +34,7 @@ router.post(
 router.get(
     '/:ticketId/comments',
     auth,
+    requireServiceDeliveryOrManagerOrSupport,
     requireTicketAccess(ticketRepository),
     commentsController.listComments
 );
@@ -34,6 +42,7 @@ router.get(
 router.post(
     '/:ticketId/comments',
     auth,
+    roleCheck(['SD', 'PKI', 'IT']),
     requireTicketAccess(ticketRepository),
     blockResolvedTicket(),
     commentsController.addComment

@@ -49,6 +49,20 @@ async function updateTicketStatus(req, res) {
     }
 }
 
+async function resolveTicket(req, res) {
+    try {
+        const result = await ticketService.resolveTicket(
+            req.params.ticketId,
+            req.body.commentId,
+            req.user.id,
+            req.user.service
+        );
+        sendSuccess(res, 200, 'Resolution comment approved. Ticket resolved successfully', result);
+    } catch (error) {
+        sendError(res, getErrorStatus(error, 400), error.message);
+    }
+}
+
 async function getNextRequestCode(req, res) {
     try {
         const requestCode = await ticketService.getNextRequestCode();
@@ -74,6 +88,7 @@ module.exports = {
     getTicket,
     assignTicket,
     updateTicketStatus,
+    resolveTicket,
     getAssignmentHistory,
     getNextRequestCode
 };

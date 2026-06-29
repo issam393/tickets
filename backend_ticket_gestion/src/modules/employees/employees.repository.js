@@ -59,9 +59,17 @@ const findById = async (id) => {
     return rows[0];
 };
 
+const updatePassword = async (id, password) => {
+    const [result] = await db.execute(
+        'UPDATE employees SET password = ? WHERE id = ?',
+        [password, id]
+    );
+    return result;
+};
+
 const Delete = async (id) => {
     const [result] = await db.execute('DELETE FROM employees WHERE id = ?', [id]);
     return result;
 };
 
-module.exports = { create, update, isUser, findAll, findById, Delete };
+module.exports = { create, update, updatePassword, isUser, findAll, findById, Delete };

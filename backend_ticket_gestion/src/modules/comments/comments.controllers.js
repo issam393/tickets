@@ -11,12 +11,18 @@ async function listComments(req, res) {
 }
 async function addComment(req, res) {
     try {
-        const { text } = req.body;
+        const { text, isResolutionProposal = false } = req.body;
         if (!text || !text.trim()) {
             return sendError(res, 400, 'Comment text is required');
         }
-        const result = await commentsService.addComment(req.params.ticketId, req.user.id, text.trim(), req.user);
-        sendSuccess(res, 201, 'Comment created successfully', result);
+        const result = await commentsService.addComment(
+            req.params.ticketId,
+            req.user.id,
+            text.trim(),
+            req.user,
+            Boolean(isResolutionProposal)
+        );
+        sendSuccess(res, 201, isResolutionProposal ? 'Resolution proposal submitted successfully' : 'Comment created successfully', result);
     } catch (error) {
         const status = error.message.includes('Access denied') || error.message.includes('Unauthorized') ? 403 : 400;
         sendError(res, getErrorStatus(error, status), error.message);

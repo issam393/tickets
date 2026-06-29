@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Search, Eye, Trash2, Edit, Check, X, Pencil, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import "./Contacts.css";
@@ -57,6 +58,9 @@ function Contacts({ readOnly = false }) {
   const role = getUserRole();
   const isReadOnly = readOnly || role === 'Manager';
   const hasAccess = role === 'SD' || role === 'Manager';
+  const renderViewportModal = (content) => (
+    typeof document === "undefined" ? content : createPortal(content, document.body)
+  );
   const [searchTerm, setSearchTerm]             = useState("");
   const [activeTab, setActiveTab]               = useState("contacts");
   const [contacts, setContacts]                 = useState([]);
@@ -430,7 +434,7 @@ function Contacts({ readOnly = false }) {
       </div>
 
       {/* ── CONTACT VIEW/EDIT MODAL ── */}
-      {selectedItem && dialogType === "contact" && (
+      {selectedItem && dialogType === "contact" && renderViewportModal(
         <div className="custom-modal-overlay" onClick={closeDialog}>
           <div className="custom-modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="custom-modal-header">
@@ -465,7 +469,7 @@ function Contacts({ readOnly = false }) {
       )}
 
       {/* ── ORGANIZATION EDIT MODAL ── */}
-      {selectedItem && dialogType === "organization" && (
+      {selectedItem && dialogType === "organization" && renderViewportModal(
         <div className="custom-modal-overlay" onClick={closeDialog}>
           <div className="custom-modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="custom-modal-header">
@@ -498,7 +502,7 @@ function Contacts({ readOnly = false }) {
       )}
 
       {/* ── DELETE DIALOG ── */}
-      {deleteDialog.open && deleteDialog.item && (
+      {deleteDialog.open && deleteDialog.item && renderViewportModal(
         <div className="custom-modal-overlay" onClick={() => setDeleteDialog({ open: false, item: null, type: null })}>
           <div className="custom-modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="custom-modal-header">
@@ -536,7 +540,7 @@ function Contacts({ readOnly = false }) {
       )}
 
       {/* ── ADD ORGANIZATION DIALOG ── */}
-      {isAddOrgOpen && (
+      {isAddOrgOpen && renderViewportModal(
         <div className="custom-modal-overlay" onClick={() => setIsAddOrgOpen(false)}>
           <div className="custom-modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="custom-modal-header">

@@ -23,7 +23,6 @@ import "./TicketDetails.css";
 const STATUS_OPTIONS = [
   { value: "Pending", label: "Pending", icon: Clock },
   { value: "In Progress", label: "In Progress", icon: RefreshCw },
-  { value: "Resolved", label: "Resolved", icon: CheckCircle2 },
   { value: "Critical", label: "Critical", icon: X },
   { value: "Warning", label: "Warning", icon: Clock },
 ];
@@ -70,6 +69,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
   };
   const role = getRole();
   const canManageTicket = role === "SD";
+  const canProposeResolution = ["PKI", "IT"].includes(role);
   const [expanded, setExpanded] = useState(false);
   const [teamDiscussionCollapsed, setTeamDiscussionCollapsed] = useState(false);
 
@@ -89,6 +89,10 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentsError, setCommentsError] = useState("");
   const [newComment, setNewComment] = useState("");
+  const [isResolutionMode, setIsResolutionMode] = useState(false);
+  const [resolutionComment, setResolutionComment] = useState("");
+  const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
+  const [resolvingCommentId, setResolvingCommentId] = useState(null);
 
   // Fetch ticket details on mount or ID change
   useEffect(() => {
@@ -240,6 +244,89 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     }
   };
 
+  const handleSubmitResolutionProposal = async () => {
+    if (!canProposeResolution) {
+      toast.error("Action non autorisée.");
+      return;
+    }
+    if (ticket?.status === "Resolved") {
+      toast.error("Ticket already resolved.");
+      return;
+    }
+    if (!resolutionComment.trim()) {
+      toast.error("Resolution comment is required.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    try {
+      setIsSubmittingProposal(true);
+      const response = await fetch(
+        `http://localhost:2300/api/tickets/${ticketId}/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            text: resolutionComment.trim(),
+            isResolutionProposal: true,
+          }),
+        }
+      );
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.message || payload.error || "Failed to submit resolution comment");
+      }
+      setCommentsList((previous) => [...previous, payload.data]);
+      setIsResolutionMode(false);
+      setResolutionComment("");
+      toast("Resolution comment submitted for Service Delivery approval.");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsSubmittingProposal(false);
+    }
+  };
+
+  const handleSelectResolution = async (commentId) => {
+    if (!canManageTicket) {
+      toast.error("Action non autorisée.");
+      return;
+    }
+    if (ticket?.status === "Resolved") {
+      toast.error("Ticket already resolved.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    try {
+      setResolvingCommentId(commentId);
+      const response = await fetch(
+        `http://localhost:2300/api/tickets/${ticketId}/resolve`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ commentId }),
+        }
+      );
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.message || payload.error || "Failed to approve resolution");
+      }
+      setTicket(payload.data);
+      toast.success("Resolution approved. Ticket resolved successfully.");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setResolvingCommentId(null);
+    }
+  };
+
   const handleAssignTeam = async (team) => {
     if (!canManageTicket) {
       toast.error("Action non autorisée.");
@@ -279,6 +366,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     if (ticket.issue_level === "Level 1 Assistance") return "Service Delivery";
     if (ticket.allowed_services.includes("IT")) return "IT Team";
     if (ticket.allowed_services.includes("PKI")) return "PKI Team";
+    if (ticket.status === "Resolved" && ticket.allowed_services.length === 1 && ticket.allowed_services.includes("SD")) return "Service Delivery";
     return "Unassigned";
   };
 
@@ -390,11 +478,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                     </div>
                     <div className="client-actions">
                       <span
-                        className={`status-active ${
-                          ticket?.status === "Resolved"
-                            ? "status-resolved-badge"
-                            : ""
-                        }`}
+                        className={`status-active ${statusButtonClass(ticket?.status)}`}
                       >
                         <span className="status-dot active-dot" />
                         {ticket?.status || "Active"}
@@ -477,6 +561,14 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                         <Field
                           label="Application"
                           value={ticket?.application || "—"}
+                        />
+                        <Field
+                          label="User"
+                          value={ticket?.client_email || "—"}
+                        />
+                        <Field
+                          label="Entity"
+                          value={ticket?.organization_name || "—"}
                         />
                         <Field
                           label="Created At"
@@ -608,6 +700,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                             return (
                               <button
                                 key={option.value}
+                                data-status={option.value}
                                 className={`status-dropdown-option ${
                                   isActive ? "active" : ""
                                 }`}
@@ -644,6 +737,9 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
               <Field label="Application" value={ticket?.application} />
               <Field label="Issue Type" value={ticket?.issue_type} />
               <Field label="Issue Level" value={ticket?.issue_level} />
+              <Field label="User" value={ticket?.client_email || "—"} />
+              <Field label="Entity" value={ticket?.organization_name || "—"} />
+              <Field label="Assigned to" value={getAssignedTeamName()} />
               <Field
                 label="Time of Receipt"
                 value={
@@ -674,6 +770,13 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
               <h3 className="description-title">Issue Description</h3>
               <p className="description-text">{ticket?.issue_description}</p>
             </div>
+
+            {ticket?.resolution && (
+              <div className="description-section">
+                <h3 className="description-title">Resolution</h3>
+                <p className="description-text">{ticket.resolution}</p>
+              </div>
+            )}
 
           </GlassCard>
 
@@ -731,7 +834,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                     commentsList.map((comment, idx) => (
                       <div
                         key={comment.id || idx}
-                        className="thread-message"
+                        className={`thread-message ${comment.is_resolution_proposal ? "resolution-proposal-message" : ""} ${Number(ticket?.resolution_comment_id) === Number(comment.id) ? "selected-resolution-message" : ""}`}
                       >
                         <div className="thread-message-header">
                           <span
@@ -748,7 +851,26 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                             {new Date(comment.createdAt).toLocaleString()}
                           </span>
                         </div>
+                        {comment.is_resolution_proposal || Number(ticket?.resolution_comment_id) === Number(comment.id) ? (
+                          <span className="resolution-proposal-badge">
+                            <CheckCircle2 size={12} />
+                            {Number(ticket?.resolution_comment_id) === Number(comment.id)
+                              ? "Approved Resolution"
+                              : "Resolution Proposal"}
+                          </span>
+                        ) : null}
                         <p className="thread-text">{comment.text}</p>
+                        {canManageTicket && ticket?.status !== "Resolved" && (
+                          <button
+                            className="select-resolution-btn"
+                            type="button"
+                            onClick={() => handleSelectResolution(comment.id)}
+                            disabled={resolvingCommentId !== null}
+                          >
+                            <CheckCircle2 size={14} />
+                            {resolvingCommentId === comment.id ? "Approving..." : "Select as Resolution"}
+                          </button>
+                        )}
                       </div>
                     ))
                   )}
@@ -766,28 +888,60 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
                   Manager access is read-only.
                 </div>
               ) : (
-                <div className="comment-input-area">
+                <div className={`comment-input-area ${isResolutionMode ? "resolution-comment-mode" : ""}`}>
+                  {isResolutionMode && (
+                    <div className="resolution-mode-notice">
+                      <CheckCircle2 size={16} />
+                      Submit a proposed resolution. Service Delivery must approve it before the ticket is resolved.
+                    </div>
+                  )}
                   <textarea
-                    className="comment-textarea"
+                    className={`comment-textarea ${isResolutionMode ? "resolution-comment-textarea" : ""}`}
                     rows="3"
-                    placeholder="Write a comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder={isResolutionMode ? "Write the resolution comment..." : "Write a comment..."}
+                    value={isResolutionMode ? resolutionComment : newComment}
+                    onChange={(e) => (
+                      isResolutionMode
+                        ? setResolutionComment(e.target.value)
+                        : setNewComment(e.target.value)
+                    )}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
-                        handleSendComment();
+                        if (isResolutionMode) handleSubmitResolutionProposal();
+                        else handleSendComment();
                       }
                     }}
                   />
                   <div className="comment-actions">
-                    <button className="attach-btn" type="button">
-                      <Paperclip className="attach-icon" />
-                      Attach
-                    </button>
-                    <button onClick={handleSendComment} className="post-btn" type="button">
-                      <Send className="post-icon" />
-                      Send
+                    {canProposeResolution && (
+                      <button
+                        className={`resolution-comment-btn ${isResolutionMode ? "active" : ""}`}
+                        type="button"
+                        onClick={() => {
+                          setIsResolutionMode((current) => !current);
+                          setResolutionComment("");
+                        }}
+                        disabled={isSubmittingProposal}
+                      >
+                        <CheckCircle2 className="post-icon" />
+                        {isResolutionMode ? "Cancel Proposal" : "Resolution Comment"}
+                      </button>
+                    )}
+                    {!isResolutionMode && (
+                      <button className="attach-btn" type="button">
+                        <Paperclip className="attach-icon" />
+                        Attach
+                      </button>
+                    )}
+                    <button
+                      onClick={isResolutionMode ? handleSubmitResolutionProposal : handleSendComment}
+                      className={`post-btn ${isResolutionMode ? "resolve-submit-btn" : ""}`}
+                      type="button"
+                      disabled={isSubmittingProposal || (isResolutionMode ? !resolutionComment.trim() : !newComment.trim())}
+                    >
+                      {isResolutionMode ? <CheckCircle2 className="post-icon" /> : <Send className="post-icon" />}
+                      {isSubmittingProposal ? "Submitting..." : isResolutionMode ? "Submit Proposal" : "Send"}
                     </button>
                   </div>
                 </div>

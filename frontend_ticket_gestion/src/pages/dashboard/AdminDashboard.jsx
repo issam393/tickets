@@ -13,6 +13,7 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  KeyRound,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -82,7 +83,20 @@ const FilterPills = ({ options, value, onChange }) => (
   </div>
 );
 
-const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
+const validatePasswordValue = (value) => {
+  if (!value) return "Password is required";
+
+  const checks = [];
+  if (value.length < 8) checks.push("at least 8 characters");
+  if (!/[A-Z]/.test(value)) checks.push("an uppercase letter");
+  if (!/[a-z]/.test(value)) checks.push("a lowercase letter");
+  if (!/\d/.test(value)) checks.push("a number");
+  if (!/[@$!%*?&+=-_]/.test(value)) checks.push("a special character (@$!%*?&+=-_)");
+
+  return checks.length ? `Password must contain: ${checks.join(", ")}` : "";
+};
+
+const UserTable = ({ users, onToggleStatus, onEdit, onPassword, onDelete }) => {
   const avatarGradient = (id) => {
     const gradients = ["ad-avatar-gradient-1", "ad-avatar-gradient-2", "ad-avatar-gradient-3", "ad-avatar-gradient-4", "ad-avatar-gradient-5", "ad-avatar-gradient-6"];
     const sum = String(id).split("").reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -155,6 +169,13 @@ const UserTable = ({ users, onToggleStatus, onEdit, onDelete }) => {
                     <Pencil size={16} />
                   </button>
                   <button
+                    className="ad-action-btn ad-password"
+                    onClick={() => onPassword(u)}
+                    title="Change password"
+                  >
+                    <KeyRound size={16} />
+                  </button>
+                  <button
                     className="ad-action-btn ad-delete"
                     onClick={() => onDelete(u)}
                     title="Delete"
@@ -216,6 +237,121 @@ const DeleteUserModal = ({ user, open, onOpenChange, onConfirm }) => (
     </div>
   </Modal>
 );
+
+const ChangePasswordModal = ({ user, open, onOpenChange, onSave }) => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setPassword("");
+      setConfirmPassword("");
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+    }
+  }, [open, user]);
+
+  const passwordError = validatePasswordValue(password);
+  const confirmError = confirmPassword && password !== confirmPassword ? "Passwords do not match" : "";
+  const canSave = Boolean(password && confirmPassword && !passwordError && !confirmError);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!canSave) {
+      toast.error(passwordError || confirmError || "Please enter and confirm the new password");
+      return;
+    }
+    onSave(user, password);
+  };
+
+  return (
+    <Modal
+      isOpen={open}
+      onClose={() => onOpenChange(false)}
+      title="Change Password"
+      description={
+        <>
+          Set a new password for{" "}
+          <strong>{user ? `${user.firstName} ${user.lastName}` : "this employee"}</strong>.
+        </>
+      }
+    >
+      <form id="password-form" onSubmit={handleSubmit}>
+        <fieldset className="ad-edit-form-section">
+          <legend>Password</legend>
+          <div className="ad-form-row">
+            <div className="ad-form-field">
+              <label>New Password *</label>
+              <div className="ad-password-field">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  className="ad-password-toggle"
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword((visible) => !visible)}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
+              {passwordError && password && <p className="ad-field-error">{passwordError}</p>}
+            </div>
+
+            <div className="ad-form-field">
+              <label>Confirm Password *</label>
+              <div className="ad-password-field">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  className="ad-password-toggle"
+                  type="button"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  title={showConfirmPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowConfirmPassword((visible) => !visible)}
+                >
+                  {showConfirmPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
+              {confirmError && <p className="ad-field-error">{confirmError}</p>}
+            </div>
+          </div>
+        </fieldset>
+      </form>
+
+      <div className="ad-modal-actions">
+        <button type="button" className="ad-modal-btn ad-cancel" onClick={() => onOpenChange(false)}>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form="password-form"
+          className="ad-modal-btn ad-save"
+          disabled={!canSave}
+          style={{
+            cursor: !canSave ? "not-allowed" : "pointer",
+            backgroundColor: !canSave ? "#cccccc" : "",
+            opacity: !canSave ? 0.6 : 1
+          }}
+        >
+          Update Password
+        </button>
+      </div>
+    </Modal>
+  );
+};
 
 const EditUserModal = ({ user, open, onOpenChange, onSave }) => {
   const [form, setForm] = useState(user);
@@ -402,12 +538,7 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
         if (!value) error = "Password is required";
         else {
           const checks = [];
-          if (value.length < 8) checks.push("at least 8 characters");
-          if (!/[A-Z]/.test(value)) checks.push("an uppercase letter");
-          if (!/[a-z]/.test(value)) checks.push("a lowercase letter");
-          if (!/\d/.test(value)) checks.push("a number");
-          if (!/[@$!%*?&+=-_]/.test(value)) checks.push("a special character (@$!%*?&+=-_)");
-          if (checks.length > 0) error = `Password must contain: ${checks.join(", ")}`;
+          error = validatePasswordValue(value);
         }
         break;
     }
@@ -590,6 +721,7 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState(null);
+  const [passwordUser, setPasswordUser] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -752,6 +884,30 @@ const AdminDashboard = () => {
     setDeleting(null);
   };
 
+  const handleChangePassword = async (user, password) => {
+    if (!user) return;
+    try {
+      const response = await fetch(`http://localhost:2300/api/employees/ChangePassword/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ password })
+      });
+
+      if (response.ok) {
+        setPasswordUser(null);
+        toast.success("Password updated successfully");
+      } else {
+        const data = await response.json();
+        toast.error(data.error || "Password update failed");
+      }
+    } catch (_error) {
+      toast.error("Cannot connect to server");
+    }
+  };
+
   const handleCreateUser = async (newUserData) => {
     try {
       const createData = {
@@ -860,6 +1016,7 @@ const AdminDashboard = () => {
             users={filtered}
             onToggleStatus={handleToggleStatus}
             onEdit={setEditing}
+            onPassword={setPasswordUser}
             onDelete={setDeleting}
           />
 
@@ -887,6 +1044,13 @@ const AdminDashboard = () => {
         open={!!deleting}
         onOpenChange={(open) => !open && setDeleting(null)}
         onConfirm={handleConfirmDelete}
+      />
+
+      <ChangePasswordModal
+        user={passwordUser}
+        open={!!passwordUser}
+        onOpenChange={(open) => !open && setPasswordUser(null)}
+        onSave={handleChangePassword}
       />
 
       <CreateUserModalComponent

@@ -3,7 +3,7 @@ const roomRepository = require('../rooms/rooms.repository');
 const { validateCreateTicket } = require('./tickets.validation');
 const { getAllowedRolesForTicket, canRoleAccessRoom, parseAllowedRoles } = require('../../utils/roomAccess');
 const db = require('../../config/db');
-const activityRepository = require('../activity/activity.repository');
+const commentsRepository = require('../comments/comments.repository');
 
 const VALID_STATUSES = ['Pending', 'In Progress', 'Warning', 'Critical', 'Resolved'];
 
@@ -39,6 +39,7 @@ function getAssignedService(ticket) {
     if (isServiceDeliveryTicket(ticket)) return 'SD';
     if (allowedServices.includes('IT')) return 'IT';
     if (allowedServices.includes('PKI')) return 'PKI';
+    if (ticket.status === 'Resolved' && allowedServices.length === 1 && allowedServices.includes('SD')) return 'SD';
     return null;
 }
 
@@ -82,16 +83,6 @@ async function createTicket(userId, payload) {
     });
 
     const ticket = await ticketRepository.getTicketById(ticketId);
-
-    await activityRepository.createActivityLog({
-        actorEmployeeId: userId,
-        actorRole: 'SD',
-        actionType: 'ticket_created',
-        entityType: 'ticket',
-        entityId: ticketId,
-        description: `Service Delivery created ticket ${requestCode}`,
-        metadata: { requestCode, status: 'Pending' }
-    }).catch(() => {});
 
     return {
         ...normalizeTicketRow(ticket),
@@ -163,24 +154,16 @@ async function assignTicket(ticketId, team, assignedBy) {
         assignedBy
     });
 
-    await activityRepository.createActivityLog({
-        actorEmployeeId: assignedBy,
-        actorRole: 'SD',
-        actionType: previousService ? 'ticket_reassigned' : 'ticket_assigned',
-        entityType: 'ticket',
-        entityId: ticketId,
-        description: previousService
-            ? `Ticket ${existing.request_code} reassigned from ${previousService} to ${team}`
-            : `Ticket ${existing.request_code} assigned to ${team}`,
-        metadata: { previousService, newService: team }
-    }).catch(() => {});
-    
     return getTicketById(ticketId, 'SD');
 }
 
 async function updateTicketStatus(ticketId, status) {
     if (status === 'Open' || status === 'Opened') {
         throw new Error('Invalid status value');
+    }
+
+    if (status === 'Resolved') {
+        throw new Error('A resolution comment is required to resolve a ticket.');
     }
 
     if (!VALID_STATUSES.includes(status)) {
@@ -200,17 +183,35 @@ async function updateTicketStatus(ticketId, status) {
         [status, ticketId]
     );
 
-    await activityRepository.createActivityLog({
-        actorEmployeeId: existing.created_by,
-        actorRole: 'SD',
-        actionType: status === 'Resolved' ? 'ticket_resolved' : 'ticket_status_updated',
-        entityType: 'ticket',
-        entityId: ticketId,
-        description: `Ticket ${existing.request_code} status changed to ${status}`,
-        metadata: { status }
-    }).catch(() => {});
-    
     return getTicketById(ticketId, 'SD');
+}
+
+async function resolveTicket(ticketId, commentId, resolvedBy, service) {
+    if (!commentId) {
+        throw new Error('A comment must be selected as the resolution.');
+    }
+
+    const existing = normalizeTicketRow(await ticketRepository.getTicketById(ticketId));
+    if (!existing) {
+        throw new Error('Ticket not found');
+    }
+    if (existing.status === 'Resolved') {
+        throw new Error('Ticket already resolved. It is permanently locked.');
+    }
+
+    const selectedComment = await commentsRepository.getCommentById(commentId);
+    if (!selectedComment || Number(selectedComment.ticket_id) !== Number(ticketId)) {
+        throw new Error('Selected resolution comment does not belong to this ticket.');
+    }
+
+    await db.execute(
+        `UPDATE tickets
+         SET status = 'Resolved', resolution = ?, resolution_comment_id = ?
+         WHERE id = ?`,
+        [selectedComment.text, selectedComment.id, ticketId]
+    );
+
+    return getTicketById(ticketId, service);
 }
 
 async function getAssignmentHistory(ticketId, service) {
@@ -225,6 +226,7 @@ module.exports = {
     getTicketById,
     assignTicket,
     updateTicketStatus,
+    resolveTicket,
     getAssignmentHistory,
     getNextRequestCode
 };

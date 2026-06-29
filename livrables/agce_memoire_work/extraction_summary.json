@@ -1,0 +1,1326 @@
+{
+  "memoire": {
+    "path": "/Users/issamouladsmane/Downloads/agce5.docx",
+    "paragraphs": 298,
+    "tables": 9,
+    "word_count": 5785,
+    "headings": [
+      {
+        "i": 0,
+        "style": "Heading 3",
+        "text": "République algérienne démocratique et populaire Ministère de l’Enseignement supérieur et de la Recherche scientifique"
+      },
+      {
+        "i": 12,
+        "style": "Heading 3",
+        "text": "Mémoire de fin d’études"
+      },
+      {
+        "i": 14,
+        "style": "Heading 3",
+        "text": "Informatique"
+      },
+      {
+        "i": 19,
+        "style": "Heading 2",
+        "text": "Conception et réalisation d’une application de"
+      },
+      {
+        "i": 25,
+        "style": "Heading 3",
+        "text": "Préparé par :"
+      },
+      {
+        "i": 31,
+        "style": "Heading 1",
+        "text": "Dédicaces Dédicace de Mr. Laceb Karim"
+      },
+      {
+        "i": 38,
+        "style": "Heading 1",
+        "text": "Dédicace de Mr. Ouladsmane Issam"
+      },
+      {
+        "i": 42,
+        "style": "Heading 1",
+        "text": "Remerciements"
+      },
+      {
+        "i": 46,
+        "style": "Heading 1",
+        "text": "Résumé"
+      },
+      {
+        "i": 49,
+        "style": "Heading 1",
+        "text": "ﻣﻠﺨﺺ"
+      },
+      {
+        "i": 58,
+        "style": "Heading 1",
+        "text": "Abstract"
+      },
+      {
+        "i": 61,
+        "style": "Heading 2",
+        "text": "Contents"
+      },
+      {
+        "i": 65,
+        "style": "Heading 2",
+        "text": "List of Figures"
+      },
+      {
+        "i": 78,
+        "style": "Heading 2",
+        "text": "List of Tables"
+      },
+      {
+        "i": 90,
+        "style": "Heading 1",
+        "text": "Liste des abréviations"
+      },
+      {
+        "i": 101,
+        "style": "Heading 1",
+        "text": "Introduction générale"
+      },
+      {
+        "i": 114,
+        "style": "Heading 1",
+        "text": "Contexte Général et Revue de la Littérature"
+      },
+      {
+        "i": 116,
+        "style": "Heading 1",
+        "text": "Organisme d’Accueil : L’AGCE"
+      },
+      {
+        "i": 121,
+        "style": "Heading 1",
+        "text": "Historique"
+      },
+      {
+        "i": 122,
+        "style": "Heading 3",
+        "text": "Contexte mondial"
+      },
+      {
+        "i": 128,
+        "style": "Heading 3",
+        "text": "2015, Fondation du cadre légal"
+      },
+      {
+        "i": 131,
+        "style": "Heading 3",
+        "text": "2016, Création de l’AGCE"
+      },
+      {
+        "i": 134,
+        "style": "Heading 3",
+        "text": "2018-2020, Mise en place de l’infrastructure nationale"
+      },
+      {
+        "i": 137,
+        "style": "Heading 3",
+        "text": "2021, Reconnaissance internationale — Certification Web-Trust"
+      },
+      {
+        "i": 140,
+        "style": "Heading 3",
+        "text": "2022-2026, Modernisation et expansion des services"
+      },
+      {
+        "i": 147,
+        "style": "Heading 1",
+        "text": "Services concernés par le projet"
+      },
+      {
+        "i": 148,
+        "style": "Heading 3",
+        "text": "Direction des infrastructures de gestion de clés"
+      },
+      {
+        "i": 151,
+        "style": "Heading 4",
+        "text": "Sous-direction de l’enregistrement (Service Delivery) :"
+      },
+      {
+        "i": 158,
+        "style": "Heading 4",
+        "text": "Sous-direction d’exploitation des infrastructures de gestion de clés (PKI) :"
+      },
+      {
+        "i": 172,
+        "style": "Heading 1",
+        "text": "La Problèmatique"
+      },
+      {
+        "i": 185,
+        "style": "Heading 1",
+        "text": "Étude de l’existant et Justification Technologique"
+      },
+      {
+        "i": 205,
+        "style": "Heading 1",
+        "text": "La Solution Proposée"
+      },
+      {
+        "i": 214,
+        "style": "Heading 1",
+        "text": "Analyse et Conception"
+      },
+      {
+        "i": 216,
+        "style": "Heading 1",
+        "text": "Méthodologie Utilisée"
+      },
+      {
+        "i": 219,
+        "style": "Heading 3",
+        "text": "Méthodologie de développement (Agile)"
+      },
+      {
+        "i": 225,
+        "style": "Heading 3",
+        "text": "Prototypage et validation UI/UX (Figma)"
+      },
+      {
+        "i": 234,
+        "style": "Heading 3",
+        "text": "Gestion de code et collaboration (GitHub)"
+      },
+      {
+        "i": 240,
+        "style": "Heading 1",
+        "text": "Analyse des Besoins"
+      },
+      {
+        "i": 243,
+        "style": "Heading 3",
+        "text": "Besoins Fonctionnels"
+      },
+      {
+        "i": 257,
+        "style": "Heading 3",
+        "text": "Besoins Non Fonctionnels"
+      },
+      {
+        "i": 265,
+        "style": "Heading 3",
+        "text": "Identification des acteurs"
+      },
+      {
+        "i": 278,
+        "style": "Heading 3",
+        "text": "Cas d’utilisation"
+      },
+      {
+        "i": 279,
+        "style": "Heading 4",
+        "text": "Diagramme des cas d’utilisation"
+      },
+      {
+        "i": 284,
+        "style": "Heading 4",
+        "text": "Identification des usecase"
+      },
+      {
+        "i": 288,
+        "style": "Heading 3",
+        "text": "Definition des habilitations RBAC"
+      },
+      {
+        "i": 297,
+        "style": "Heading 1",
+        "text": "Conception et Diagrammes"
+      },
+      {
+        "i": 298,
+        "style": "Heading 3",
+        "text": "Modélisation UML"
+      },
+      {
+        "i": 301,
+        "style": "Heading 4",
+        "text": "Diagramme des Cas d’Utilisation"
+      },
+      {
+        "i": 323,
+        "style": "Heading 4",
+        "text": "Diagramme de Classes"
+      },
+      {
+        "i": 328,
+        "style": "Heading 3",
+        "text": "Diagrammes de Séquence"
+      },
+      {
+        "i": 331,
+        "style": "Heading 4",
+        "text": "Flux d’Authentification"
+      },
+      {
+        "i": 346,
+        "style": "Normal",
+        "text": "6. HTTP 200 (Token JWT)"
+      },
+      {
+        "i": 351,
+        "style": "Heading 4",
+        "text": "Flux de Création de Ticket"
+      },
+      {
+        "i": 368,
+        "style": "Normal",
+        "text": "8. HTTP 201 (Created)"
+      },
+      {
+        "i": 369,
+        "style": "Normal",
+        "text": "6. INSERT (Ticket, Room, Logs)"
+      },
+      {
+        "i": 371,
+        "style": "Normal",
+        "text": "7. Succès des transactions"
+      },
+      {
+        "i": 378,
+        "style": "Heading 3",
+        "text": "Schéma relationnel (Base de données)"
+      },
+      {
+        "i": 400,
+        "style": "Heading 3",
+        "text": "Contrats d’API et intégration système"
+      },
+      {
+        "i": 407,
+        "style": "Heading 1",
+        "text": "Réalisation, Implémentation et Tests"
+      },
+      {
+        "i": 409,
+        "style": "Heading 1",
+        "text": "Introduction"
+      },
+      {
+        "i": 414,
+        "style": "Heading 1",
+        "text": "Environnement de developpement"
+      },
+      {
+        "i": 415,
+        "style": "Heading 3",
+        "text": "Environnement matériel"
+      },
+      {
+        "i": 419,
+        "style": "Heading 3",
+        "text": "Environnement logiciel"
+      },
+      {
+        "i": 423,
+        "style": "Heading 1",
+        "text": "Outils de developpement"
+      },
+      {
+        "i": 431,
+        "style": "Heading 1",
+        "text": "References"
+      },
+      {
+        "i": 435,
+        "style": "Heading 1",
+        "text": "Annexes"
+      },
+      {
+        "i": 437,
+        "style": "Heading 1",
+        "text": "Hiérarchie et Structure Interne de l’AGCE"
+      },
+      {
+        "i": 438,
+        "style": "Heading 3",
+        "text": "Structure Organisationnelle et Hiérarchie"
+      },
+      {
+        "i": 449,
+        "style": "Heading 4",
+        "text": "Sous-direction d’exploitation des infrastructures de gestion de clés"
+      },
+      {
+        "i": 472,
+        "style": "Heading 1",
+        "text": "Produits, Solutions et Services de l’AGCE"
+      },
+      {
+        "i": 477,
+        "style": "Heading 1",
+        "text": "Cadre réglementaire et souveraineté des données"
+      }
+    ],
+    "tables_sample": [
+      {
+        "index": 0,
+        "rows": 5,
+        "cols": 3,
+        "sample": [
+          [
+            "Critère",
+            "SaaS (Jira, Zendesk)",
+            "Open Source On-Premise (GLPI, osTicket)"
+          ],
+          [
+            "Hébergement",
+            "Cloud international",
+            "Local (infrastructure in-terne)"
+          ],
+          [
+            "Souveraineté des don-nées",
+            "Non conforme aux exi-gences AGCE",
+            "Conforme aux exigences de localisation"
+          ],
+          [
+            "Adaptation au contexte AGCE",
+            "Faible (contraintes légales et PKI)",
+            "Moyenne (trop générique)"
+          ],
+          [
+            "Conformité réglemen-taire",
+            "Risque de non-conformité",
+            "Conforme mais nécessite personnalisation"
+          ]
+        ]
+      },
+      {
+        "index": 1,
+        "rows": 4,
+        "cols": 2,
+        "sample": [
+          [
+            "Axe",
+            "Description"
+          ],
+          [
+            "Déploiement",
+            "Installation locale (On-Premise) pour la sou-veraineté des données"
+          ],
+          [
+            "Fonctionnalités",
+            "CRM intégré, gestion de tickets, communication centralisée, indicateurs de performance"
+          ],
+          [
+            "Gouvernance",
+            "Traçabilité des échanges, suivi du support, visibilité globale"
+          ]
+        ]
+      },
+      {
+        "index": 2,
+        "rows": 14,
+        "cols": 3,
+        "sample": [
+          [
+            "Code",
+            "Description du cas d’utilisation",
+            "Acteurs concernés"
+          ],
+          [
+            "UC01",
+            "Authentifier un employe a partir d’un nom d’util-isateur et d’un mot de passe",
+            "Tous"
+          ],
+          [
+            "UC02",
+            "Verifier l’etat actif du compte avant d’autoriser l’acces",
+            "ADMIN"
+          ],
+          [
+            "UC03",
+            "Creer, modifier et desactiver des employes",
+            "ADMIN"
+          ],
+          [
+            "UC04",
+            "Creer et gerer des organisations clientes",
+            "SD"
+          ]
+        ]
+      },
+      {
+        "index": 3,
+        "rows": 12,
+        "cols": 6,
+        "sample": [
+          [
+            "Module / Action",
+            "ADMIN",
+            "SD",
+            "Manager",
+            "PKI",
+            "IT"
+          ],
+          [
+            "Gestion employés",
+            "CRUD",
+            "Non",
+            "Non",
+            "Non",
+            "Non"
+          ],
+          [
+            "Organisations",
+            "Non",
+            "CRUD",
+            "Lecture",
+            "Non",
+            "Non"
+          ],
+          [
+            "Contacts",
+            "Non",
+            "CRUD",
+            "Lecture",
+            "Non",
+            "Non"
+          ],
+          [
+            "Création ticket",
+            "Non",
+            "Oui",
+            "Non",
+            "Non",
+            "Non"
+          ]
+        ]
+      },
+      {
+        "index": 4,
+        "rows": 7,
+        "cols": 3,
+        "sample": [
+          [
+            "Critère",
+            "Base relationnelle",
+            "Base non relationnelle"
+          ],
+          [
+            "Structure",
+            "Tables, schéma fixe, relations explicites",
+            "Documents/collections, schéma flexible"
+          ],
+          [
+            "Intégrité",
+            "Contraintes, clés pri-maires/étrangères",
+            "Moins de contraintes natives"
+          ],
+          [
+            "Transactions",
+            "ACID, forte cohérence",
+            "Souvent BASE, cohérence éventuelle"
+          ],
+          [
+            "Scalabilité",
+            "Verticale (principalement)",
+            "Horizontale (principalement)"
+          ]
+        ]
+      },
+      {
+        "index": 5,
+        "rows": 6,
+        "cols": 3,
+        "sample": [
+          [
+            "Composant",
+            "Membre 1",
+            "Membre 2"
+          ],
+          [
+            "Système d’exploitation",
+            "Windows 10 x64",
+            "macOS"
+          ],
+          [
+            "Processeur (CPU)",
+            "Intel Core i3 11th Gen",
+            "Apple M2 (8 cores)"
+          ],
+          [
+            "Mémoire vive (RAM)",
+            "12GB DDR4 2666MHz",
+            "8GB Unified Memory"
+          ],
+          [
+            "Stockage",
+            "256GB SSD NVMe",
+            "256GB SSD"
+          ]
+        ]
+      },
+      {
+        "index": 6,
+        "rows": 10,
+        "cols": 4,
+        "sample": [
+          [
+            "Catégorie",
+            "Élément",
+            "Rôle",
+            "Ver-sion"
+          ],
+          [
+            "Orchestration",
+            "concurrently10",
+            "Execution simultanee fron-tend/backend",
+            "v9.2.1"
+          ],
+          [
+            "Backend",
+            "Express11",
+            "Serveur HTTP, routes API, middlewares",
+            "v5.2.1"
+          ],
+          [
+            "Backend",
+            "Mysql212",
+            "Client MySQL et requetes asynchrones",
+            "v3.22.1"
+          ],
+          [
+            "Backend",
+            "Socket.io13",
+            "Communication temps reel serveur/client",
+            "v4.8.1"
+          ]
+        ]
+      },
+      {
+        "index": 7,
+        "rows": 30,
+        "cols": 4,
+        "sample": [
+          [
+            "Catégorie",
+            "Élément",
+            "Rôle",
+            "Ver-sion"
+          ],
+          [
+            "Frontend",
+            "React19",
+            "Interface et cycle de vie des composants",
+            "v19.2.4"
+          ],
+          [
+            "Frontend",
+            "React-dom20",
+            "Rendu React dans le DOM",
+            "v19.2.4"
+          ],
+          [
+            "Frontend",
+            "React-router-dom21",
+            "Routage cote client",
+            "v7.14.1"
+          ],
+          [
+            "Frontend",
+            "@tanstack/react-router22",
+            "Routage type et structure",
+            "v1.168.23"
+          ]
+        ]
+      },
+      {
+        "index": 8,
+        "rows": 4,
+        "cols": 2,
+        "sample": [
+          [
+            "Catégorie",
+            "Éléments"
+          ],
+          [
+            "Produits",
+            "Certificats de signature qualifiée, certificats eseal, certificats d’authentification, certificats TLS/SSL, certificats "
+          ],
+          [
+            "Solutions",
+            "Virtual ID, Web RA, e-tawki3, AGCE authoriza-tion app"
+          ],
+          [
+            "Services",
+            "Service de signature à distance, service d’horo-datage de confiance, service de validation, service de vérification des "
+          ]
+        ]
+      }
+    ]
+  },
+  "guide": {
+    "path": "/Users/issamouladsmane/Downloads/guide_scientific_writing (1).docx",
+    "paragraphs": 124,
+    "tables": 32,
+    "word_count": 926,
+    "headings": [
+      {
+        "i": 15,
+        "style": "Heading 1",
+        "text": "1. Structure Obligatoire du Mémoire"
+      },
+      {
+        "i": 18,
+        "style": "Heading 2",
+        "text": "1.1 Page de couverture (Cover Page)"
+      },
+      {
+        "i": 23,
+        "style": "Heading 2",
+        "text": "1.2 Résumé (Abstract)"
+      },
+      {
+        "i": 25,
+        "style": "Heading 2",
+        "text": "1.3 Remerciements et Dédicaces"
+      },
+      {
+        "i": 27,
+        "style": "Heading 2",
+        "text": "1.4 Éléments de navigation obligatoires"
+      },
+      {
+        "i": 29,
+        "style": "Heading 2",
+        "text": "1.5 Corps principal du mémoire"
+      },
+      {
+        "i": 33,
+        "style": "Heading 2",
+        "text": "1.6 Annexes et Références bibliographiques"
+      },
+      {
+        "i": 36,
+        "style": "Heading 1",
+        "text": "2. Contenu Détaillé de Chaque Section"
+      },
+      {
+        "i": 37,
+        "style": "Heading 2",
+        "text": "2.1 Introduction Générale — Structure obligatoire"
+      },
+      {
+        "i": 41,
+        "style": "Heading 2",
+        "text": "2.2 État de l'Art — Règles strictes"
+      },
+      {
+        "i": 46,
+        "style": "Heading 2",
+        "text": "2.3 Conception / Modélisation"
+      },
+      {
+        "i": 48,
+        "style": "Heading 2",
+        "text": "2.4 Implémentation"
+      },
+      {
+        "i": 50,
+        "style": "Heading 2",
+        "text": "2.5 Conclusion Générale"
+      },
+      {
+        "i": 52,
+        "style": "Heading 1",
+        "text": "3. Règles de Style d'Écriture Académique"
+      },
+      {
+        "i": 53,
+        "style": "Heading 2",
+        "text": "3.1 Ton et registre"
+      },
+      {
+        "i": 55,
+        "style": "Heading 2",
+        "text": "3.2 Le contenu de remplissage (Filler) — À ÉVITER absolument"
+      },
+      {
+        "i": 57,
+        "style": "Heading 2",
+        "text": "3.3 Le plagiat — Règles absolues"
+      },
+      {
+        "i": 60,
+        "style": "Heading 1",
+        "text": "4. Erreurs Courantes à Éviter"
+      },
+      {
+        "i": 61,
+        "style": "Heading 2",
+        "text": "4.1 Erreurs de structure et de fond"
+      },
+      {
+        "i": 71,
+        "style": "Heading 2",
+        "text": "4.2 Erreurs de forme et de mise en page"
+      },
+      {
+        "i": 80,
+        "style": "Heading 1",
+        "text": "5. Méthodes de Recherche (Chapitre 3)"
+      },
+      {
+        "i": 81,
+        "style": "Heading 2",
+        "text": "5.1 Les trois approches de recherche"
+      },
+      {
+        "i": 83,
+        "style": "Heading 2",
+        "text": "5.2 Formulation de la problématique — Séquence obligatoire"
+      },
+      {
+        "i": 84,
+        "style": "List Paragraph",
+        "text": "1. Le problème général"
+      },
+      {
+        "i": 85,
+        "style": "List Paragraph",
+        "text": "2. Le problème spécifique"
+      },
+      {
+        "i": 86,
+        "style": "List Paragraph",
+        "text": "3. La question de recherche spécifique (reformulation en question)"
+      },
+      {
+        "i": 87,
+        "style": "List Paragraph",
+        "text": "4. Décomposition en sous-questions (problématisation)"
+      },
+      {
+        "i": 88,
+        "style": "List Paragraph",
+        "text": "5. Transformation des sous-questions en hypothèses à tester"
+      },
+      {
+        "i": 90,
+        "style": "Heading 2",
+        "text": "5.3 Méthode des 5WP pour délimiter le sujet"
+      },
+      {
+        "i": 92,
+        "style": "Heading 1",
+        "text": "6. Références Bibliographiques — Format APA (Chapitre 4)"
+      },
+      {
+        "i": 93,
+        "style": "Heading 2",
+        "text": "6.1 Formats par type de source"
+      },
+      {
+        "i": 97,
+        "style": "Heading 1",
+        "text": "7. Règles Générales de la Présentation"
+      },
+      {
+        "i": 98,
+        "style": "Heading 2",
+        "text": "7.1 Durée et structure de la soutenance (Licence)"
+      },
+      {
+        "i": 102,
+        "style": "Heading 2",
+        "text": "7.2 Structure obligatoire de la présentation"
+      },
+      {
+        "i": 106,
+        "style": "Heading 1",
+        "text": "8. Règles des Diapositives PowerPoint"
+      },
+      {
+        "i": 107,
+        "style": "Heading 2",
+        "text": "8.1 Règles fondamentales des slides"
+      },
+      {
+        "i": 109,
+        "style": "Heading 2",
+        "text": "8.2 Equilibre du temps — Répartition correcte"
+      },
+      {
+        "i": 113,
+        "style": "Heading 2",
+        "text": "8.3 Contenu de l'Introduction (slides)"
+      },
+      {
+        "i": 115,
+        "style": "Heading 2",
+        "text": "8.4 Contenu du Corps principal (slides)"
+      },
+      {
+        "i": 117,
+        "style": "Heading 2",
+        "text": "8.5 Contenu de la Conclusion (slides)"
+      },
+      {
+        "i": 119,
+        "style": "Heading 1",
+        "text": "9. Comportement et Communication Orale"
+      },
+      {
+        "i": 120,
+        "style": "Heading 2",
+        "text": "9.1 Préparation avant la soutenance — Calendrier recommandé"
+      },
+      {
+        "i": 122,
+        "style": "Heading 2",
+        "text": "9.2 Règles de communication pendant la présentation"
+      },
+      {
+        "i": 124,
+        "style": "Heading 2",
+        "text": "9.3 Réponse aux questions du jury"
+      },
+      {
+        "i": 126,
+        "style": "Heading 1",
+        "text": "10. Récapitulatif — Liste de Contrôle Finale"
+      },
+      {
+        "i": 127,
+        "style": "Heading 2",
+        "text": "10.1 Checklist Mémoire"
+      },
+      {
+        "i": 149,
+        "style": "Heading 2",
+        "text": "10.2 Checklist Présentation PowerPoint"
+      },
+      {
+        "i": 166,
+        "style": "Heading 2",
+        "text": "10.3 Checklist Erreurs à ne PAS faire"
+      }
+    ],
+    "tables_sample": [
+      {
+        "index": 0,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "Éléments obligatoires de la page de couverture : Le pays (République Algérienne Démocratique et Populaire) L'institution"
+          ]
+        ]
+      },
+      {
+        "index": 1,
+        "rows": 1,
+        "cols": 2,
+        "sample": [
+          [
+            "BON titre ✓ ✓ Détection des intrusions réseau par apprentissage automatique ✓ Gestion de rendez-vous médicaux via platef",
+            "MAUVAIS titre ✗ ✗ Machine Learning pour la cybersécurité ✗ Application médicale"
+          ]
+        ]
+      },
+      {
+        "index": 2,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "Le résumé doit contenir : Le problème initial posé Le contexte général de l'étude Les résultats obtenus Les perspectives"
+          ]
+        ]
+      },
+      {
+        "index": 3,
+        "rows": 3,
+        "cols": 2,
+        "sample": [
+          [
+            "Remerciements",
+            "Dédicaces"
+          ],
+          [
+            "Plus formels — adressés à : l'institution, l'organisation d'accueil, les encadrants, les collègues",
+            "Plus personnels et informels — spécifiques à chaque étudiant — peuvent être écrits en n'importe quelle langue"
+          ],
+          [
+            "Une seule page commune pour tous les membres du groupe",
+            "Une page par étudiant"
+          ]
+        ]
+      },
+      {
+        "index": 4,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "À inclure dans l'ordre : Table des matières (sections + sous-sections avec numéros de pages) Liste des figures (avec lég"
+          ]
+        ]
+      },
+      {
+        "index": 5,
+        "rows": 6,
+        "cols": 2,
+        "sample": [
+          [
+            "Section",
+            "Contenu attendu"
+          ],
+          [
+            "Introduction Générale",
+            "Contexte + organisation d'accueil + problème de recherche + objectifs + plan du mémoire. 2 à 3 pages. Souvent rédigée EN"
+          ],
+          [
+            "État de l'art",
+            "Revue critique de l'existant (2 à 3 sous-sections max). Tableau comparatif obligatoire. Identification des lacunes. Ne p"
+          ],
+          [
+            "Modélisation / Conception",
+            "Semi-formalisation de la solution : diagrammes UML, schémas, pseudocodes. Justification des choix de conception."
+          ],
+          [
+            "Implémentation",
+            "Choix d'implémentation, tests effectués, résultats obtenus, évaluation et analyse des résultats."
+          ]
+        ]
+      },
+      {
+        "index": 6,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "Annexes : Contenu non essentiel au texte principal mais lié au travail Exemples : textes légaux, résultats expérimentaux"
+          ]
+        ]
+      },
+      {
+        "index": 7,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "Références bibliographiques — Format IEEE 2009 / APA : Toutes les sources utilisées doivent être citées Citer : lors d'u"
+          ]
+        ]
+      },
+      {
+        "index": 8,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "L'introduction doit présenter : Le contexte général (+ organisation d'accueil si projet industriel) Quelques définitions"
+          ]
+        ]
+      },
+      {
+        "index": 9,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "L'état de l'art DOIT contenir : 2 à 3 sous-sections théoriques liées au sujet (max 3) Une sélection de travaux pertinent"
+          ]
+        ]
+      }
+    ]
+  },
+  "avis": {
+    "path": "/Users/issamouladsmane/Downloads/Avis_Professionnel_AGCE_CRM.docx",
+    "paragraphs": 65,
+    "tables": 11,
+    "word_count": 1752,
+    "headings": [
+      {
+        "i": 1,
+        "style": "",
+        "text": "I. APPRÉCIATION GLOBALE"
+      },
+      {
+        "i": 5,
+        "style": "",
+        "text": "II. Conformité à la Structure Obligatoire — Guide §1"
+      },
+      {
+        "i": 7,
+        "style": "",
+        "text": "2.1 Table des matières — Non-conformité critique"
+      },
+      {
+        "i": 10,
+        "style": "",
+        "text": "2.2 Numérotation des figures — Incohérence"
+      },
+      {
+        "i": 12,
+        "style": "",
+        "text": "2.3 Résumé trilingue — Conformité partielle"
+      },
+      {
+        "i": 14,
+        "style": "",
+        "text": "2.4 Remerciements et dédicaces — Proportions non respectées"
+      },
+      {
+        "i": 17,
+        "style": "",
+        "text": "III. Introduction Générale — Guide §2.1"
+      },
+      {
+        "i": 21,
+        "style": "",
+        "text": "IV. État de l'Art / Revue de Littérature — Guide §2.2"
+      },
+      {
+        "i": 23,
+        "style": "",
+        "text": "4.1 Absence de revue théorique sur le CRM"
+      },
+      {
+        "i": 25,
+        "style": "",
+        "text": "4.2 Tableau comparatif — Tronqué dans le rendu PDF"
+      },
+      {
+        "i": 27,
+        "style": "",
+        "text": "4.3 Identification des lacunes — Présente mais insuffisante"
+      },
+      {
+        "i": 30,
+        "style": "",
+        "text": "V. Conception et Modélisation — Guide §2.3"
+      },
+      {
+        "i": 32,
+        "style": "",
+        "text": "5.1 Points conformes"
+      },
+      {
+        "i": 38,
+        "style": "",
+        "text": "5.2 Lacune majeure : absence du Modèle Logique de Données (MLD / ERD)"
+      },
+      {
+        "i": 40,
+        "style": "",
+        "text": "5.3 Méthodologie agile — Déclaration sans justification"
+      },
+      {
+        "i": 45,
+        "style": "",
+        "text": "6.1 Absence totale de captures d'écran"
+      },
+      {
+        "i": 47,
+        "style": "",
+        "text": "6.2 Tests uniquement manuels — Absence de tests automatisés"
+      },
+      {
+        "i": 49,
+        "style": "",
+        "text": "6.3 Blacklist JWT en mémoire — Limite non résolue"
+      },
+      {
+        "i": 53,
+        "style": "",
+        "text": "7.1 Usage abusif de la référence [16]"
+      },
+      {
+        "i": 55,
+        "style": "",
+        "text": "7.2 Usage du pronom 'nous' — Conforme"
+      },
+      {
+        "i": 57,
+        "style": "",
+        "text": "7.3 Filler — Contenu de remplissage"
+      }
+    ],
+    "tables_sample": [
+      {
+        "index": 0,
+        "rows": 1,
+        "cols": 1,
+        "sample": [
+          [
+            "ÉVALUATION PROFESSIONNELLE STRICTE Mémoire de Fin d'Études — Licence ISIL Conception et réalisation d'une application we"
+          ]
+        ]
+      },
+      {
+        "index": 1,
+        "rows": 10,
+        "cols": 3,
+        "sample": [
+          [
+            "Critère d'évaluation",
+            "Note",
+            "Commentaire synthétique"
+          ],
+          [
+            "Structure du mémoire (Guide §1)",
+            "13/20",
+            "TDM vide, tableaux tronqués, numérotation incohérente des figures"
+          ],
+          [
+            "Qualité de l'introduction (Guide §2.1)",
+            "15/20",
+            "Problématique claire, contexte bien posé, plan annoncé correctement"
+          ],
+          [
+            "État de l'art / Revue de littérature (Guide §2.2)",
+            "11/20",
+            "Tableau comparatif incomplet, absence de revue théorique sur le CRM"
+          ],
+          [
+            "Conception / Modélisation UML (Guide §2.3)",
+            "15/20",
+            "Diagrammes présents, matrice RBAC solide, ERD manquant"
+          ]
+        ]
+      },
+      {
+        "index": 2,
+        "rows": 1,
+        "cols": 2,
+        "sample": [
+          [
+            "BLOQUANT",
+            "La page 7 du mémoire contient une table des matières vide, sans aucune entrée ni numéro de page. Le guide §1.4 est expli"
+          ]
+        ]
+      },
+      {
+        "index": 3,
+        "rows": 1,
+        "cols": 2,
+        "sample": [
+          [
+            "CONFORME",
+            "L'introduction (pages 11–12) présente correctement : le contexte général, l'organisme d'accueil, la problématique centra"
+          ]
+        ]
+      },
+      {
+        "index": 4,
+        "rows": 1,
+        "cols": 2,
+        "sample": [
+          [
+            "IMPORTANT",
+            "Pour un mémoire ISIL, le schéma physique de la base de données (diagramme Entité-Relation ou MLD relationnel avec clés p"
+          ]
+        ]
+      },
+      {
+        "index": 5,
+        "rows": 1,
+        "cols": 2,
+        "sample": [
+          [
+            "BLOQUANT",
+            "Le Chapitre 3 décrit en détail les modules réalisés (tickets, messagerie, dashboard, meetings…) mais ne contient aucune "
+          ]
+        ]
+      },
+      {
+        "index": 6,
+        "rows": 1,
+        "cols": 2,
+        "sample": [
+          [
+            "CONFORME",
+            "Le guide §3.1 impose l'utilisation du pronom « nous » et d'un style impersonnel. Le mémoire respecte cette règle de mani"
+          ]
+        ]
+      },
+      {
+        "index": 7,
+        "rows": 1,
+        "cols": 2,
+        "sample": [
+          [
+            "CONFORME",
+            "La conclusion (pages 32–33) respecte la structure imposée par le guide §2.5 : rappel de la problématique, synthèse du tr"
+          ]
+        ]
+      },
+      {
+        "index": 8,
+        "rows": 12,
+        "cols": 3,
+        "sample": [
+          [
+            "Priorité",
+            "Action requise",
+            "Référence guide Mme MEZZI"
+          ],
+          [
+            "🔴 BLOQUANT",
+            "Compléter la table des matières avec numéros de pages (génération automatique)",
+            "Guide §1.4 — Navigation obligatoire"
+          ],
+          [
+            "🔴 BLOQUANT",
+            "Insérer les captures d'écran de l'interface (dashboard, tickets, messagerie, Access Denied)",
+            "Guide §2.4 — Résultats avec graphes et captures"
+          ],
+          [
+            "🔴 BLOQUANT",
+            "Reformater les tableaux tronqués (Tableau 1.1, 2.2, 2.3) pour qu'ils soient lisibles",
+            "Guide §4.2 — Mise en page correcte obligatoire"
+          ],
+          [
+            "🟠 IMPORTANT",
+            "Ajouter le schéma ERD / Modèle Logique de Données de la base MySQL",
+            "Guide §2.3 — Conception avec diagrammes et schémas"
+          ]
+        ]
+      },
+      {
+        "index": 9,
+        "rows": 21,
+        "cols": 3,
+        "sample": [
+          [
+            "Statut",
+            "Critère du guide §10.1",
+            "Observation"
+          ],
+          [
+            "✓",
+            "Page de couverture complète (pays, institution, noms, titre, jury)",
+            "Conforme"
+          ],
+          [
+            "✓",
+            "Résumé en 3 langues (FR/EN/AR) avec 3–5 mots-clés",
+            "Conforme — erreur typographique arabe à corriger"
+          ],
+          [
+            "✓",
+            "1 page de remerciements communs",
+            "Conforme en volume"
+          ],
+          [
+            "✓",
+            "1 page de dédicace par étudiant",
+            "Volume respecté mais longueur excessive"
+          ]
+        ]
+      }
+    ]
+  }
+}

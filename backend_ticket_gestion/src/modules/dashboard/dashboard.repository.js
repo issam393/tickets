@@ -1,5 +1,4 @@
 const db = require('../../config/db');
-const activityRepository = require('../activity/activity.repository');
 
 async function one(sql, params = []) {
     const [rows] = await db.execute(sql, params);
@@ -276,13 +275,12 @@ async function getManagerAnalytics(period = 'weekly', selection = {}) {
          ORDER BY bucket ASC`
     );
 
-    const categories = await many(
-        `SELECT t.issue_type AS name, COUNT(*) AS count
+    const applicationProblems = await many(
+        `SELECT COALESCE(NULLIF(TRIM(t.application), ''), 'Unknown application') AS name, COUNT(*) AS count
          FROM tickets t
          WHERE ${createdFilter}
-         GROUP BY t.issue_type
-         ORDER BY count DESC
-         LIMIT 8`
+         GROUP BY COALESCE(NULLIF(TRIM(t.application), ''), 'Unknown application')
+         ORDER BY count DESC`
     );
 
     const services = await many(
@@ -347,7 +345,8 @@ async function getManagerAnalytics(period = 'weekly', selection = {}) {
             avgResolutionMinutes: nullableNumber(row.avgResolutionMinutes),
             resolved: number(row.resolved)
         })),
-        categories: mapCounts(categories),
+        applicationProblems: mapCounts(applicationProblems),
+        categories: mapCounts(applicationProblems),
         services: mapCounts(services),
         agents: agents.map((row) => ({
             id: row.id,
@@ -747,18 +746,6 @@ async function getRecentTickets(limit = 10) {
 }
 
 async function buildSyntheticRecentActivity(limit = 20) {
-    const existing = await activityRepository.getRecentActivity(limit);
-    const activities = existing.map((row) => ({
-        id: `activity-${row.id}`,
-        actorName: [row.firstName, row.lastName].filter(Boolean).join(' ') || row.userName || 'System',
-        actorRole: row.actor_role || row.service_name,
-        actionType: row.action_type,
-        entityType: row.entity_type,
-        entityId: row.entity_id,
-        description: row.description,
-        createdAt: row.created_at
-    }));
-
     const synthetic = await many(
         `SELECT * FROM (
             SELECT
@@ -841,7 +828,7 @@ async function buildSyntheticRecentActivity(limit = 20) {
         LIMIT ${Math.min(Math.max(Number(limit) || 20, 1), 100)}`
     );
 
-    return [...activities, ...synthetic]
+    return synthetic
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, Math.min(Math.max(Number(limit) || 20, 1), 100));
 }

@@ -10,6 +10,7 @@ router.get("/me", auth, EmployeeController.getMe);
 // Employee management – Service Delivery and Admin dashboards only
 router.post("/InsertEmp", auth, roleCheck(['SD', 'ADMIN']), EmployeeController.create);
 router.put("/EditEmp/:id", auth, roleCheck(['SD', 'ADMIN']), EmployeeController.edit);
+router.put("/ChangePassword/:id", auth, roleCheck(['ADMIN']), EmployeeController.changePassword);
 router.get("/GetAllEmps", auth, roleCheck(['SD', 'ADMIN']), EmployeeController.getAll);
 router.delete("/DeleteEmp/:id", auth, roleCheck(['SD', 'ADMIN']), EmployeeController.deleteEmp);
 

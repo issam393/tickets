@@ -15,6 +15,7 @@ export function getAuthUser() {
 
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
+
     if (payload.exp && payload.exp * 1000 <= Date.now()) {
       return null;
     }
@@ -37,9 +38,9 @@ export function getDefaultRouteForRole(role) {
     case "Manager":
       return "/manager/dashboard";
     case "PKI":
-      return "/pki/tickets";
+      return "/pki/dashboard";
     case "IT":
-      return "/it/tickets";
+      return "/it/dashboard";
     case "ADMIN":
       return "/admin";
     default:

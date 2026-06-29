@@ -219,15 +219,25 @@ function AnalyticsVolumeChart({ data, period }) {
 
   return (
     <ResponsiveContainer width="100%" height={285}>
-      <BarChart data={normalized} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+      <AreaChart data={normalized} margin={{ top: 12, right: 18, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="managerDetailCreated" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#00d9ff" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#00d9ff" stopOpacity={0.02} />
+          </linearGradient>
+          <linearGradient id="managerDetailResolved" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#00f5a0" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#00f5a0" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
         <CartesianGrid stroke="rgba(148, 163, 184, 0.12)" vertical={false} />
         <XAxis dataKey="label" tickLine={false} axisLine={false} stroke="#94a3b8" />
         <YAxis tickLine={false} axisLine={false} stroke="#94a3b8" allowDecimals={false} />
         <Tooltip />
         <Legend />
-        <Bar dataKey="created" name="Created" fill="#00d9ff" radius={[5, 5, 0, 0]} />
-        <Bar dataKey="resolved" name="Resolved" fill="#00f5a0" radius={[5, 5, 0, 0]} />
-      </BarChart>
+        <Area type="monotone" dataKey="created" name="Created" stroke="#00d9ff" fill="url(#managerDetailCreated)" strokeWidth={3} />
+        <Area type="monotone" dataKey="resolved" name="Resolved" stroke="#00f5a0" fill="url(#managerDetailResolved)" strokeWidth={3} />
+      </AreaChart>
     </ResponsiveContainer>
   );
 }
@@ -249,24 +259,6 @@ function ResolutionTrendChart({ data, period }) {
         <Tooltip formatter={(value) => [`${value}h`, 'Average resolution']} />
         <Line type="monotone" dataKey="hours" name="Average resolution" stroke="#ffa500" strokeWidth={3} dot={{ fill: '#ffa500', r: 4 }} />
       </LineChart>
-    </ResponsiveContainer>
-  );
-}
-
-function CategoryChart({ data }) {
-  if (!data.length) return <EmptyState>No ticket categories for this period.</EmptyState>;
-
-  return (
-    <ResponsiveContainer width="100%" height={285}>
-      <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" innerRadius={56} outerRadius={94} paddingAngle={2}>
-          {data.map((entry, index) => (
-            <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} stroke="none" />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
     </ResponsiveContainer>
   );
 }
@@ -594,7 +586,7 @@ export default function ManagerDashboard() {
 
               <section className="section manager-grid manager-grid--charts">
                 <GlassCard>
-                  <SectionHeader title="Ticket volume" subtitle="Created versus resolved" icon={BarChart3} />
+                  <SectionHeader title="Created vs resolved" subtitle="Real ticket lifecycle trend" icon={Activity} />
                   <AnalyticsVolumeChart data={analytics.volume || []} period={analytics.period} />
                 </GlassCard>
                 <GlassCard>
@@ -603,11 +595,7 @@ export default function ManagerDashboard() {
                 </GlassCard>
               </section>
 
-              <section className="section manager-grid manager-grid--charts">
-                <GlassCard>
-                  <SectionHeader title="Category breakdown" subtitle="Request types created in period" icon={PieChartIcon} />
-                  <CategoryChart data={analytics.categories || []} />
-                </GlassCard>
+              <section className="section">
                 <GlassCard>
                   <SectionHeader title="Employee activity" subtitle="Tickets, comments and assignments" icon={Users} />
                   <AgentPerformanceChart data={analytics.agents || []} />
