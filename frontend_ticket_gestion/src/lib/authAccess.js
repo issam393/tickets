@@ -17,6 +17,7 @@ export function getAuthUser() {
     const payload = JSON.parse(atob(token.split(".")[1]));
 
     if (payload.exp && payload.exp * 1000 <= Date.now()) {
+      clearAuthStorage();
       return null;
     }
 

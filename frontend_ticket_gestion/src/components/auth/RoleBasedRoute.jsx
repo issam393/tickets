@@ -74,7 +74,7 @@ function RoleBasedRoute({ allowedRoles, children }) {
     };
   }, [user?.token, user?.role]);
 
-  if (!user?.token || !user?.role) {
+  if (!user?.token) {
     return <Navigate to="/login" replace />;
   }
 

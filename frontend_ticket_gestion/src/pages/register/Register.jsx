@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import image from "../../assets/image.png";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { getAuthUser, getDefaultRouteForRole } from "../../lib/authAccess";
 
 import "./Register.css";
 
@@ -15,6 +16,13 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = getAuthUser();
+    if (user?.token && user?.role) {
+      navigate(getDefaultRouteForRole(user.role), { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
