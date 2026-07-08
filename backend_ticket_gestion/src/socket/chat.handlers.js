@@ -18,6 +18,7 @@ function sendAck(ack, payload) {
     }
 }
 
+
 // Verifie que l'employe lie au socket existe encore et reste actif.
 async function assertActiveEmployee(socket) {
     // Recharge l'utilisateur depuis la base a partir de son id stocke dans socket.user.

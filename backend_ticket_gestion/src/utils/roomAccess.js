@@ -6,6 +6,9 @@ function getAllowedRolesForTicket(issueLevel = '', issueType = '') {
 
     return ALL_CHAT_ROLES;
 }
+//getAlloedRolesForTicket this function returns the allowed roles for a ticket based on its issue level and type. Currently, it returns a constant array of roles defined in ALL_CHAT_ROLES, which includes 'SD'. The function normalizes the input parameters to lowercase strings, but does not use them in its current implementation.
+//in other words , the function is a placeholder for future logic that may determine allowed roles based on the issue level and type of the ticket.
+//more explication : this function is designed to provide flexibility for future enhancements where the allowed roles for a ticket may vary based on its specific characteristics. For now, it serves as a simple utility to retrieve a predefined set of roles that have access to tickets, ensuring that the system can easily accommodate changes in access control policies without requiring significant modifications to the codebase.
 
 function parseAllowedRoles(rawAllowedRoles) {
     if (!rawAllowedRoles) return [];
