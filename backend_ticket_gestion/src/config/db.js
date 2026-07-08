@@ -1,5 +1,6 @@
 const mysql = require('mysql2'); 
 const dotenv = require('dotenv');
+const { requireEnv } = require('./env');
 
 dotenv.config();
 //why mysql2? because it's a modern and faster version of mysql package,
@@ -7,10 +8,10 @@ dotenv.config();
 // to work with.
 
 const db = mysql.createPool({
-    host: process.env.DB_HOST ,
-    user: process.env.DB_USER ,
-    password: process.env.DB_PWD ,
-    database: process.env.DB_NAME
+    host: requireEnv('DB_HOST'),
+    user: requireEnv('DB_USER'),
+    password: requireEnv('DB_PWD'),
+    database: requireEnv('DB_NAME')
 });
 
 db.getConnection(err => {

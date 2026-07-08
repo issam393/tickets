@@ -1,8 +1,8 @@
 const { ImapFlow } = require('imapflow');
 const { simpleParser } = require('mailparser');
 const clientEmailService = require('./clientEmails.services');
+const { requireEnv } = require('../../config/env');
 
-const DEFAULT_GMAIL_INBOX = 'ouladsmaneissam@gmail.com';
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 const SYNC_DAYS = 30;
 const MAX_MESSAGES_PER_SYNC = 100;
@@ -13,11 +13,8 @@ let synchronizationPromise = null;
 let automaticSyncTimer = null;
 
 function getConfiguration() {
-    const user = String(process.env.GMAIL_IMAP_USER || DEFAULT_GMAIL_INBOX).trim();
-    const password = String(process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
-    if (!password) {
-        throw new Error('Gmail sync is not configured. Add GMAIL_APP_PASSWORD to the backend environment.');
-    }
+    const user = requireEnv('GMAIL_IMAP_USER');
+    const password = requireEnv('GMAIL_APP_PASSWORD').replace(/\s+/g, '');
     return { user, password };
 }
 
@@ -147,7 +144,11 @@ function getAutomaticSyncInterval() {
 }
 
 function startAutomaticGmailSync() {
-    if (automaticSyncTimer || !String(process.env.GMAIL_APP_PASSWORD || '').trim()) {
+    if (
+        automaticSyncTimer
+        || !String(process.env.GMAIL_IMAP_USER || '').trim()
+        || !String(process.env.GMAIL_APP_PASSWORD || '').trim()
+    ) {
         return;
     }
 

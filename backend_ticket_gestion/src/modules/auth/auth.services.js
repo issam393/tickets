@@ -6,8 +6,9 @@ dotenv.config();
 
 const authRepository = require('./auth.repository');
 const { validateLogin } = require('./auth.validation');
+const { requireEnv } = require('../../config/env');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_12345';
+const JWT_SECRET = requireEnv('JWT_SECRET');
 const INACTIVE_ACCOUNT_MESSAGE = 'Your account is inactive. Please contact an administrator.';
 
 

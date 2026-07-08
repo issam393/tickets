@@ -35,7 +35,9 @@ async function syncInbox(req, res) {
         const data = await gmailSyncService.syncGmailInbox();
         sendSuccess(res, 200, 'Service Delivery inbox synchronized successfully', data);
     } catch (error) {
-        const status = error.message.includes('not configured') ? 503 : 502;
+        const status = error.message.includes('not configured') || error.message.includes('Missing required environment variable')
+            ? 503
+            : 502;
         sendError(res, status, error.message);
     }
 }

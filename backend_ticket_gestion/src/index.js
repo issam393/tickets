@@ -3,12 +3,12 @@ const dotenv = require("dotenv");
 const http = require("http");
 const { initializeSocket } = require("./socket");
 const initializeMessagingSchema = require("./database/initSchema");
-const seedTicketExamples = require("./database/seedTicketExamples");
 const { startAutomaticGmailSync } = require("./modules/clientEmails/gmailSync.services");
+const { optionalEnv } = require("./config/env");
 
 dotenv.config();
 
-const PORT = process.env.PORT ;
+const PORT = optionalEnv("PORT", "2300");
 const server = http.createServer(app);
 
 initializeSocket(server);
@@ -16,7 +16,6 @@ initializeSocket(server);
 async function startServer() {
   try {
     await initializeMessagingSchema();
-    await seedTicketExamples();
 
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

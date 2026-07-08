@@ -8,12 +8,13 @@ const { isBlacklisted } = require('../utils/blacklist');
 const authRepository = require('../modules/auth/auth.repository');
 // Importe le message commun utilise quand un compte est inactif.
 const { INACTIVE_ACCOUNT_MESSAGE } = require('../modules/auth/auth.services');
+const { requireEnv } = require('../config/env');
 
 // Charge les variables d'environnement avant d'utiliser JWT_SECRET.
 dotenv.config();
 
 // Recupere la cle secrete qui sert a verifier les tokens JWT.
-const JWT_SECRET = process.env.JWT_SECRET ;
+const JWT_SECRET = requireEnv('JWT_SECRET');
 
 // Middleware Socket.IO execute avant d'accepter une connexion temps reel.
 async function socketAuthMiddleware(socket, next) {
