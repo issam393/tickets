@@ -1,0 +1,318 @@
+{"kind":"deck","id":"pr/hnsuv5","name":"Deck"}
+{"kind":"layout","layoutId":"fda9cc1a-9b53-4d2a-98e0-b0030139f354","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"d8af0687-98d3-41a2-8941-34c20f8ae88b","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/sp3jo8","slide":1,"title":"LIVRABLE IT","textShapes":8}
+{"kind":"textbox","id":"sh/lwval87e","slide":1,"text":"LIVRABLE IT","textPreview":"LIVRABLE IT","textChars":11,"textLines":1,"bbox":[42,42,360,28]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":1,"text":"AGCE CRM","textPreview":"AGCE CRM","textChars":8,"textLines":1,"bbox":[42,124,720,82]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":1,"text":"Reprise, analyse, securite et deploiement sur plateforme de test","textPreview":"Reprise, analyse, securite et deploiement sur plateforme de test","textChars":64,"textLines":1,"bbox":[42,218,760,98]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":1,"text":"Support de presentation pour l'equipe IT - base sur la documentation technique, fonctionnelle, les flux metier et le processus de protection.","textPreview":"Support de presentation pour l'equipe IT - base sur la documentation technique, fonctionnelle, les flux metier et le processus de protect...","textChars":141,"textLines":1,"bbox":[42,356,690,88]}
+{"kind":"shape","id":"sh/loj2t83i","slide":1,"bbox":[850,110,270,270]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":1,"text":"React/Vite\nExpress\nMySQL\nSocket.IO\nGmail IMAP","textPreview":"React/Vite | Express | MySQL | Socket.IO | Gmail IMAP","textChars":45,"textLines":5,"bbox":[888,154,194,178]}
+{"kind":"shape","id":"sh/3itgfmlk","slide":1,"bbox":[1120,110,86,270]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":1,"text":"08 juillet 2026","textPreview":"08 juillet 2026","textChars":15,"textLines":1,"bbox":[42,604,300,28]}
+{"kind":"shape","id":"sh/lkjm1cfa","slide":1,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":1,"text":"AGCE CRM - Presentation de reprise","textPreview":"AGCE CRM - Presentation de reprise","textChars":34,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":1,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"notes","id":"nt/sp3jo8","slide":1,"text":""}
+{"kind":"slide","id":"sl/kl8dw8","slide":2,"title":"OBJECTIF","textShapes":15}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":2,"text":"OBJECTIF","textPreview":"OBJECTIF","textChars":8,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":2,"text":"L'equipe IT recoit un dossier exploitable, pas seulement une application","textPreview":"L'equipe IT recoit un dossier exploitable, pas seulement une application","textChars":72,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":2,"text":"Le livrable rassemble le code, la comprehension metier, la configuration et les controles necessaires pour reprendre et tester la solution.","textPreview":"Le livrable rassemble le code, la comprehension metier, la configuration et les controles necessaires pour reprendre et tester la solution.","textChars":139,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/jqh0fepk","slide":2,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":2,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/8bat47y1","slide":2,"bbox":[42,255,266,260]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":2,"text":"Code source complet","textPreview":"Code source complet","textChars":19,"textLines":1,"bbox":[64,275,222,38]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":2,"text":"Backend Express, frontend React/Vite, scripts SQL, configuration et structure maintenable du depot.","textPreview":"Backend Express, frontend React/Vite, scripts SQL, configuration et structure maintenable du depot.","textChars":99,"textLines":1,"bbox":[64,323,222,176]}
+{"kind":"shape","id":"sh/gn29gr2p","slide":2,"bbox":[341,255,266,260]}
+{"kind":"textbox","id":"sh/58z25kb6","slide":2,"text":"Documentation technique et fonctionnelle","textPreview":"Documentation technique et fonctionnelle","textChars":40,"textLines":1,"bbox":[363,275,222,38]}
+{"kind":"textbox","id":"sh/yhgn29gr","slide":2,"text":"Roles, modules, API, architecture, base de donnees, flux tickets, e-mails, meetings et dashboards.","textPreview":"Roles, modules, API, architecture, base de donnees, flux tickets, e-mails, meetings et dashboards.","textChars":98,"textLines":1,"bbox":[363,323,222,176]}
+{"kind":"shape","id":"sh/n29gr2p8","slide":2,"bbox":[640,255,266,260]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":2,"text":"Pre-requis de deploiement","textPreview":"Pre-requis de deploiement","textChars":25,"textLines":1,"bbox":[662,275,222,38]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":2,"text":"Node.js, npm, MySQL, variables .env, ports, acces Gmail IMAP et plateforme de test.","textPreview":"Node.js, npm, MySQL, variables .env, ports, acces Gmail IMAP et plateforme de test.","textChars":83,"textLines":1,"bbox":[662,323,222,176]}
+{"kind":"shape","id":"sh/y90je9cv","slide":2,"bbox":[939,255,266,260]}
+{"kind":"textbox","id":"sh/nuxc3ylc","slide":2,"text":"Livrables de reprise","textPreview":"Livrables de reprise","textChars":20,"textLines":1,"bbox":[961,275,222,38]}
+{"kind":"textbox","id":"sh/cbulwval","slide":2,"text":"Checklist, controles qualite, points d'attention, documentation Word et cette presentation de synthese.","textPreview":"Checklist, controles qualite, points d'attention, documentation Word et cette presentation de synthese.","textChars":103,"textLines":1,"bbox":[961,323,222,176]}
+{"kind":"textbox","id":"sh/5sneloj2","slide":2,"text":"Message cle","textPreview":"Message cle","textChars":11,"textLines":1,"bbox":[42,545,150,24]}
+{"kind":"textbox","id":"sh/5o7qpg3e","slide":2,"text":"La reprise doit commencer par les fichiers .env.example, le schema MySQL et un test de flux complet: login, ticket, message, meeting et inbox e-mail.","textPreview":"La reprise doit commencer par les fichiers .env.example, le schema MySQL et un test de flux complet: login, ticket, message, meeting et i...","textChars":149,"textLines":1,"bbox":[205,538,860,48]}
+{"kind":"notes","id":"nt/kl8dw8","slide":2,"text":""}
+{"kind":"slide","id":"sl/ecayfo","slide":3,"title":"CODE SOURCE","textShapes":13}
+{"kind":"textbox","id":"sh/90je9cvi","slide":3,"text":"CODE SOURCE","textPreview":"CODE SOURCE","textChars":11,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/yd0z6103","slide":3,"text":"Le depot est organise en deux applications et des livrables de support","textPreview":"Le depot est organise en deux applications et des livrables de support","textChars":70,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/rytsvu9k","slide":3,"text":"Chaque dossier a un role clair pour la reprise, l'analyse et le deploiement.","textPreview":"Chaque dossier a un role clair pour la reprise, l'analyse et le deploiement.","textChars":76,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/g7adsji5","slide":3,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":3,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/y1kre1w7","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/rmhk3q5o","slide":3,"bbox":[42,232,360,300]}
+{"kind":"textbox","id":"sh/g3ex0nux","slide":3,"text":"frontend_ticket_gestion/","textPreview":"frontend_ticket_gestion/","textChars":24,"textLines":1,"bbox":[64,252,316,38]}
+{"kind":"textbox","id":"sh/5o7qpg3e","slide":3,"text":"Interface React/Vite\nRoutes protegees par role\nDashboards et composants metier\nConfiguration VITE_API_URL et VITE_SOCKET_URL\nBuild et lint frontend","textPreview":"Interface React/Vite | Routes protegees par role | Dashboards et composants metier | Configuration VITE_API_URL et VITE_SOCKET_URL | Buil...","textChars":147,"textLines":5,"bbox":[64,300,316,216]}
+{"kind":"shape","id":"sh/5gbq1ory","slide":3,"bbox":[460,232,360,300]}
+{"kind":"textbox","id":"sh/cvixczed","slide":3,"text":"backend_ticket_gestion/","textPreview":"backend_ticket_gestion/","textChars":23,"textLines":1,"bbox":[482,252,316,38]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":3,"text":"API Express et Socket.IO\nModules routes, controllers, services, repositories\nConnexion MySQL\nSecurite, roles et bootstrap admin\nSynchronisation Gmail IMAP","textPreview":"API Express et Socket.IO | Modules routes, controllers, services, repositories | Connexion MySQL | Securite, roles et bootstrap admin | S...","textChars":154,"textLines":5,"bbox":[482,300,316,216]}
+{"kind":"shape","id":"sh/upwb2hwf","slide":3,"bbox":[878,232,360,300]}
+{"kind":"textbox","id":"sh/54zidony","slide":3,"text":"docs / outputs / SQL","textPreview":"docs / outputs / SQL","textChars":20,"textLines":1,"bbox":[900,252,316,38]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":3,"text":"Documentation Markdown\nDocumentation Word\nScripts SQL initiaux\nModeles .env.example\nPresentation de reprise","textPreview":"Documentation Markdown | Documentation Word | Scripts SQL initiaux | Modeles .env.example | Presentation de reprise","textChars":107,"textLines":5,"bbox":[900,300,316,216]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":3,"text":"A ne pas publier","textPreview":"A ne pas publier","textChars":16,"textLines":1,"bbox":[42,560,170,28]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":3,"text":"Les vrais fichiers .env, les mots de passe, node_modules, dist et tout secret local restent hors Git.","textPreview":"Les vrais fichiers .env, les mots de passe, node_modules, dist et tout secret local restent hors Git.","textChars":101,"textLines":1,"bbox":[218,558,780,34]}
+{"kind":"notes","id":"nt/ecayfo","slide":3,"text":""}
+{"kind":"slide","id":"sl/yc5npn","slide":4,"title":"FONCTIONNEL","textShapes":20}
+{"kind":"textbox","id":"sh/loj2t83i","slide":4,"text":"FONCTIONNEL","textPreview":"FONCTIONNEL","textChars":11,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":4,"text":"Les roles separent clairement administration, pilotage et traitement","textPreview":"Les roles separent clairement administration, pilotage et traitement","textChars":68,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":4,"text":"Les permissions sont appliquees dans l'interface et verifiees par le backend.","textPreview":"Les permissions sont appliquees dans l'interface et verifiees par le backend.","textChars":77,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/wb2hwfyx","slide":4,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/lwval87e","slide":4,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/3q5o7qpg","slide":4,"bbox":[58,248,244,90]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":4,"text":"ADMIN","textPreview":"ADMIN","textChars":5,"textLines":1,"bbox":[76,268,210,30]}
+{"kind":"textbox","id":"sh/l87ed8ba","slide":4,"text":"Cree, modifie, desactive et gere les employes.","textPreview":"Cree, modifie, desactive et gere les employes.","textChars":46,"textLines":1,"bbox":[72,352,222,74]}
+{"kind":"shape","id":"sh/5kb6xkf6","slide":4,"bbox":[364,248,244,90]}
+{"kind":"textbox","id":"sh/czed8v6p","slide":4,"text":"SD","textPreview":"SD","textChars":2,"textLines":1,"bbox":[382,268,210,30]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":4,"text":"Pilote les clients, contacts, tickets, meetings, inbox et affectations.","textPreview":"Pilote les clients, contacts, tickets, meetings, inbox et affectations.","textChars":71,"textLines":1,"bbox":[378,352,222,74]}
+{"kind":"shape","id":"sh/ytsvu9kn","slide":4,"bbox":[670,248,244,90]}
+{"kind":"textbox","id":"sh/5sneloj2","slide":4,"text":"Manager","textPreview":"Manager","textChars":7,"textLines":1,"bbox":[688,268,210,30]}
+{"kind":"textbox","id":"sh/cbulwval","slide":4,"text":"Supervise l'activite via dashboards, tickets, contacts et meetings en lecture controlee.","textPreview":"Supervise l'activite via dashboards, tickets, contacts et meetings en lecture controlee.","textChars":88,"textLines":1,"bbox":[684,352,222,74]}
+{"kind":"shape","id":"sh/nqxs72x4","slide":4,"bbox":[976,248,244,90]}
+{"kind":"textbox","id":"sh/u54zidon","slide":4,"text":"IT / PKI","textPreview":"IT / PKI","textChars":8,"textLines":1,"bbox":[994,268,210,30]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":4,"text":"Traite les tickets assignes et echange dans les rooms autorisees.","textPreview":"Traite les tickets assignes et echange dans les rooms autorisees.","textChars":65,"textLines":1,"bbox":[990,352,222,74]}
+{"kind":"shape","id":"sh/gbq1oryt","slide":4,"bbox":[158,451,968,2]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":4,"text":"Demande client","textPreview":"Demande client","textChars":14,"textLines":1,"bbox":[58,500,170,28]}
+{"kind":"textbox","id":"sh/54zidony","slide":4,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[250,500,24,28]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":4,"text":"Creation ticket SD","textPreview":"Creation ticket SD","textChars":18,"textLines":1,"bbox":[295,500,210,28]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":4,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[526,500,24,28]}
+{"kind":"textbox","id":"sh/cvixczed","slide":4,"text":"Affectation IT/PKI","textPreview":"Affectation IT/PKI","textChars":18,"textLines":1,"bbox":[570,500,220,28]}
+{"kind":"textbox","id":"sh/5gbq1ory","slide":4,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[814,500,24,28]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":4,"text":"Resolution validee par SD","textPreview":"Resolution validee par SD","textChars":25,"textLines":1,"bbox":[856,500,300,28]}
+{"kind":"notes","id":"nt/yc5npn","slide":4,"text":""}
+{"kind":"slide","id":"sl/zi3zin","slide":5,"title":"FLUX E-MAIL","textShapes":26}
+{"kind":"textbox","id":"sh/byhgn29g","slide":5,"text":"FLUX E-MAIL","textPreview":"FLUX E-MAIL","textChars":11,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":5,"text":"Un e-mail client devient une action SD puis un ticket suivi","textPreview":"Un e-mail client devient une action SD puis un ticket suivi","textChars":59,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/t47y1kre","slide":5,"text":"Le flux evite le travail manuel disperse et conserve les pieces utiles dans MySQL.","textPreview":"Le flux evite le travail manuel disperse et conserve les pieces utiles dans MySQL.","textChars":82,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/il0rqd4v","slide":5,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/b6xkf6dc","slide":5,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/tcj6tova","slide":5,"bbox":[42,274,160,128]}
+{"kind":"textbox","id":"sh/ixczed8v","slide":5,"text":"Client","textPreview":"Client","textChars":6,"textLines":1,"bbox":[56,287,132,30]}
+{"kind":"textbox","id":"sh/bi9s36hc","slide":5,"text":"Envoie la demande\npar e-mail","textPreview":"Envoie la demande | par e-mail","textChars":28,"textLines":2,"bbox":[56,322,132,70]}
+{"kind":"textbox","id":"sh/rytsvu9k","slide":5,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[211,322,24,28]}
+{"kind":"shape","id":"sh/yd0z6103","slide":5,"bbox":[244,274,160,128]}
+{"kind":"textbox","id":"sh/90je9cvi","slide":5,"text":"Boite SD","textPreview":"Boite SD","textChars":8,"textLines":1,"bbox":[258,287,132,30]}
+{"kind":"textbox","id":"sh/gfmlkjm1","slide":5,"text":"Gmail IMAP\nboite dediee","textPreview":"Gmail IMAP | boite dediee","textChars":23,"textLines":2,"bbox":[258,322,132,70]}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":5,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[413,322,24,28]}
+{"kind":"shape","id":"sh/y1kre1w7","slide":5,"bbox":[446,274,160,128]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":5,"text":"Sync backend","textPreview":"Sync backend","textChars":12,"textLines":1,"bbox":[460,287,132,30]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":5,"text":"ImapFlow + mailparser\nlecture controlee","textPreview":"ImapFlow + mailparser | lecture controlee","textChars":39,"textLines":2,"bbox":[460,322,132,70]}
+{"kind":"textbox","id":"sh/nih4byhg","slide":5,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[615,322,24,28]}
+{"kind":"shape","id":"sh/yxobm58z","slide":5,"bbox":[648,274,160,128]}
+{"kind":"textbox","id":"sh/61032lsz","slide":5,"text":"Base MySQL","textPreview":"Base MySQL","textChars":10,"textLines":1,"bbox":[662,287,132,30]}
+{"kind":"textbox","id":"sh/vmtwra5g","slide":5,"text":"client_emails\nattachments\nread status","textPreview":"client_emails | attachments | read status","textChars":37,"textLines":3,"bbox":[662,322,132,70]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":5,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[817,322,24,28]}
+{"kind":"shape","id":"sh/dsji5sne","slide":5,"bbox":[850,274,160,128]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":5,"text":"Inbox SD","textPreview":"Inbox SD","textChars":8,"textLines":1,"bbox":[864,287,132,30]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":5,"text":"Lecture, tri\net creation ticket","textPreview":"Lecture, tri | et creation ticket","textChars":31,"textLines":2,"bbox":[864,322,132,70]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":5,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[1019,322,24,28]}
+{"kind":"shape","id":"sh/d4vmtwra","slide":5,"bbox":[1052,274,160,128]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":5,"text":"Ticket","textPreview":"Ticket","textChars":6,"textLines":1,"bbox":[1066,287,132,30]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":5,"text":"Assignation IT/PKI\nsuivi jusqu'a resolution","textPreview":"Assignation IT/PKI | suivi jusqu'a resolution","textChars":43,"textLines":2,"bbox":[1066,322,132,70]}
+{"kind":"shape","id":"sh/l87ed8ba","slide":5,"bbox":[42,466,548,112]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":5,"text":"Choix operationnel recommande","textPreview":"Choix operationnel recommande","textChars":29,"textLines":1,"bbox":[64,486,504,38]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":5,"text":"Utiliser une boite Gmail dediee Service Delivery. Toute l'equipe SD travaille dans l'application, mais la reception externe reste centralisee et auditable.","textPreview":"Utiliser une boite Gmail dediee Service Delivery. Toute l'equipe SD travaille dans l'application, mais la reception externe reste central...","textChars":155,"textLines":1,"bbox":[64,534,504,28]}
+{"kind":"shape","id":"sh/ahoza1gv","slide":5,"bbox":[632,466,548,112]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":5,"text":"Protection du flux","textPreview":"Protection du flux","textChars":18,"textLines":1,"bbox":[654,486,504,38]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":5,"text":"Le mot de passe Gmail reste dans le .env backend. Les pieces jointes sont filtrees par type MIME et extension avant conservation.","textPreview":"Le mot de passe Gmail reste dans le .env backend. Les pieces jointes sont filtrees par type MIME et extension avant conservation.","textChars":129,"textLines":1,"bbox":[654,534,504,28]}
+{"kind":"notes","id":"nt/zi3zin","slide":5,"text":""}
+{"kind":"slide","id":"sl/h3op0o","slide":6,"title":"TICKETS","textShapes":25}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":6,"text":"TICKETS","textPreview":"TICKETS","textChars":7,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":6,"text":"Le cycle de vie garde SD responsable de la resolution finale","textPreview":"Le cycle de vie garde SD responsable de la resolution finale","textChars":60,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":6,"text":"IT et PKI traitent les incidents affectes, tandis que SD conserve le pilotage client.","textPreview":"IT et PKI traitent les incidents affectes, tandis que SD conserve le pilotage client.","textChars":85,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/yd0z6103","slide":6,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/rytsvu9k","slide":6,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/gfmlkjm1","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/90je9cvi","slide":6,"bbox":[68,240,172,86]}
+{"kind":"textbox","id":"sh/ylc7u54z","slide":6,"text":"Pending","textPreview":"Pending","textChars":7,"textLines":1,"bbox":[80,260,148,28]}
+{"kind":"textbox","id":"sh/r65wjudg","slide":6,"text":"Creation","textPreview":"Creation","textChars":8,"textLines":1,"bbox":[80,294,148,22]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":6,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[256,269,24,28]}
+{"kind":"shape","id":"sh/6tovahoz","slide":6,"bbox":[298,240,172,86]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":6,"text":"In Progress","textPreview":"In Progress","textChars":11,"textLines":1,"bbox":[310,260,148,28]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":6,"text":"Traitement","textPreview":"Traitement","textChars":10,"textLines":1,"bbox":[310,294,148,22]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":6,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[486,269,24,28]}
+{"kind":"shape","id":"sh/6hcrmhk3","slide":6,"bbox":[528,240,172,86]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":6,"text":"Warning","textPreview":"Warning","textChars":7,"textLines":1,"bbox":[540,260,148,28]}
+{"kind":"textbox","id":"sh/onyd0z61","slide":6,"text":"Risque","textPreview":"Risque","textChars":6,"textLines":1,"bbox":[540,294,148,22]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":6,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[716,269,24,28]}
+{"kind":"shape","id":"sh/6dcbulwv","slide":6,"bbox":[758,240,172,86]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":6,"text":"Critical","textPreview":"Critical","textChars":8,"textLines":1,"bbox":[770,260,148,28]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":6,"text":"Priorite haute","textPreview":"Priorite haute","textChars":14,"textLines":1,"bbox":[770,294,148,22]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":6,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[946,269,24,28]}
+{"kind":"shape","id":"sh/l87ed8ba","slide":6,"bbox":[988,240,172,86]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":6,"text":"Resolved","textPreview":"Resolved","textChars":8,"textLines":1,"bbox":[1000,260,148,28]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":6,"text":"Verrouille","textPreview":"Verrouille","textChars":10,"textLines":1,"bbox":[1000,294,148,22]}
+{"kind":"shape","id":"sh/szqtcj6t","slide":6,"bbox":[80,410,320,130]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":6,"text":"Room temps reel","textPreview":"Room temps reel","textChars":15,"textLines":1,"bbox":[102,430,276,38]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":6,"text":"Chaque ticket peut avoir une room Socket.IO avec controle d'acces par service autorise.","textPreview":"Chaque ticket peut avoir une room Socket.IO avec controle d'acces par service autorise.","textChars":87,"textLines":1,"bbox":[102,478,276,46]}
+{"kind":"shape","id":"sh/3itgfmlk","slide":6,"bbox":[480,410,320,130]}
+{"kind":"textbox","id":"sh/tovahoza","slide":6,"text":"Commentaires","textPreview":"Commentaires","textChars":12,"textLines":1,"bbox":[502,430,276,38]}
+{"kind":"textbox","id":"sh/032lszqt","slide":6,"text":"Les propositions, suivis et decisions restent rattaches au ticket pour tracer le traitement.","textPreview":"Les propositions, suivis et decisions restent rattaches au ticket pour tracer le traitement.","textChars":92,"textLines":1,"bbox":[502,478,276,46]}
+{"kind":"shape","id":"sh/bi9s36hc","slide":6,"bbox":[880,410,320,130]}
+{"kind":"textbox","id":"sh/ixczed8v","slide":6,"text":"Meetings","textPreview":"Meetings","textChars":8,"textLines":1,"bbox":[902,430,276,38]}
+{"kind":"textbox","id":"sh/p0bi9s36","slide":6,"text":"SD planifie les reunions; les invites acceptent ou rejettent selon les regles de visibilite.","textPreview":"SD planifie les reunions; les invites acceptent ou rejettent selon les regles de visibilite.","textChars":92,"textLines":1,"bbox":[902,478,276,46]}
+{"kind":"notes","id":"nt/h3op0o","slide":6,"text":""}
+{"kind":"slide","id":"sl/tsi2u5","slide":7,"title":"ARCHITECTURE","textShapes":25}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":7,"text":"ARCHITECTURE","textPreview":"ARCHITECTURE","textChars":12,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":7,"text":"La solution separe interface, API, metier, temps reel et donnees","textPreview":"La solution separe interface, API, metier, temps reel et donnees","textChars":64,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":7,"text":"Cette separation rend le projet plus simple a reprendre, tester et deployer.","textPreview":"Cette separation rend le projet plus simple a reprendre, tester et deployer.","textChars":76,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/judg7ads","slide":7,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":7,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/1032lszq","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/cfa9w3m9","slide":7,"bbox":[70,260,180,100]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":7,"text":"Frontend","textPreview":"Frontend","textChars":8,"textLines":1,"bbox":[84,273,152,30]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":7,"text":"React 19\nVite 8\nReact Router","textPreview":"React 19 | Vite 8 | React Router","textChars":28,"textLines":3,"bbox":[84,308,152,42]}
+{"kind":"textbox","id":"sh/czed8v6p","slide":7,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[278,295,24,28]}
+{"kind":"shape","id":"sh/5kb6xkf6","slide":7,"bbox":[325,230,210,160]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":7,"text":"Backend API","textPreview":"Backend API","textChars":11,"textLines":1,"bbox":[339,243,182,30]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":7,"text":"Express 5\nJWT\nHelmet\nRate limit","textPreview":"Express 5 | JWT | Helmet | Rate limit","textChars":31,"textLines":4,"bbox":[339,278,182,102]}
+{"kind":"textbox","id":"sh/cbulwval","slide":7,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[564,295,24,28]}
+{"kind":"shape","id":"sh/5sneloj2","slide":7,"bbox":[615,230,210,160]}
+{"kind":"textbox","id":"sh/u54zidon","slide":7,"text":"Services metier","textPreview":"Services metier","textChars":15,"textLines":1,"bbox":[629,243,182,30]}
+{"kind":"textbox","id":"sh/nqxs72x4","slide":7,"text":"Validation\nregles roles\norchestration","textPreview":"Validation | regles roles | orchestration","textChars":37,"textLines":3,"bbox":[629,278,182,102]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":7,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[854,295,24,28]}
+{"kind":"shape","id":"sh/5wjudg7a","slide":7,"bbox":[905,260,180,100]}
+{"kind":"textbox","id":"sh/t47y1kre","slide":7,"text":"Repositories","textPreview":"Repositories","textChars":12,"textLines":1,"bbox":[919,273,152,30]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":7,"text":"Requetes SQL\nisolation DB","textPreview":"Requetes SQL | isolation DB","textChars":25,"textLines":2,"bbox":[919,308,152,42]}
+{"kind":"textbox","id":"sh/byhgn29g","slide":7,"text":">","textPreview":">","textChars":1,"textLines":1,"bbox":[1114,295,24,28]}
+{"kind":"shape","id":"sh/idonyd0z","slide":7,"bbox":[1140,260,92,100]}
+{"kind":"textbox","id":"sh/tcj6tova","slide":7,"text":"MySQL","textPreview":"MySQL","textChars":5,"textLines":1,"bbox":[1154,273,64,30]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":7,"text":"donnees","textPreview":"donnees","textChars":7,"textLines":1,"bbox":[1154,308,64,42]}
+{"kind":"shape","id":"sh/b6xkf6dc","slide":7,"bbox":[326,448,210,88]}
+{"kind":"textbox","id":"sh/il0rqd4v","slide":7,"text":"Socket.IO","textPreview":"Socket.IO","textChars":9,"textLines":1,"bbox":[340,461,182,30]}
+{"kind":"textbox","id":"sh/tovahoza","slide":7,"text":"Rooms tickets\nmessagerie temps reel","textPreview":"Rooms tickets | messagerie temps reel","textChars":35,"textLines":2,"bbox":[340,496,182,30]}
+{"kind":"shape","id":"sh/032lszqt","slide":7,"bbox":[616,448,210,88]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":7,"text":"Gmail IMAP","textPreview":"Gmail IMAP","textChars":10,"textLines":1,"bbox":[630,461,182,30]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":7,"text":"Inbox SD\nsynchronisation","textPreview":"Inbox SD | synchronisation","textChars":24,"textLines":2,"bbox":[630,496,182,30]}
+{"kind":"shape","id":"sh/w3m94fu1","slide":7,"bbox":[428,392,1,56]}
+{"kind":"shape","id":"sh/loj2t83i","slide":7,"bbox":[718,392,1,56]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":7,"text":"HTTP JSON + JWT","textPreview":"HTTP JSON + JWT","textChars":15,"textLines":1,"bbox":[80,394,190,26]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":7,"text":"Socket et Gmail sont controles cote backend pour eviter les contournements directs.","textPreview":"Socket et Gmail sont controles cote backend pour eviter les contournements directs.","textChars":83,"textLines":1,"bbox":[70,570,980,32]}
+{"kind":"notes","id":"nt/tsi2u5","slide":7,"text":""}
+{"kind":"slide","id":"sl/yy1gf5","slide":8,"title":"PROTECTION","textShapes":22}
+{"kind":"textbox","id":"sh/za1gvy90","slide":8,"text":"PROTECTION","textPreview":"PROTECTION","textChars":10,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/svu9knih","slide":8,"text":"Les secrets quittent le code et les attaques courantes sont reduites","textPreview":"Les secrets quittent le code et les attaques courantes sont reduites","textChars":68,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/hgn29gr2","slide":8,"text":"Le durcissement combine .env, JWT, roles backend, limites de requetes et filtrage des fichiers.","textPreview":"Le durcissement combine .env, JWT, roles backend, limites de requetes et filtrage des fichiers.","textChars":95,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/a1gvy90j","slide":8,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/zidonyd0","slide":8,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/s36hcrmh","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/hoza1gvy","slide":8,"bbox":[42,230,240,150]}
+{"kind":"textbox","id":"sh/a5gbq1or","slide":8,"text":".env","textPreview":".env","textChars":4,"textLines":1,"bbox":[62,250,200,56]}
+{"kind":"textbox","id":"sh/3m94fu18","slide":8,"text":"Secrets hors code","textPreview":"Secrets hors code","textChars":17,"textLines":1,"bbox":[64,312,196,28]}
+{"kind":"textbox","id":"sh/zidonyd0","slide":8,"text":"JWT, DB, Gmail et admin initial.","textPreview":"JWT, DB, Gmail et admin initial.","textChars":32,"textLines":1,"bbox":[64,342,196,28]}
+{"kind":"shape","id":"sh/a1gvy90j","slide":8,"bbox":[320,230,240,150]}
+{"kind":"textbox","id":"sh/hoza1gvy","slide":8,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[340,250,200,56]}
+{"kind":"textbox","id":"sh/s36hcrmh","slide":8,"text":"Tentatives login","textPreview":"Tentatives login","textChars":16,"textLines":1,"bbox":[342,312,196,28]}
+{"kind":"textbox","id":"sh/za1gvy90","slide":8,"text":"Limite par fenetre configuree.","textPreview":"Limite par fenetre configuree.","textChars":30,"textLines":1,"bbox":[342,342,196,28]}
+{"kind":"shape","id":"sh/ap4r65wj","slide":8,"bbox":[598,230,240,150]}
+{"kind":"textbox","id":"sh/hgn29gr2","slide":8,"text":"JWT","textPreview":"JWT","textChars":3,"textLines":1,"bbox":[618,250,200,56]}
+{"kind":"textbox","id":"sh/svu9knih","slide":8,"text":"Session signee","textPreview":"Session signee","textChars":14,"textLines":1,"bbox":[620,312,196,28]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":8,"text":"Expiration configurable.","textPreview":"Expiration configurable.","textChars":24,"textLines":1,"bbox":[620,342,196,28]}
+{"kind":"shape","id":"sh/adsji5sn","slide":8,"bbox":[876,230,240,150]}
+{"kind":"textbox","id":"sh/idonyd0z","slide":8,"text":"CORS","textPreview":"CORS","textChars":4,"textLines":1,"bbox":[896,250,200,56]}
+{"kind":"textbox","id":"sh/byhgn29g","slide":8,"text":"Origines limitees","textPreview":"Origines limitees","textChars":17,"textLines":1,"bbox":[898,312,196,28]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":8,"text":"Frontend autorise uniquement.","textPreview":"Frontend autorise uniquement.","textChars":29,"textLines":1,"bbox":[898,342,196,28]}
+{"kind":"shape","id":"sh/t47y1kre","slide":8,"bbox":[62,450,9,9]}
+{"kind":"textbox","id":"sh/il0rqd4v","slide":8,"text":"Brute force login: limite de tentatives et comptes inactifs bloques.","textPreview":"Brute force login: limite de tentatives et comptes inactifs bloques.","textChars":68,"textLines":1,"bbox":[86,442,1036,31]}
+{"kind":"shape","id":"sh/b6xkf6dc","slide":8,"bbox":[62,485,9,9]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":8,"text":"IDOR ou acces direct: controle backend des roles, tickets et rooms.","textPreview":"IDOR ou acces direct: controle backend des roles, tickets et rooms.","textChars":67,"textLines":1,"bbox":[86,477,1036,31]}
+{"kind":"shape","id":"sh/tcj6tova","slide":8,"bbox":[62,520,9,9]}
+{"kind":"textbox","id":"sh/ixczed8v","slide":8,"text":"Fuite de secrets: .env non publie et .env.example sans vrais mots de passe.","textPreview":"Fuite de secrets: .env non publie et .env.example sans vrais mots de passe.","textChars":75,"textLines":1,"bbox":[86,512,1036,31]}
+{"kind":"shape","id":"sh/bi9s36hc","slide":8,"bbox":[62,555,9,9]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":8,"text":"Pieces jointes dangereuses: filtrage MIME et extension avant stockage.","textPreview":"Pieces jointes dangereuses: filtrage MIME et extension avant stockage.","textChars":70,"textLines":1,"bbox":[86,547,1036,31]}
+{"kind":"shape","id":"sh/sfil0rqd","slide":8,"bbox":[62,590,9,9]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":8,"text":"Bootstrap admin abuse: ENABLE_ADMIN_BOOTSTRAP doit repasser a false apres creation.","textPreview":"Bootstrap admin abuse: ENABLE_ADMIN_BOOTSTRAP doit repasser a false apres creation.","textChars":83,"textLines":1,"bbox":[86,582,1036,31]}
+{"kind":"notes","id":"nt/yy1gf5","slide":8,"text":""}
+{"kind":"slide","id":"sl/piv85d","slide":9,"title":"CONFIGURATION","textShapes":13}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":9,"text":"CONFIGURATION","textPreview":"CONFIGURATION","textChars":13,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":9,"text":"Les fichiers .env rendent chaque environnement reproductible","textPreview":"Les fichiers .env rendent chaque environnement reproductible","textChars":60,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":9,"text":"La structure vient des .env.example; les vraies valeurs sont ajoutees uniquement sur la machine ou la plateforme de test.","textPreview":"La structure vient des .env.example; les vraies valeurs sont ajoutees uniquement sur la machine ou la plateforme de test.","textChars":121,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/jqh0fepk","slide":9,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":9,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/8bat47y1","slide":9,"bbox":[58,242,350,248]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":9,"text":"Backend .env","textPreview":"Backend .env","textChars":12,"textLines":1,"bbox":[80,262,306,38]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":9,"text":"PORT\nJWT_SECRET / JWT_EXPIRES_IN\nFRONTEND_URL\nDB_HOST, DB_NAME, DB_USER, DB_PWD\nGMAIL_IMAP_USER, GMAIL_APP_PASSWORD\nADMIN_INITIAL_* et ENABLE_ADMIN_BOOTSTRAP","textPreview":"PORT | JWT_SECRET / JWT_EXPIRES_IN | FRONTEND_URL | DB_HOST, DB_NAME, DB_USER, DB_PWD | GMAIL_IMAP_USER, GMAIL_APP_PASSWORD | ADMIN_INITI...","textChars":157,"textLines":6,"bbox":[80,310,306,164]}
+{"kind":"shape","id":"sh/gn29gr2p","slide":9,"bbox":[465,242,350,248]}
+{"kind":"textbox","id":"sh/58z25kb6","slide":9,"text":"Frontend .env","textPreview":"Frontend .env","textChars":13,"textLines":1,"bbox":[487,262,306,38]}
+{"kind":"textbox","id":"sh/yhgn29gr","slide":9,"text":"VITE_API_URL\nVITE_SOCKET_URL\nVariables publiques visibles dans le navigateur\nAucun secret backend ou Gmail dans le frontend","textPreview":"VITE_API_URL | VITE_SOCKET_URL | Variables publiques visibles dans le navigateur | Aucun secret backend ou Gmail dans le frontend","textChars":123,"textLines":4,"bbox":[487,310,306,164]}
+{"kind":"shape","id":"sh/n29gr2p8","slide":9,"bbox":[872,242,350,248]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":9,"text":"Plateforme test","textPreview":"Plateforme test","textChars":15,"textLines":1,"bbox":[894,262,306,38]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":9,"text":"Node.js et npm\nMySQL accessible\nPorts disponibles\nAcces reseau frontend-backend\nCompte Gmail avec IMAP si inbox activee","textPreview":"Node.js et npm | MySQL accessible | Ports disponibles | Acces reseau frontend-backend | Compte Gmail avec IMAP si inbox activee","textChars":119,"textLines":5,"bbox":[894,310,306,164]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":9,"text":"Regle simple","textPreview":"Regle simple","textChars":12,"textLines":1,"bbox":[58,540,160,28]}
+{"kind":"textbox","id":"sh/nuxc3ylc","slide":9,"text":"Un nouvel utilisateur copie .env.example vers .env puis remplace seulement les valeurs propres a son environnement.","textPreview":"Un nouvel utilisateur copie .env.example vers .env puis remplace seulement les valeurs propres a son environnement.","textChars":115,"textLines":1,"bbox":[228,538,830,34]}
+{"kind":"notes","id":"nt/piv85d","slide":9,"text":""}
+{"kind":"slide","id":"sl/lssy99","slide":10,"title":"DEPLOIEMENT","textShapes":21}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":10,"text":"DEPLOIEMENT","textPreview":"DEPLOIEMENT","textChars":11,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":10,"text":"La mise en route de test suit une checklist courte et verifiable","textPreview":"La mise en route de test suit une checklist courte et verifiable","textChars":64,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/lwval87e","slide":10,"text":"Chaque etape produit un signal de controle avant de passer au flux metier.","textPreview":"Chaque etape produit un signal de controle avant de passer au flux metier.","textChars":74,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/ex0nuxc3","slide":10,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":10,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":10,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[60,230,46,46]}
+{"kind":"shape","id":"sh/at47y1kr","slide":10,"bbox":[126,224,1000,56]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":10,"text":"Installer","textPreview":"Installer","textChars":9,"textLines":1,"bbox":[148,244,956,38]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":10,"text":"Node.js, npm, MySQL et dependances du depot.","textPreview":"Node.js, npm, MySQL et dependances du depot.","textChars":44,"textLines":1,"bbox":[148,292,956,-28]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":10,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[60,304,46,46]}
+{"kind":"shape","id":"sh/loj2t83i","slide":10,"bbox":[126,298,1000,56]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":10,"text":"Configurer","textPreview":"Configurer","textChars":10,"textLines":1,"bbox":[148,318,956,38]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":10,"text":"Creer backend .env et frontend .env depuis les exemples.","textPreview":"Creer backend .env et frontend .env depuis les exemples.","textChars":56,"textLines":1,"bbox":[148,366,956,-28]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":10,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[60,378,46,46]}
+{"kind":"shape","id":"sh/lwval87e","slide":10,"bbox":[126,372,1000,56]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":10,"text":"Initialiser","textPreview":"Initialiser","textChars":11,"textLines":1,"bbox":[148,392,956,38]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":10,"text":"Base MySQL, services de base et admin initial si necessaire.","textPreview":"Base MySQL, services de base et admin initial si necessaire.","textChars":60,"textLines":1,"bbox":[148,440,956,-28]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":10,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[60,452,46,46]}
+{"kind":"shape","id":"sh/il0rqd4v","slide":10,"bbox":[126,446,1000,56]}
+{"kind":"textbox","id":"sh/b6xkf6dc","slide":10,"text":"Lancer","textPreview":"Lancer","textChars":6,"textLines":1,"bbox":[148,466,956,38]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":10,"text":"npm run dev a la racine ou backend/frontend separement.","textPreview":"npm run dev a la racine ou backend/frontend separement.","textChars":55,"textLines":1,"bbox":[148,514,956,-28]}
+{"kind":"textbox","id":"sh/tcj6tova","slide":10,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[60,526,46,46]}
+{"kind":"shape","id":"sh/idonyd0z","slide":10,"bbox":[126,520,1000,56]}
+{"kind":"textbox","id":"sh/byhgn29g","slide":10,"text":"Controler","textPreview":"Controler","textChars":9,"textLines":1,"bbox":[148,540,956,38]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":10,"text":"GET /test, GET /api, login admin et flux ticket complet.","textPreview":"GET /test, GET /api, login admin et flux ticket complet.","textChars":56,"textLines":1,"bbox":[148,588,956,-28]}
+{"kind":"textbox","id":"sh/t47y1kre","slide":10,"text":"Ports a surveiller: backend 2300, frontend 5173. Si un ancien serveur occupe le port, le liberer avant de relancer.","textPreview":"Ports a surveiller: backend 2300, frontend 5173. Si un ancien serveur occupe le port, le liberer avant de relancer.","textChars":115,"textLines":1,"bbox":[126,612,920,32]}
+{"kind":"notes","id":"nt/lssy99","slide":10,"text":""}
+{"kind":"slide","id":"sl/suxby2","slide":11,"title":"CONTROLE QUALITE","textShapes":12}
+{"kind":"textbox","id":"sh/lwval87e","slide":11,"text":"CONTROLE QUALITE","textPreview":"CONTROLE QUALITE","textChars":16,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":11,"text":"La validation combine tests techniques et parcours utilisateurs","textPreview":"La validation combine tests techniques et parcours utilisateurs","textChars":63,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":11,"text":"Le but est de prouver que la plateforme de test couvre les interactions critiques.","textPreview":"Le but est de prouver que la plateforme de test couvre les interactions critiques.","textChars":82,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/w3m94fu1","slide":11,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":11,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"shape","id":"sh/3itgfmlk","slide":11,"bbox":[50,232,340,280]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":11,"text":"Tests techniques","textPreview":"Tests techniques","textChars":16,"textLines":1,"bbox":[72,252,296,38]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":11,"text":"Frontend lint\nFrontend build\nSyntaxe backend\nHealth backend /test\nAPI base /api\nConnexion base MySQL","textPreview":"Frontend lint | Frontend build | Syntaxe backend | Health backend /test | API base /api | Connexion base MySQL","textChars":100,"textLines":6,"bbox":[72,300,296,196]}
+{"kind":"shape","id":"sh/hcrmhk3q","slide":11,"bbox":[470,232,340,280]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":11,"text":"Flux fonctionnels","textPreview":"Flux fonctionnels","textChars":17,"textLines":1,"bbox":[492,252,296,38]}
+{"kind":"textbox","id":"sh/z61032ls","slide":11,"text":"Login admin\nCreation employe SD\nOrganisation et contact\nCreation ticket\nAffectation IT/PKI\nMessage, meeting et resolution","textPreview":"Login admin | Creation employe SD | Organisation et contact | Creation ticket | Affectation IT/PKI | Message, meeting et resolution","textChars":121,"textLines":6,"bbox":[492,300,296,196]}
+{"kind":"shape","id":"sh/al87ed8b","slide":11,"bbox":[890,232,340,280]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":11,"text":"Points d'attention","textPreview":"Points d'attention","textChars":18,"textLines":1,"bbox":[912,252,296,38]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":11,"text":"Gmail avec boite dediee SD\n.env jamais commite\nAdmin bootstrap desactive\nPort 5173 strict cote Vite\nPermissions verifiees backend","textPreview":"Gmail avec boite dediee SD | .env jamais commite | Admin bootstrap desactive | Port 5173 strict cote Vite | Permissions verifiees backend","textChars":129,"textLines":5,"bbox":[912,300,296,196]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":11,"text":"La validation finale doit inclure une interaction par role: ADMIN, SD, Manager, IT et PKI.","textPreview":"La validation finale doit inclure une interaction par role: ADMIN, SD, Manager, IT et PKI.","textChars":90,"textLines":1,"bbox":[74,560,980,34]}
+{"kind":"notes","id":"nt/suxby2","slide":11,"text":""}
+{"kind":"slide","id":"sl/ff247d","slide":12,"title":"REPRISE","textShapes":14}
+{"kind":"textbox","id":"sh/58z25kb6","slide":12,"text":"REPRISE","textPreview":"REPRISE","textChars":7,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/yhgn29gr","slide":12,"text":"L'equipe IT peut reprendre le projet avec un chemin clair","textPreview":"L'equipe IT peut reprendre le projet avec un chemin clair","textChars":57,"textLines":1,"bbox":[42,70,880,88]}
+{"kind":"textbox","id":"sh/n29gr2p8","slide":12,"text":"Le dossier livre donne les elements pour analyser, configurer, deployer et verifier la solution sur la plateforme de test.","textPreview":"Le dossier livre donne les elements pour analyser, configurer, deployer et verifier la solution sur la plateforme de test.","textChars":122,"textLines":1,"bbox":[42,150,930,54]}
+{"kind":"shape","id":"sh/gbq1oryt","slide":12,"bbox":[42,656,1196,1]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":12,"text":"AGCE CRM - Livrable IT","textPreview":"AGCE CRM - Livrable IT","textChars":22,"textLines":1,"bbox":[42,668,430,22]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1196,668,42,22]}
+{"kind":"textbox","id":"sh/nuxc3ylc","slide":12,"text":"A reprendre","textPreview":"A reprendre","textChars":11,"textLines":1,"bbox":[74,238,230,34]}
+{"kind":"shape","id":"sh/cbulwval","slide":12,"bbox":[80,308,9,9]}
+{"kind":"textbox","id":"sh/5sneloj2","slide":12,"text":"Code source complet du depot full_stuck_ticket_gestion.","textPreview":"Code source complet du depot full_stuck_ticket_gestion.","textChars":55,"textLines":1,"bbox":[104,300,496,38]}
+{"kind":"shape","id":"sh/tcj6tova","slide":12,"bbox":[80,350,9,9]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":12,"text":"Documentation Markdown et Word pour analyse technique et fonctionnelle.","textPreview":"Documentation Markdown et Word pour analyse technique et fonctionnelle.","textChars":71,"textLines":1,"bbox":[104,342,496,38]}
+{"kind":"shape","id":"sh/b6xkf6dc","slide":12,"bbox":[80,392,9,9]}
+{"kind":"textbox","id":"sh/il0rqd4v","slide":12,"text":"Modeles .env.example pour backend et frontend.","textPreview":"Modeles .env.example pour backend et frontend.","textChars":46,"textLines":1,"bbox":[104,384,496,38]}
+{"kind":"shape","id":"sh/t47y1kre","slide":12,"bbox":[80,434,9,9]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":12,"text":"Scripts SQL et schema MySQL applicatif.","textPreview":"Scripts SQL et schema MySQL applicatif.","textChars":39,"textLines":1,"bbox":[104,426,496,38]}
+{"kind":"shape","id":"sh/byhgn29g","slide":12,"bbox":[80,476,9,9]}
+{"kind":"textbox","id":"sh/idonyd0z","slide":12,"text":"Checklist de deploiement, controles qualite et points de securite.","textPreview":"Checklist de deploiement, controles qualite et points de securite.","textChars":66,"textLines":1,"bbox":[104,468,496,38]}
+{"kind":"shape","id":"sh/p0bi9s36","slide":12,"bbox":[720,238,430,260]}
+{"kind":"textbox","id":"sh/0fepkzup","slide":12,"text":"Prochaine decision IT","textPreview":"Prochaine decision IT","textChars":21,"textLines":1,"bbox":[756,282,360,38]}
+{"kind":"textbox","id":"sh/cbulwval","slide":12,"text":"Valider les valeurs d'environnement de test, creer la base propre, lancer le smoke test complet, puis figer la procedure de deploiement.","textPreview":"Valider les valeurs d'environnement de test, creer la base propre, lancer le smoke test complet, puis figer la procedure de deploiement.","textChars":136,"textLines":1,"bbox":[770,350,332,106]}
+{"kind":"textbox","id":"sh/5sneloj2","slide":12,"text":"Fin du support","textPreview":"Fin du support","textChars":14,"textLines":1,"bbox":[74,600,200,24]}
+{"kind":"notes","id":"nt/ff247d","slide":12,"text":""}

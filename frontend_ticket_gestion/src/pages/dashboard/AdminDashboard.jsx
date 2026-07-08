@@ -97,6 +97,15 @@ const validatePasswordValue = (value) => {
   return checks.length ? `Password must contain: ${checks.join(", ")}` : "";
 };
 
+const readApiError = async (response, fallback) => {
+  try {
+    const data = await response.json();
+    return data.error || data.message || fallback;
+  } catch {
+    return `${fallback} (${response.status})`;
+  }
+};
+
 const UserTable = ({ users, onToggleStatus, onEdit, onPassword, onDelete }) => {
   const avatarGradient = (id) => {
     const gradients = ["ad-avatar-gradient-1", "ad-avatar-gradient-2", "ad-avatar-gradient-3", "ad-avatar-gradient-4", "ad-avatar-gradient-5", "ad-avatar-gradient-6"];
@@ -900,8 +909,7 @@ const AdminDashboard = () => {
         setPasswordUser(null);
         toast.success("Password updated successfully");
       } else {
-        const data = await response.json();
-        toast.error(data.error || "Password update failed");
+        toast.error(await readApiError(response, "Password update failed"));
       }
     } catch (_error) {
       toast.error("Cannot connect to server");

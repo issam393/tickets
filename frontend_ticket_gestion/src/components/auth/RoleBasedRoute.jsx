@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../../lib/apiConfig";
 
 const API_BASE = API_BASE_URL;
 const INACTIVE_ACCOUNT_MESSAGE = "Your account is inactive. Please contact an administrator.";
+const ACCOUNT_CHECK_INTERVAL_MS = 60_000;
 
 function RoleBasedRoute({ allowedRoles, children }) {
   const user = getAuthUser();
@@ -32,6 +33,13 @@ function RoleBasedRoute({ allowedRoles, children }) {
         const payload = await response.json().catch(() => ({}));
 
         if (!response.ok) {
+          if (response.status === 429) {
+            if (isInitialCheck && isMounted) {
+              setAccess({ status: "rate-limited", role: null });
+            }
+            return;
+          }
+
           if (response.status === 401 || response.status === 403) {
             if (!isMounted) return;
             clearAuthStorage();
@@ -66,7 +74,7 @@ function RoleBasedRoute({ allowedRoles, children }) {
     };
 
     verifyActiveAccount(true);
-    const intervalId = window.setInterval(() => verifyActiveAccount(false), 5000);
+    const intervalId = window.setInterval(() => verifyActiveAccount(false), ACCOUNT_CHECK_INTERVAL_MS);
 
     return () => {
       isMounted = false;
@@ -90,6 +98,14 @@ function RoleBasedRoute({ allowedRoles, children }) {
     return (
       <div className="auth-verification-state auth-verification-error" role="alert">
         Unable to verify your account access. Please refresh or try again later.
+      </div>
+    );
+  }
+
+  if (access.status === "rate-limited") {
+    return (
+      <div className="auth-verification-state auth-verification-error" role="alert">
+        Too many requests were sent to the server. Please wait a few minutes, then refresh.
       </div>
     );
   }
