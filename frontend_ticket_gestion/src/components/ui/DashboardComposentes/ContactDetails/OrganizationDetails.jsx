@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { API_BASE_URL } from "../../../../lib/apiConfig";
 import { 
   ArrowLeft, 
   Building2, 
@@ -19,7 +20,7 @@ import {
 import toast from 'react-hot-toast';
 import './OrganizationDetails.css';
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:2300/api";
+const API = API_BASE_URL;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^\d{10}$/;
 

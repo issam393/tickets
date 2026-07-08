@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import "./Register.css";
 
+import { apiUrl } from "../../lib/apiConfig";
 function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +27,7 @@ function Register() {
     }
 
     try {
-      const response = await fetch("http://localhost:2300/api/auth/login", {
+      const response = await fetch(apiUrl("/auth/login"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

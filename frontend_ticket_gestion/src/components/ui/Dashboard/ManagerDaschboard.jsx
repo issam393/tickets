@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { API_ORIGIN } from "../../../lib/apiConfig";
 import {
   Activity,
   AlertOctagon,
@@ -32,7 +33,7 @@ import {
 } from 'recharts';
 import './ManagerDaschboard.css';
 
-const API_BASE = 'http://localhost:2300';
+const API_BASE = API_ORIGIN;
 const CHART_COLORS = ['#00d9ff', '#00f5a0', '#ffa500', '#7c3aed', '#ff4757', '#94a3b8'];
 const PERIOD_OPTIONS = [
   { value: 'yearly', label: 'Year' },

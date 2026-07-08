@@ -4,8 +4,9 @@ import { Search, Eye, Trash2, Edit, Check, X, Pencil, Plus } from "lucide-react"
 import toast from "react-hot-toast";
 import "./Contacts.css";
 import OrganizationDetails from "./ContactDetails/OrganizationDetails";
+import { API_BASE_URL } from "../../../lib/apiConfig";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:2300/api";
+const API = API_BASE_URL;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^\d{10}$/;
 

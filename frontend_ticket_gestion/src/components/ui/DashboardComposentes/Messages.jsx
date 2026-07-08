@@ -5,7 +5,8 @@ import toast from "react-hot-toast";
 import useChatRoom from "../../../hooks/useChatRoom";
 import "./Messages.css";
 
-const API_BASE = "http://localhost:2300";
+import { API_ORIGIN } from "../../../lib/apiConfig";
+const API_BASE = API_ORIGIN;
 
 function formatTimestamp(value) {
   if (!value) return "";

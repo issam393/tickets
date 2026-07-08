@@ -12,7 +12,7 @@ const create = async (req, res) => {
 
 const edit = async (req, res) => {
     try {
-        const result = await employeeService.editEmployee(req.params.id, req.body);
+        const result = await employeeService.editEmployee(req.params.id, req.body, req.user);
         sendSuccess(res, 200, 'Employee updated successfully', result);
     } catch (error) {
         sendError(res, getErrorStatus(error, 400), error.message);

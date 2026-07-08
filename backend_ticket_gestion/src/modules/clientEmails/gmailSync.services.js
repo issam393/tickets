@@ -4,6 +4,14 @@ const clientEmailService = require('./clientEmails.services');
 const { requireEnv } = require('../../config/env');
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
+const ALLOWED_ATTACHMENT_TYPES = new Set([
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain'
+]);
 const SYNC_DAYS = 30;
 const MAX_MESSAGES_PER_SYNC = 100;
 const DEFAULT_SYNC_INTERVAL_MS = 60 * 1000;
@@ -21,6 +29,7 @@ function getConfiguration() {
 function buildAttachmentPayload(attachment) {
     if (!attachment.content || attachment.content.length > MAX_ATTACHMENT_SIZE) return null;
     const contentType = attachment.contentType || 'application/octet-stream';
+    if (!ALLOWED_ATTACHMENT_TYPES.has(contentType)) return null;
     return {
         fileName: attachment.filename || 'attachment',
         mimeType: contentType,

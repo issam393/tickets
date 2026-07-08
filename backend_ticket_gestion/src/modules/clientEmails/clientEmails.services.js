@@ -1,10 +1,19 @@
 const clientEmailRepository = require('./clientEmails.repository');
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ALLOWED_ATTACHMENT_URI = /^(https?:\/\/|\/|data:)/i;
+const ALLOWED_ATTACHMENT_URI = /^data:([^;,]+)[;,]/i;
 const SERVICE_DELIVERY_INBOX = 'SD';
 const DEFAULT_EMAIL_SUBJECT = '(No subject)';
 const DEFAULT_EMAIL_CONTENT = 'This email did not include a text message.';
+const ALLOWED_ATTACHMENT_TYPES = new Set([
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain'
+]);
+const ALLOWED_ATTACHMENT_EXTENSIONS = new Set(['.pdf', '.jpg', '.jpeg', '.png', '.docx', '.xlsx', '.txt']);
 
 function normalizeTextField(value, fallback) {
     const normalized = String(value || '').trim();
@@ -14,16 +23,32 @@ function normalizeTextField(value, fallback) {
 function normalizeAttachment(attachment) {
     const fileName = String(attachment.fileName || '').trim();
     const fileUrl = String(attachment.fileUrl || '').trim();
+    const mimeType = attachment.mimeType ? String(attachment.mimeType).trim().toLowerCase() : '';
+    const lowerFileName = fileName.toLowerCase();
+    const hasAllowedExtension = [...ALLOWED_ATTACHMENT_EXTENSIONS].some((extension) => lowerFileName.endsWith(extension));
+
     if (!fileName || !fileUrl) {
         throw new Error('Attachment fileName and fileUrl are required');
     }
-    if (!ALLOWED_ATTACHMENT_URI.test(fileUrl)) {
+    if (!hasAllowedExtension) {
+        throw new Error('Attachment file type is not allowed');
+    }
+    if (!mimeType || !ALLOWED_ATTACHMENT_TYPES.has(mimeType)) {
+        throw new Error('Attachment MIME type is not allowed');
+    }
+
+    const dataUriMatch = fileUrl.match(ALLOWED_ATTACHMENT_URI);
+    if (!dataUriMatch) {
         throw new Error('Invalid attachment URL');
     }
+    if (dataUriMatch[1].toLowerCase() !== mimeType) {
+        throw new Error('Attachment MIME type does not match its data URL');
+    }
+
     return {
         fileName,
         fileUrl,
-        mimeType: attachment.mimeType ? String(attachment.mimeType).trim() : null,
+        mimeType,
         sizeBytes: attachment.sizeBytes !== undefined ? Number(attachment.sizeBytes) || null : null
     };
 }

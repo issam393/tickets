@@ -1,4 +1,5 @@
 import { GiCrenulatedShield } from 'react-icons/gi';
+import { apiUrl } from "../../../lib/apiConfig";
 import {
   AlertCircle,
   CheckCircle,
@@ -57,7 +58,7 @@ export default function Dashboard({ role, onViewAllTickets }) {
       if (!token) return;
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:2300/api/tickets', {
+        const response = await fetch(apiUrl('/tickets'), {
           headers: { Authorization: `Bearer ${token}` },
         });
         const payload = await response.json();

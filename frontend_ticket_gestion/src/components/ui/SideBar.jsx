@@ -13,8 +13,9 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import './SideBar.css';
+import { API_BASE_URL } from "../../lib/apiConfig";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:2300/api';
+const API_BASE = API_BASE_URL;
 
 function normalizeRole(role) {
   if (!role) return null;

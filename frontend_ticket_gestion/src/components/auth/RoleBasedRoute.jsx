@@ -3,8 +3,9 @@ import { Navigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import AccessDenied from "../ui/AccessDenied/AccessDenied";
 import { clearAuthStorage, getAuthUser, normalizeRole } from "../../lib/authAccess";
+import { API_BASE_URL } from "../../lib/apiConfig";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:2300/api";
+const API_BASE = API_BASE_URL;
 const INACTIVE_ACCOUNT_MESSAGE = "Your account is inactive. Please contact an administrator.";
 
 function RoleBasedRoute({ allowedRoles, children }) {

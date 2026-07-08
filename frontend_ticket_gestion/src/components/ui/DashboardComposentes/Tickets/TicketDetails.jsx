@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { apiUrl } from "../../../../lib/apiConfig";
 import {
   ArrowLeft,
   Paperclip,
@@ -106,7 +107,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:2300/api/tickets/${ticketId}`, {
+        const response = await fetch(apiUrl(`/tickets/${ticketId}`), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -135,7 +136,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
         setCommentsLoading(true);
         setCommentsError("");
         const response = await fetch(
-          `http://localhost:2300/api/tickets/${ticketId}/comments`,
+          apiUrl(`/tickets/${ticketId}/comments`),
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const payload = await response.json();
@@ -189,7 +190,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://localhost:2300/api/tickets/${ticketId}/comments`,
+        apiUrl(`/tickets/${ticketId}/comments`),
         {
           method: "POST",
           headers: {
@@ -223,7 +224,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://localhost:2300/api/tickets/${ticketId}/status`,
+        apiUrl(`/tickets/${ticketId}/status`),
         {
           method: "PUT",
           headers: {
@@ -262,7 +263,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     try {
       setIsSubmittingProposal(true);
       const response = await fetch(
-        `http://localhost:2300/api/tickets/${ticketId}/comments`,
+        apiUrl(`/tickets/${ticketId}/comments`),
         {
           method: "POST",
           headers: {
@@ -304,7 +305,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     try {
       setResolvingCommentId(commentId);
       const response = await fetch(
-        `http://localhost:2300/api/tickets/${ticketId}/resolve`,
+        apiUrl(`/tickets/${ticketId}/resolve`),
         {
           method: "PUT",
           headers: {
@@ -339,7 +340,7 @@ function TicketDetails({ ticketId, onBack, onMessages }) {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://localhost:2300/api/tickets/${ticketId}/assign`,
+        apiUrl(`/tickets/${ticketId}/assign`),
         {
           method: "PUT",
           headers: {

@@ -5,6 +5,7 @@ import { LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import './UserIdentityBar.css';
+import { apiUrl } from "../../../lib/apiConfig";
 
 export default function UserIdentityBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,7 +29,7 @@ export default function UserIdentityBar() {
 
     const fetchUserDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:2300/api/employees/me`, {
+        const response = await fetch(apiUrl(`/employees/me`), {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -77,7 +78,7 @@ const handleLogout = async () => {
     }
     
     try {
-        const response = await fetch("http://localhost:2300/api/auth/logout", {
+        const response = await fetch(apiUrl("/auth/logout"), {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`

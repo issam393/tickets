@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { apiUrl } from "../../../lib/apiConfig";
 import {
   Mail,
   Paperclip,
@@ -272,7 +273,7 @@ function EmailTicketCard({ ticket, expanded, onToggle }) {
               <div className="email-attachment-grid">
                 {ticket.attachments.map((attachment) => (
                   <div className="email-attachment-card" key={attachment.id || attachment.fileName}>
-                    {String(attachment.mimeType || '').startsWith('image/') && (
+                    {['image/png', 'image/jpeg'].includes(String(attachment.mimeType || '').toLowerCase()) && (
                       <img
                         className="email-attachment-preview"
                         src={attachment.fileUrl}
@@ -322,7 +323,7 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedContact, setSelected
   useEffect(() => {
     const fetchOrgs = async () => {
       try {
-        const res = await fetch('http://localhost:2300/api/organizations', {
+        const res = await fetch(apiUrl('/organizations'), {
           headers: { Authorization: `Bearer ${token}` }
         });
         const json = await res.json();
@@ -344,7 +345,7 @@ function SidebarCard({ selectedOrg, setSelectedOrg, selectedContact, setSelected
     const fetchContacts = async () => {
       setContactsLoading(true);
       try {
-        const res = await fetch(`http://localhost:2300/api/organizations/${selectedOrg.id}/contacts`, {
+        const res = await fetch(apiUrl(`/organizations/${selectedOrg.id}/contacts`), {
           headers: { Authorization: `Bearer ${token}` }
         });
         const json = await res.json();
@@ -575,7 +576,7 @@ export default function CreateTicket() {
 
   const fetchNextRequestCode = async () => {
     try {
-      const response = await fetch('http://localhost:2300/api/tickets/next-request-code', {
+      const response = await fetch(apiUrl('/tickets/next-request-code'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const payload = await response.json();
@@ -596,7 +597,7 @@ export default function CreateTicket() {
         setEmailsLoading(true);
         setEmailsError('');
       }
-      const response = await fetch('http://localhost:2300/api/client-emails', {
+      const response = await fetch(apiUrl('/client-emails'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const payload = await response.json();
@@ -678,7 +679,7 @@ Received attachments: ${ticket.attachments?.length ? ticket.attachments.map((fil
     try {
       setIsSubmitting(true);
 
-      const response = await fetch('http://localhost:2300/api/tickets', {
+      const response = await fetch(apiUrl('/tickets'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -737,7 +738,7 @@ Received attachments: ${ticket.attachments?.length ? ticket.attachments.map((fil
       message.id === ticketId ? { ...message, isRead: true } : message
     )));
     try {
-      const response = await fetch(`http://localhost:2300/api/client-emails/${ticketId}/read`, {
+      const response = await fetch(apiUrl(`/client-emails/${ticketId}/read`), {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` }
       });

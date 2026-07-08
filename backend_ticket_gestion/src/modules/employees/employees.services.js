@@ -15,13 +15,26 @@ const createEmployee = async (employeeData) => {
     return await employeeRepository.create(employeeData);
 };
 
-const editEmployee = async (id, employeeData) => {
-    await updateEmployeeValidation(employeeData);
-    if (employeeData.password) {
-        employeeData.password = await bcrypt.hash(employeeData.password, 10);
+const SELF_EDIT_FIELDS = ['firstName', 'lastName', 'email', 'userName', 'password'];
+
+function normalizeService(service) {
+    return String(service || '').trim().toUpperCase();
+}
+
+const editEmployee = async (id, employeeData, actor = {}) => {
+    const isAdmin = normalizeService(actor.service) === 'ADMIN';
+    const safeEmployeeData = isAdmin
+        ? { ...employeeData }
+        : Object.fromEntries(
+            Object.entries(employeeData).filter(([key]) => SELF_EDIT_FIELDS.includes(key))
+        );
+
+    await updateEmployeeValidation(safeEmployeeData);
+    if (safeEmployeeData.password) {
+        safeEmployeeData.password = await bcrypt.hash(safeEmployeeData.password, 10);
     }
-    const result = await employeeRepository.update(id, employeeData);
-    if (employeeData.status === 'Inactive') {
+    const result = await employeeRepository.update(id, safeEmployeeData);
+    if (isAdmin && safeEmployeeData.status === 'Inactive') {
         disconnectEmployee(id);
     }
     return result;

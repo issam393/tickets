@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const socketAuthMiddleware = require('./auth.middleware');
 // Importe les evenements de chat: join_room, send_message et mark_room_read.
 const registerChatHandlers = require('./chat.handlers');
+const { parseAllowedOrigins } = require('../middleware/security');
 
 // Garde une reference globale vers l'instance Socket.IO pour la reutiliser ailleurs.
 let ioInstance = null;
@@ -14,8 +15,7 @@ function initializeSocket(server) {
     ioInstance = new Server(server, {
         // Autorise les connexions socket venant du frontend.
         cors: {
-            // Accepte toutes les origines en developpement.
-            origin: '*',
+            origin: parseAllowedOrigins(),
             // Autorise les methodes HTTP utilisees pendant le handshake Socket.IO.
             methods: ['GET', 'POST']
         }

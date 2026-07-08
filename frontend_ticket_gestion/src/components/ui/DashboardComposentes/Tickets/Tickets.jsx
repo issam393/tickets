@@ -3,7 +3,8 @@ import { IoTicketSharp } from "react-icons/io5";
 import { Search, Lock } from "lucide-react";
 import "./Tickets.css";
 
-const API_BASE = "http://localhost:2300";
+import { API_ORIGIN } from "../../../../lib/apiConfig";
+const API_BASE = API_ORIGIN;
 
 function getStatusTone(status) {
   if (status === "Resolved") return "success";

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { API_ORIGIN } from "../../../lib/apiConfig";
 import {
   Clock, CheckCircle2, Calendar as CalendarIcon, AlertCircle,
   X, Check, User, Users, MapPin, Ticket, Plus, Pencil, Trash2, Building
@@ -7,7 +8,7 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 import "./Meetings.css";
 
-const API_BASE = "http://localhost:2300";
+const API_BASE = API_ORIGIN;
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();

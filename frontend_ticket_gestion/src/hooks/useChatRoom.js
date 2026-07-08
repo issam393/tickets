@@ -2,9 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 // Importe le client Socket.IO utilise par le frontend.
 import { io } from "socket.io-client";
-
-// Adresse du backend Socket.IO.
-const SOCKET_URL = "http://localhost:2300";
+import { SOCKET_URL } from "../lib/apiConfig";
 
 // Normalise le format d'un message recu du backend.
 function normalizeMessage(message) {

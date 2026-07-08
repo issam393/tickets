@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../../../lib/apiConfig";
 import {
   ArrowLeft,
   User as UserIcon,
@@ -218,7 +219,7 @@ const PasswordChangeModal = ({ isOpen, onClose }) => {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
       
-      const response = await fetch(`http://localhost:2300/api/employees/EditEmp/${userId}`, {
+      const response = await fetch(apiUrl(`/employees/EditEmp/${userId}`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -303,7 +304,7 @@ const ProfilePage = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("http://localhost:2300/api/employees/me", {
+      const response = await fetch(apiUrl("/employees/me"), {
         headers: { Authorization: `Bearer ${token}` },
       });
     
@@ -327,7 +328,7 @@ const ProfilePage = () => {
 
   const updateField = async (field, value) => {
     try {
-      const response = await fetch(`http://localhost:2300/api/employees/EditEmp/${userId}`, {
+      const response = await fetch(apiUrl(`/employees/EditEmp/${userId}`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

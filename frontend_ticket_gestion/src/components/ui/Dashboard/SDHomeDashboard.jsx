@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { API_ORIGIN } from "../../../lib/apiConfig";
 import {
   AlertTriangle,
   ArrowRight,
@@ -17,7 +18,7 @@ import {
 } from 'lucide-react';
 import './SDHomeDashboard.css';
 
-const API_BASE = 'http://localhost:2300';
+const API_BASE = API_ORIGIN;
 
 function getUserToken() {
   return localStorage.getItem('token');

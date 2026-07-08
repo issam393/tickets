@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { apiUrl } from "../../lib/apiConfig";
 import {
   Activity,
   CheckCircle2,
@@ -537,7 +538,6 @@ const CreateUserModalComponent = ({ open, onOpenChange, onCreate }) => {
       case "password":
         if (!value) error = "Password is required";
         else {
-          const checks = [];
           error = validatePasswordValue(value);
         }
         break;
@@ -745,7 +745,7 @@ const AdminDashboard = () => {
         return;
       }
   
-      const response = await fetch("http://localhost:2300/api/employees/GetAllEmps", {
+      const response = await fetch(apiUrl("/employees/GetAllEmps"), {
         headers: { "Authorization": `Bearer ${token}` }
       });
       
@@ -812,7 +812,7 @@ const AdminDashboard = () => {
   const handleToggleStatus = async (user) => {
     const newStatus = user.status === "Active" ? "Inactive" : "Active";
     try {
-      const response = await fetch(`http://localhost:2300/api/employees/EditEmp/${user.id}`, {
+      const response = await fetch(apiUrl(`/employees/EditEmp/${user.id}`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -843,7 +843,7 @@ const AdminDashboard = () => {
         status: updated.status
       };
 
-      const response = await fetch(`http://localhost:2300/api/employees/EditEmp/${updated.id}`, {
+      const response = await fetch(apiUrl(`/employees/EditEmp/${updated.id}`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -867,7 +867,7 @@ const AdminDashboard = () => {
   const handleConfirmDelete = async () => {
     if (!deleting) return;
     try {
-      const response = await fetch(`http://localhost:2300/api/employees/DeleteEmp/${deleting.id}`, {
+      const response = await fetch(apiUrl(`/employees/DeleteEmp/${deleting.id}`), {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -887,7 +887,7 @@ const AdminDashboard = () => {
   const handleChangePassword = async (user, password) => {
     if (!user) return;
     try {
-      const response = await fetch(`http://localhost:2300/api/employees/ChangePassword/${user.id}`, {
+      const response = await fetch(apiUrl(`/employees/ChangePassword/${user.id}`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -920,7 +920,7 @@ const AdminDashboard = () => {
         status: newUserData.status
       };
 
-      const response = await fetch("http://localhost:2300/api/employees/InsertEmp", {
+      const response = await fetch(apiUrl("/employees/InsertEmp"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

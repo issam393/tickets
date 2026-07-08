@@ -6,9 +6,10 @@ dotenv.config();
 
 const authRepository = require('./auth.repository');
 const { validateLogin } = require('./auth.validation');
-const { requireEnv } = require('../../config/env');
+const { requireEnv, optionalEnv } = require('../../config/env');
 
 const JWT_SECRET = requireEnv('JWT_SECRET');
+const JWT_EXPIRES_IN = optionalEnv('JWT_EXPIRES_IN', '1d');
 const INACTIVE_ACCOUNT_MESSAGE = 'Your account is inactive. Please contact an administrator.';
 
 
@@ -35,7 +36,7 @@ async function login(userData) {
     const token = jwt.sign(
         { id: user.id, username: user.userName, service: user.service_name },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: JWT_EXPIRES_IN }
     );
     
     return { 

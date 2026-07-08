@@ -38,6 +38,19 @@ const requireAdmin = roleCheck(['ADMIN']);
 const requireServiceDeliveryOrManager = roleCheck(['SD', 'Manager']);
 const requireServiceDeliveryOrManagerOrSupport = roleCheck(['SD', 'Manager', 'PKI', 'IT']);
 
+const requireAdminOrSelf = (req, res, next) => {
+    if (!req.user) {
+        return sendError(res, 401, 'Unauthorized');
+    }
+
+    const userService = normalizeService(req.user.service);
+    req.user.service = userService;
+    if (userService === 'ADMIN' || String(req.user.id) === String(req.params.id)) {
+        return next();
+    }
+
+    return sendError(res, 403, ACCESS_DENIED_MESSAGE);
+};
 
 const requireTicketAccess = (ticketRepository) => {
     return async (req, res, next) => {
@@ -89,6 +102,7 @@ module.exports = {
     requirePKI,
     requireIT,
     requireAdmin,
+    requireAdminOrSelf,
     requireServiceDeliveryOrManager,
     requireServiceDeliveryOrManagerOrSupport,
     requireTicketAccess,
