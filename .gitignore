@@ -3,4 +3,4 @@ node_modules/
 dist/
 build/
 .vscode
-
+backend_ticket_gestion/src/adminInsertion.js
