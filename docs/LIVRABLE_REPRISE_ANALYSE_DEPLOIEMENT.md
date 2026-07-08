@@ -184,8 +184,6 @@ Le code source complet est livré dans le dépôt `full_stuck_ticket_gestion`. L
 - `issampapa.session.sql`
 - `package-lock.json`
 - `package.json`
-- `pols_workcopy.pages`
-- `tmp_generate_livrable_documentation.py`
 
 ## 4. Architecture générale
 
