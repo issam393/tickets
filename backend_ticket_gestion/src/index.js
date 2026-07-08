@@ -8,7 +8,7 @@ const { startAutomaticGmailSync } = require("./modules/clientEmails/gmailSync.se
 
 dotenv.config();
 
-const PORT = process.env.PORT || 2300;
+const PORT = process.env.PORT ;
 const server = http.createServer(app);
 
 initializeSocket(server);
